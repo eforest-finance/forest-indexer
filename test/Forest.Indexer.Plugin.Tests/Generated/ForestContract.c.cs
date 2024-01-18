@@ -315,6 +315,7 @@ namespace Forest {
     static readonly aelf::Marshaller<global::Forest.BatchDeListInput> __Marshaller_Forest_BatchDeListInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.BatchDeListInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.MakeOfferInput> __Marshaller_Forest_MakeOfferInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.MakeOfferInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.CancelOfferInput> __Marshaller_Forest_CancelOfferInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.CancelOfferInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.CancelOfferListByExpireTimeInput> __Marshaller_Forest_CancelOfferListByExpireTimeInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.CancelOfferListByExpireTimeInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.BatchBuyNowInput> __Marshaller_Forest_BatchBuyNowInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.BatchBuyNowInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.SetRoyaltyInput> __Marshaller_Forest_SetRoyaltyInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.SetRoyaltyInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.SetTokenWhiteListInput> __Marshaller_Forest_SetTokenWhiteListInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.SetTokenWhiteListInput.Parser.ParseFrom);
@@ -389,6 +390,13 @@ namespace Forest {
         __ServiceName,
         "CancelOffer",
         __Marshaller_Forest_CancelOfferInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.CancelOfferListByExpireTimeInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_CancelOfferListByExpireTime = new aelf::Method<global::Forest.CancelOfferListByExpireTimeInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "CancelOfferListByExpireTime",
+        __Marshaller_Forest_CancelOfferListByExpireTimeInput,
         __Marshaller_google_protobuf_Empty);
 
     static readonly aelf::Method<global::Forest.BatchBuyNowInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_BatchBuyNow = new aelf::Method<global::Forest.BatchBuyNowInput, global::Google.Protobuf.WellKnownTypes.Empty>(
@@ -558,186 +566,6 @@ namespace Forest {
       }
     }
     #endregion
-
-    /// <summary>Base class for the contract of ForestContract</summary>
-    public abstract partial class ForestContractBase
-    {
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty Initialize(global::Forest.InitializeInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty ListWithFixedPrice(global::Forest.ListWithFixedPriceInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty Deal(global::Forest.DealInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty Delist(global::Forest.DelistInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty BatchDeList(global::Forest.BatchDeListInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty MakeOffer(global::Forest.MakeOfferInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty CancelOffer(global::Forest.CancelOfferInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty BatchBuyNow(global::Forest.BatchBuyNowInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetRoyalty(global::Forest.SetRoyaltyInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetTokenWhiteList(global::Forest.SetTokenWhiteListInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetAdministrator(global::AElf.Types.Address input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetServiceFee(global::Forest.SetServiceFeeInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetGlobalTokenWhiteList(global::Forest.StringList input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetWhitelistContract(global::AElf.Types.Address input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetBizConfig(global::Forest.BizConfig input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetOfferTotalAmount(global::Forest.SetOfferTotalAmountInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.ListedNFTInfoList GetListedNFTInfoList(global::Forest.GetListedNFTInfoListInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.GetWhitelistIdOutput GetWhitelistId(global::Forest.GetWhitelistIdInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.AddressList GetOfferAddressList(global::Forest.GetAddressListInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.OfferList GetOfferList(global::Forest.GetOfferListInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.StringList GetTokenWhiteList(global::Google.Protobuf.WellKnownTypes.StringValue input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.StringList GetGlobalTokenWhiteList(global::Google.Protobuf.WellKnownTypes.Empty input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.RoyaltyInfo GetRoyalty(global::Forest.GetRoyaltyInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.ServiceFeeInfo GetServiceFeeInfo(global::Google.Protobuf.WellKnownTypes.Empty input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::AElf.Types.Address GetAdministrator(global::Google.Protobuf.WellKnownTypes.Empty input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.BizConfig GetBizConfig(global::Google.Protobuf.WellKnownTypes.Empty input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.GetTotalOfferAmountOutput GetTotalOfferAmount(global::Forest.GetTotalOfferAmountInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-      public virtual global::Forest.GetTotalEffectiveListedNFTAmountOutput GetTotalEffectiveListedNFTAmount(global::Forest.GetTotalEffectiveListedNFTAmountInput input)
-      {
-        throw new global::System.NotImplementedException();
-      }
-
-    }
-
-    public static aelf::ServerServiceDefinition BindService(ForestContractBase serviceImpl)
-    {
-      return aelf::ServerServiceDefinition.CreateBuilder()
-          .AddDescriptors(Descriptors)
-          .AddMethod(__Method_Initialize, serviceImpl.Initialize)
-          .AddMethod(__Method_ListWithFixedPrice, serviceImpl.ListWithFixedPrice)
-          .AddMethod(__Method_Deal, serviceImpl.Deal)
-          .AddMethod(__Method_Delist, serviceImpl.Delist)
-          .AddMethod(__Method_BatchDeList, serviceImpl.BatchDeList)
-          .AddMethod(__Method_MakeOffer, serviceImpl.MakeOffer)
-          .AddMethod(__Method_CancelOffer, serviceImpl.CancelOffer)
-          .AddMethod(__Method_BatchBuyNow, serviceImpl.BatchBuyNow)
-          .AddMethod(__Method_SetRoyalty, serviceImpl.SetRoyalty)
-          .AddMethod(__Method_SetTokenWhiteList, serviceImpl.SetTokenWhiteList)
-          .AddMethod(__Method_SetAdministrator, serviceImpl.SetAdministrator)
-          .AddMethod(__Method_SetServiceFee, serviceImpl.SetServiceFee)
-          .AddMethod(__Method_SetGlobalTokenWhiteList, serviceImpl.SetGlobalTokenWhiteList)
-          .AddMethod(__Method_SetWhitelistContract, serviceImpl.SetWhitelistContract)
-          .AddMethod(__Method_SetBizConfig, serviceImpl.SetBizConfig)
-          .AddMethod(__Method_SetOfferTotalAmount, serviceImpl.SetOfferTotalAmount)
-          .AddMethod(__Method_GetListedNFTInfoList, serviceImpl.GetListedNFTInfoList)
-          .AddMethod(__Method_GetWhitelistId, serviceImpl.GetWhitelistId)
-          .AddMethod(__Method_GetOfferAddressList, serviceImpl.GetOfferAddressList)
-          .AddMethod(__Method_GetOfferList, serviceImpl.GetOfferList)
-          .AddMethod(__Method_GetTokenWhiteList, serviceImpl.GetTokenWhiteList)
-          .AddMethod(__Method_GetGlobalTokenWhiteList, serviceImpl.GetGlobalTokenWhiteList)
-          .AddMethod(__Method_GetRoyalty, serviceImpl.GetRoyalty)
-          .AddMethod(__Method_GetServiceFeeInfo, serviceImpl.GetServiceFeeInfo)
-          .AddMethod(__Method_GetAdministrator, serviceImpl.GetAdministrator)
-          .AddMethod(__Method_GetBizConfig, serviceImpl.GetBizConfig)
-          .AddMethod(__Method_GetTotalOfferAmount, serviceImpl.GetTotalOfferAmount)
-          .AddMethod(__Method_GetTotalEffectiveListedNFTAmount, serviceImpl.GetTotalEffectiveListedNFTAmount).Build();
-    }
-
   }
 }
 #endregion

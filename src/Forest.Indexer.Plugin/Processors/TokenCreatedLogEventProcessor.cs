@@ -3,9 +3,9 @@ using AElf.Contracts.MultiToken;
 using AElfIndexer.Client;
 using AElfIndexer.Client.Handlers;
 using AElfIndexer.Grains.State.Client;
+using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
-using Forest.Indexer.Plugin.Processors.Provider;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -30,6 +30,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
     private readonly ITokenInfoProvider _tokenInfoProvider;
     private readonly IProxyAccountProvider _proxyAccountProvider;
     private readonly ILogger<AElfLogEventProcessorBase<TokenCreated, LogEventInfo>> _logger;
+    private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
 
     public TokenCreatedLogEventProcessor(ILogger<AElfLogEventProcessorBase<TokenCreated, LogEventInfo>> logger
         , IObjectMapper objectMapper
@@ -42,6 +43,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         , ITokenInfoProvider tokenInfoProvider
         , IProxyAccountProvider proxyAccountProvider
         , IOptionsSnapshot<ContractInfoOptions> contractInfoOptions, 
+        IAElfClientServiceProvider aElfClientServiceProvider,
         IAElfIndexerClientEntityRepository<CollectionChangeIndex, LogEventInfo> collectionChangeIndexRepository) : base(logger)
     {
         _objectMapper = objectMapper;
@@ -55,6 +57,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         _proxyAccountProvider = proxyAccountProvider;
         _collectionChangeIndexRepository = collectionChangeIndexRepository;
         _logger = logger;
+        _aElfClientServiceProvider = aElfClientServiceProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -80,11 +83,33 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         {   _logger.Debug("TokenCreatedLogEventProcessor-4");
             var ownedSymbol = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
                 TokenCreatedExternalInfoEnum.SeedOwnedSymbol);
-            var tsmSeedSymbolIndexId = IdGenerateHelper.GetTsmSeedSymbolId(ForestIndexerConstants.MainChain,ownedSymbol);
-            var tsmSeedSymbolIndex =
-                await _tsmSeedSymbolIndexRepository.GetFromBlockStateSetAsync(tsmSeedSymbolIndexId,
-                    ForestIndexerConstants.MainChain);
+            var tsmSeedSymbolIndexId = IdGenerateHelper.GetTsmSeedSymbolId(context.ChainId, ownedSymbol);
+            TsmSeedSymbolIndex tsmSeedSymbolIndex = null;
+            if (context.ChainId == ForestIndexerConstants.MainChain)
+            {
+                _logger.LogInformation(
+                    "[TokenCreatedLogEventProcessor] Seed Token Create at mainChain: {tsmSeedSymbolIndexId} ",
+                    tsmSeedSymbolIndexId);
+                tsmSeedSymbolIndex =
+                    await _tsmSeedSymbolIndexRepository.GetFromBlockStateSetAsync(tsmSeedSymbolIndexId,
+                        context.ChainId);
+                _logger.LogInformation(
+                    "[TokenCreatedLogEventProcessor] Seed Token Create at mainChain then search: {tsmSeedSymbolIndexId} build {tsmSeedSymbolIndex}",
+                    tsmSeedSymbolIndexId, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+            }
+            else
+            {
+                _logger.LogInformation(
+                    "[TokenCreatedLogEventProcessor] Seed Token Create at no mainChain: {tsmSeedSymbolIndexId} ",
+                    tsmSeedSymbolIndexId);
+                tsmSeedSymbolIndex = await BuildNoMainChainTsmSeedSymbolIndex(context, eventValue.Symbol, ownedSymbol);
+                _logger.LogInformation(
+                    "[TokenCreatedLogEventProcessor] Seed Token Create at no mainChain then build: {tsmSeedSymbolIndexId} build {tsmSeedSymbolIndex}",
+                    tsmSeedSymbolIndexId, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+            }
+
             if (tsmSeedSymbolIndex == null) return;
+            
             await HandleForSeedSymbolCreateAsync(eventValue, context, tsmSeedSymbolIndex);
             return;
         }
@@ -111,33 +136,91 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         }
     }
 
-    private async Task HandleForNoMainChainSymbolMarketTokenAsync(TokenCreated eventValue, LogEventContext context)
+    private async Task<TsmSeedSymbolIndex> BuildNoMainChainTsmSeedSymbolIndex(LogEventContext context, string seedSymbol,
+        String seedOwnedSymbol)
     {
-        var mainChainTsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(ForestIndexerConstants.MainChain, eventValue.Symbol);
-        var mainChainTsmSeedSymbolIndex =
-            await _tsmSeedSymbolIndexRepository.GetFromBlockStateSetAsync(mainChainTsmSeedSymbolIndexId,
-                ForestIndexerConstants.MainChain);
-        _logger.Debug("TokenCreatedLogEventProcessor-8"+"  "+mainChainTsmSeedSymbolIndexId+" "+JsonConvert.SerializeObject(mainChainTsmSeedSymbolIndex));
-        if (mainChainTsmSeedSymbolIndex == null) return;
-        if (mainChainTsmSeedSymbolIndex.Status != SeedStatus.REGISTERED)
+        var tsmSeedSymbolIndex = new TsmSeedSymbolIndex();
+        _objectMapper.Map(context, tsmSeedSymbolIndex);
+
+        var address = _contractInfoOptions.ContractInfos
+            .First(c => c.ChainId == ForestIndexerConstants.MainChain)
+            .SymbolRegistrarContractAddress;
+
+        var specialSeed =
+            await _aElfClientServiceProvider.GetSpecialSeedAsync(ForestIndexerConstants.MainChain, seedOwnedSymbol,
+                address);
+
+        var imageUrlPrefix = await _aElfClientServiceProvider.GetSeedImageUrlPrefixAsync(ForestIndexerConstants.MainChain,
+            address);
+        var imageUrl = (imageUrlPrefix!=null && !imageUrlPrefix.Value.IsNullOrEmpty())
+            ? imageUrlPrefix.Value + seedSymbol + ForestIndexerConstants.SeedImageType
+            : "";
+        tsmSeedSymbolIndex.Id = IdGenerateHelper.GetSeedSymbolId(context.ChainId, seedOwnedSymbol);
+        tsmSeedSymbolIndex.SeedImage = imageUrl;
+        tsmSeedSymbolIndex.Symbol = seedOwnedSymbol;
+        tsmSeedSymbolIndex.SeedName = IdGenerateHelper.GetSeedName(seedOwnedSymbol);
+        tsmSeedSymbolIndex.SeedSymbol = seedSymbol;
+        tsmSeedSymbolIndex.TokenType = TokenHelper.GetTokenType(seedOwnedSymbol);
+        tsmSeedSymbolIndex.IsBurned = true;
+        tsmSeedSymbolIndex.Status = SeedStatus.UNREGISTERED;
+        _logger.LogInformation(
+            "[TokenCreatedLogEventProcessor] mainChain TsmSeed is null specialSeed : {specialSeed}",JsonConvert.SerializeObject(specialSeed));
+
+        if (specialSeed != null && specialSeed.SeedType == SeedType.Unique)
         {
-            _objectMapper.Map(context, mainChainTsmSeedSymbolIndex);
-            mainChainTsmSeedSymbolIndex.Status = SeedStatus.REGISTERED;
-            mainChainTsmSeedSymbolIndex.ChainId = ForestIndexerConstants.MainChain;
-            await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(mainChainTsmSeedSymbolIndex);
-            var mainChainSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, mainChainTsmSeedSymbolIndex.SeedSymbol);
-            var mainChainSeedSymbolIndex =
-                await _seedSymbolIndexRepository.GetFromBlockStateSetAsync(mainChainSeedSymbolIndexId,
-                    ForestIndexerConstants.MainChain);
-            if (mainChainSeedSymbolIndex != null)
+            tsmSeedSymbolIndex.SeedType = specialSeed.SeedType;
+            tsmSeedSymbolIndex.AuctionType = specialSeed.AuctionType;
+            tsmSeedSymbolIndex.TokenPrice = new TokenPriceInfo()
             {
-                _objectMapper.Map(context, mainChainSeedSymbolIndex);
-                mainChainSeedSymbolIndex.SeedStatus = SeedStatus.REGISTERED;
-                mainChainSeedSymbolIndex.ChainId = ForestIndexerConstants.MainChain;
-                await _seedSymbolIndexRepository.AddOrUpdateAsync(mainChainSeedSymbolIndex);
+                Symbol = specialSeed.PriceSymbol,
+                Amount = specialSeed.PriceAmount
+            };
+            
+            if (specialSeed.SeedType == SeedType.Disable)
+            {
+                tsmSeedSymbolIndex.Status = SeedStatus.NOTSUPPORT;
             }
         }
-        _logger.Debug("TokenCreatedLogEventProcessor-9"+"  "+mainChainTsmSeedSymbolIndexId+" "+JsonConvert.SerializeObject(mainChainTsmSeedSymbolIndex));
+        else
+        {
+            tsmSeedSymbolIndex.SeedType = SeedType.Regular;
+            tsmSeedSymbolIndex.AuctionType = AuctionType.None;
+            
+            var seedsPrice = await _aElfClientServiceProvider.GetSeedsPriceAsync(ForestIndexerConstants.MainChain,
+                address);
+
+            PriceItem tokenPrice = null;
+            if (tsmSeedSymbolIndex.TokenType == TokenType.NFT)
+            {
+                _logger.LogInformation(
+                    "[TokenCreatedLogEventProcessor] mainChain TsmSeed is null TokenType is NFT : {SeedSymbol}",tsmSeedSymbolIndex.SeedSymbol);
+                
+                tokenPrice = seedsPrice?.NftPriceList?.Value?.FirstOrDefault(i => i.SymbolLength == seedOwnedSymbol.Length);
+            }
+            else
+            {
+                _logger.LogInformation(
+                    "[TokenCreatedLogEventProcessor] mainChain TsmSeed is null TokenType is NOT NFT : {SeedSymbol}",tsmSeedSymbolIndex.SeedSymbol);
+                tokenPrice = seedsPrice?.FtPriceList?.Value?.FirstOrDefault(i => i.SymbolLength == seedOwnedSymbol.Length);
+            }
+
+            _logger.LogInformation(
+                "[TokenCreatedLogEventProcessor] mainChain TsmSeed is null tokenPrice is : {tokenPriceSymbol} {tokenSymbolLength}",tokenPrice?.Symbol,tokenPrice?.SymbolLength);
+            tokenPrice = seedsPrice?.FtPriceList?.Value?.FirstOrDefault(i => i.SymbolLength == seedOwnedSymbol.Length);
+            if (tokenPrice != null)
+            {
+                tsmSeedSymbolIndex.TokenPrice = new TokenPriceInfo()
+                {
+                    Symbol = tokenPrice.Symbol,
+                    Amount = tokenPrice.Amount
+                };
+            }
+        }
+        return tsmSeedSymbolIndex;
+    }
+
+    private async Task HandleForNoMainChainSymbolMarketTokenAsync(TokenCreated eventValue, LogEventContext context)
+    {
         var noMainTsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
         var noMainTsmSeedSymbolIndex =
             await _tsmSeedSymbolIndexRepository.GetFromBlockStateSetAsync(noMainTsmSeedSymbolIndexId,
@@ -165,11 +248,33 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         _logger.Debug("TokenCreatedLogEventProcessor-12"+"  "+symbolMarketTokenIndexId+" "+JsonConvert.SerializeObject(symbolMarketTokenIndex));
         if (symbolMarketTokenIndex != null) return;
         
-        var mainChainSymbolMarketTokenIndexId = IdGenerateHelper.GetSymbolMarketTokenId(ForestIndexerConstants.MainChain, eventValue.Symbol);
-        var mainChainSymbolMarketTokenIndex =
-            await _symbolMarketTokenIndexRepository.GetFromBlockStateSetAsync(mainChainSymbolMarketTokenIndexId,
-                ForestIndexerConstants.MainChain);
-        
+        var ownerContractAddress = _contractInfoOptions.ContractInfos
+            .First(c => c.ChainId == ForestIndexerConstants.MainChain)
+            .ProxyAccountContractAddress;
+        var issueChainContractAddress = _contractInfoOptions.ContractInfos
+            .First(c => c.ChainId == ChainHelper.ConvertChainIdToBase58(eventValue.IssueChainId))
+            .ProxyAccountContractAddress;
+
+        var proxyAccountForOwner =
+            await _aElfClientServiceProvider.GetProxyAccountByProxyAccountAddressAsync(ForestIndexerConstants.MainChain,
+                ownerContractAddress, eventValue.Owner);
+        var ownerManegerList =
+            proxyAccountForOwner?.ManagementAddresses?
+                .Where(item => item != null)
+                .Select(item => item.Address?.ToBase58())
+                .Where(address => address != null)
+                .ToList() ?? new List<string>();
+
+        var proxyAccountForIssue =
+            await _aElfClientServiceProvider.GetProxyAccountByProxyAccountAddressAsync(ChainHelper.ConvertChainIdToBase58(eventValue.IssueChainId),
+                issueChainContractAddress, eventValue.Issuer);
+        var issueManegerList =
+            proxyAccountForIssue?.ManagementAddresses?
+                .Where(item => item != null)
+                .Select(item => item.Address?.ToBase58())
+                .Where(address => address != null)
+                .ToList() ?? new List<string>();
+
         symbolMarketTokenIndex = new SeedSymbolMarketTokenIndex()
         {
             Id = symbolMarketTokenIndexId,
@@ -185,10 +290,10 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
             IsBurnable = eventValue.IsBurnable,
             Owner = eventValue.Owner.ToBase58(),
             Issuer = eventValue.Issuer.ToBase58(),
-            IssueManagerSet = mainChainSymbolMarketTokenIndex?.IssueManagerSet,
-            RandomIssueManager = mainChainSymbolMarketTokenIndex?.RandomIssueManager,
-            OwnerManagerSet = mainChainSymbolMarketTokenIndex?.OwnerManagerSet,
-            RandomOwnerManager = mainChainSymbolMarketTokenIndex?.RandomOwnerManager
+            IssueManagerSet = new HashSet<string>(issueManegerList),
+            RandomIssueManager = issueManegerList?.FirstOrDefault(),
+            OwnerManagerSet = new HashSet<string>(ownerManegerList),
+            RandomOwnerManager = ownerManegerList?.FirstOrDefault(),
         };
 
         if (eventValue.ExternalInfo.Value.ContainsKey(
@@ -252,6 +357,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
     private async Task DoHandleForSeedSymbolCreateAsync(TokenCreated eventValue, LogEventContext context,
         TsmSeedSymbolIndex tsmSeedSymbolIndex)
     {
+        bool sameChainIdFlag = context.ChainId == tsmSeedSymbolIndex.ChainId;
         var seedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
         var seedSymbolIndex = _objectMapper.Map<TokenCreated, SeedSymbolIndex>(eventValue);
         seedSymbolIndex.ExternalInfoDictionary = eventValue.ExternalInfo.Value
@@ -287,10 +393,31 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         {
             seedSymbolIndex.SeedExpTimeSecond = seedExpTimeSecond;
             seedSymbolIndex.SeedExpTime = DateTimeHelper.FromUnixTimeSeconds(seedExpTimeSecond);
+            tsmSeedSymbolIndex.ExpireTime = seedExpTimeSecond;
         }
 
         _objectMapper.Map(context, seedSymbolIndex);
         _logger.Debug("TokenCreatedLogEventProcessor-41"+JsonConvert.SerializeObject(seedSymbolIndex));
+        tsmSeedSymbolIndex.RegisterTime = DateTimeHelper.ToUnixTimeMilliseconds(context.BlockTime);
+
+        if (sameChainIdFlag)
+        {
+            _logger.Debug("TokenCreatedLogEventProcessor-41-1"+JsonConvert.SerializeObject(seedSymbolIndex));
+            await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(tsmSeedSymbolIndex);
+        }
+        else if(!sameChainIdFlag && tsmSeedSymbolIndex.ChainId == ForestIndexerConstants.MainChain)
+        {
+            _logger.Debug("TokenCreatedLogEventProcessor-41-2"+JsonConvert.SerializeObject(seedSymbolIndex));
+            var tsmSeedSymbolIndexIdNoMainChainId =
+                IdGenerateHelper.GetSeedSymbolId(context.ChainId, tsmSeedSymbolIndex.Symbol);
+            var tsmSeedSymbolIndexNoMainChain =
+                _objectMapper.Map<TsmSeedSymbolIndex, TsmSeedSymbolIndex>(tsmSeedSymbolIndex);
+            tsmSeedSymbolIndexNoMainChain.Id = tsmSeedSymbolIndexIdNoMainChainId;
+            tsmSeedSymbolIndexNoMainChain.IsBurned = true;
+            tsmSeedSymbolIndexNoMainChain.ChainId = context.ChainId;
+            _objectMapper.Map(context, tsmSeedSymbolIndexNoMainChain);
+            await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(tsmSeedSymbolIndexNoMainChain);
+        }
         await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbolIndex);
     }
 

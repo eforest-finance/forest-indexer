@@ -114,7 +114,7 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
         soldIndex.DealTime = context.BlockTime;
         soldIndex.PurchaseTokenId = purchaseTokenIndex.Id;
         soldIndex.NftInfoId = nftTokenIndexId;
-
+        soldIndex.CollectionSymbol = SymbolHelper.GetNFTCollectionSymbol(eventValue.NftSymbol);
         _objectMapper.Map(context, soldIndex);
         _logger.Debug("[Sold] SAVE: soldIndex, soldIndex={Id}", nftTokenIndexId);
         await _soldIndexRepository.AddOrUpdateAsync(soldIndex);

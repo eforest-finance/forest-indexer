@@ -14,4 +14,5 @@ public class SoldIndex : SoldBase, IIndexBuild
     [Keyword] public string NftInfoId { get; set; }
     public long PurchaseAmount { get; set; }
     public DateTime DealTime { get; set; }
+    [Keyword] public string CollectionSymbol { get; set; }
 }

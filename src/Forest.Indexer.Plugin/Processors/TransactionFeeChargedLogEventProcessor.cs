@@ -1,6 +1,8 @@
 using AElf.Contracts.MultiToken;
 using AElfIndexer.Client.Handlers;
 using AElfIndexer.Grains.State.Client;
+using Forest.Indexer.Plugin.Entities;
+using Forest.Indexer.Plugin.Processors.Provider;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -14,18 +16,21 @@ public class TransactionFeeChargedLogEventProcessor : AElfLogEventProcessorBase<
     
     private readonly IUserBalanceProvider _userBalanceProvider;
     private readonly INFTOfferProvider _nftOfferProvider;
+    private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
 
     private readonly ILogger<AElfLogEventProcessorBase<TransactionFeeCharged, LogEventInfo>> _logger;
 
     public TransactionFeeChargedLogEventProcessor(ILogger<AElfLogEventProcessorBase<TransactionFeeCharged, LogEventInfo>> logger
         , IUserBalanceProvider userBalanceProvider
         , INFTOfferProvider nftOfferProvider
+        , INFTOfferChangeProvider nftOfferChangeProvider
         , IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
     {
         _logger = logger;
         _contractInfoOptions = contractInfoOptions.Value;
         _userBalanceProvider = userBalanceProvider;
         _nftOfferProvider = nftOfferProvider;
+        _nftOfferChangeProvider = nftOfferChangeProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -43,5 +48,6 @@ public class TransactionFeeChargedLogEventProcessor : AElfLogEventProcessorBase<
             eventValue.ChargingAddress.ToBase58(),
             -eventValue.Amount, context);
         await _nftOfferProvider.UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.ChargingAddress.ToBase58(), context);
+        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
     }
 }

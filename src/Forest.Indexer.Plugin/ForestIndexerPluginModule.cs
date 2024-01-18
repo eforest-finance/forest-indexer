@@ -77,5 +77,5 @@ public class ForestIndexerPluginModule : AElfIndexerClientPluginBaseModule<Fores
 
     
     protected override string ClientId => "AElfIndexer_Forest";
-    protected override string Version => "5e6b9d46eb02444a8c97135ac4ac6041";
+    protected override string Version => "f59e35c0de3d472181d1bf3b16780a71";
 }

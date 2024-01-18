@@ -3,7 +3,6 @@ using AElfIndexer.Client;
 using AElfIndexer.Client.Handlers;
 using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
-using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Processors.Provider;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -32,9 +31,10 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
     private readonly ICollectionChangeProvider _collectionChangeProvider;
     private readonly INFTOfferProvider _nftOfferProvider;
     private readonly INFTListingInfoProvider _nftListingInfoProvider;
+    private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
 
     private readonly ILogger<AElfLogEventProcessorBase<Issued, LogEventInfo>> _logger;
-
+    private readonly INFTListingChangeProvider _listingChangeProvider;
 
     public TokenIssueLogEventProcessor(ILogger<AElfLogEventProcessorBase<Issued, LogEventInfo>> logger
         , IObjectMapper objectMapper
@@ -50,6 +50,8 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
         , ICollectionChangeProvider collectionChangeProvider
         , INFTOfferProvider nftOfferProvider
         , NFTListingInfoProvider nftListingInfoProvider
+        , INFTOfferChangeProvider nftOfferChangeProvider
+        , INFTListingChangeProvider listingChangeProvider
         , IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
     {
         _objectMapper = objectMapper;
@@ -64,7 +66,9 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
         _collectionChangeProvider = collectionChangeProvider;
         _nftOfferProvider = nftOfferProvider;
         _nftListingInfoProvider = nftListingInfoProvider;
+        _nftOfferChangeProvider = nftOfferChangeProvider;
         _logger = logger;
+        _listingChangeProvider = listingChangeProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -82,6 +86,8 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
             eventValue.Amount, context);
         await _nftOfferProvider.UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(),
             context);
+        await _nftListingInfoProvider.UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
+        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
         await _nftListingInfoProvider.UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
 
         if (SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;
@@ -105,11 +111,6 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
     {
         _logger.Debug("TokenIssueLogEventProcessor-3-HandleForNoMainChainSeedTokenAsync");
         if (eventValue == null || context == null) return;
-        var seedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(ForestIndexerConstants.MainChain, eventValue.Symbol);
-        var seedSymbolIndex =
-            await _tsmSeedSymbolIndexRepository.GetFromBlockStateSetAsync(seedSymbolIndexId,
-                ForestIndexerConstants.MainChain);
-        if (seedSymbolIndex == null) return;
         
         var symbolMarketTokenIndexId = IdGenerateHelper.GetSymbolMarketTokenId(context.ChainId, eventValue.Symbol);
         var symbolMarketTokenIndex =
@@ -160,6 +161,7 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
         seedSymbolIndex.OfMinNftListingInfo(minNftListing);
         _objectMapper.Map(context, seedSymbolIndex);
         await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbolIndex);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         await SaveActivityAsync(eventValue, context, seedSymbolIndex.Id);
     }
 
@@ -180,6 +182,7 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
             await _proxyAccountProvider.FillProxyAccountInfoForNFTInfoIndexAsync(nftInfoIndex, context.ChainId);
 
         await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
 
         await SaveActivityAsync(eventValue, context, nftInfoIndex.Id);
     }

@@ -17,9 +17,11 @@ public class ForestIndexerClientAutoMapperProfile : Profile
     {
         CreateMap<TokenInfo, TokenInfoIndex>();
         CreateMap<SymbolMarketActivityIndex,SymbolMarkerActivityDto>();
+        CreateMap<NFTListingChangeIndex,NFTListingChangeDto>();
         CreateMap<SeedSymbolIndex, SeedSymbolIndex>();
         CreateMap<LogEventContext, OfferInfoIndex>();
         CreateMap<LogEventContext, SeedMainChainChangeIndex>();
+        CreateMap<LogEventContext, NFTListingChangeIndex>();
         CreateMap<LogEventContext, UserBalanceIndex>();
         CreateMap<LogEventContext, NFTMarketDayIndex>();
         CreateMap<LogEventContext, NFTMarketWeekIndex>();
@@ -217,5 +219,10 @@ public class ForestIndexerClientAutoMapperProfile : Profile
         CreateMap<NFTInfoIndex, NFTInfoSyncDto>();
         CreateMap<SeedSymbolIndex, SeedSymbolSyncDto>();
         CreateMap<NFTListingInfoIndex, NFTListingInfoResult>();
+        CreateMap<SeedSymbolMarketTokenIndex, SymbolMarketTokenExistDto>();
+        CreateMap<SoldIndex, NftDealInfoDto>();
+        CreateMap<LogEventContext, NFTOfferChangeIndex>();
+        CreateMap<NFTOfferChangeIndex, NFTOfferChangeDto>();
+        CreateMap<UserBalanceIndex, NFTOwnerInfoDto>();
     }
 }

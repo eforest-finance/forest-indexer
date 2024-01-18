@@ -68,7 +68,8 @@ public partial class Query
                 {
                     ExpireTime = offerInfo.ExpireTime,
                     Prices = offerInfo.Price,
-                    Id = offerInfo.Id
+                    Id = offerInfo.Id,
+                    Symbol = offerInfo.BizSymbol
                 };
                 
                 ExpiredNftMaxOfferDto offerDto = new ExpiredNftMaxOfferDto()
@@ -82,5 +83,24 @@ public partial class Query
         }
       
         return data;
+    }
+
+    [Name("getNftOfferChange")]
+    public static async Task<List<NFTOfferChangeDto>> GetNFTOfferChangeAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<NFTOfferChangeIndex, LogEventInfo> repository,
+        [FromServices] IObjectMapper objectMapper,
+        GetNFTOfferChangeDto dto)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<NFTOfferChangeIndex>, QueryContainer>>
+        {
+            q => q.Range(i
+                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.BlockHeight)),
+            q => q.Term(i 
+                => i.Field(f => f.ChainId).Value(dto.ChainId))
+        };
+        QueryContainer Filter(QueryContainerDescriptor<NFTOfferChangeIndex> f) => f.Bool(b => b.Must(mustQuery));
+        var result = await repository.GetListAsync(Filter, sortExp: o => o.BlockHeight);
+        
+        return objectMapper.Map<List<NFTOfferChangeIndex>, List<NFTOfferChangeDto>>(result.Item2);
     }
 }

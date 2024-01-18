@@ -21,6 +21,7 @@ public class ListedNFTChangedLogEventProcessor : AElfLogEventProcessorBase<Liste
     private readonly INFTInfoProvider _nftInfoProvider;
     private readonly ICollectionProvider _collectionProvider;
     private readonly ICollectionChangeProvider _collectionChangeProvider;
+    private readonly INFTListingChangeProvider _listingChangeProvider;
 
 
     public ListedNFTChangedLogEventProcessor(ILogger<AElfLogEventProcessorBase<ListedNFTChanged, LogEventInfo>> logger,
@@ -30,6 +31,7 @@ public class ListedNFTChangedLogEventProcessor : AElfLogEventProcessorBase<Liste
         INFTInfoProvider nftInfoProvider,
         ICollectionProvider collectionProvider,
         ICollectionChangeProvider collectionChangeProvider,
+        INFTListingChangeProvider listingChangeProvider,
         IObjectMapper objectMapper) : base(logger)
     {
         _logger = logger;
@@ -40,6 +42,7 @@ public class ListedNFTChangedLogEventProcessor : AElfLogEventProcessorBase<Liste
         _nftInfoProvider = nftInfoProvider;
         _collectionProvider = collectionProvider;
         _collectionChangeProvider = collectionChangeProvider;
+        _listingChangeProvider = listingChangeProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -85,6 +88,7 @@ public class ListedNFTChangedLogEventProcessor : AElfLogEventProcessorBase<Liste
 
             await _listedNFTIndexRepository.AddOrUpdateAsync(listedNFTIndex);
             await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
+            await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
 
             _logger.Debug("[ListedNFTChanged] FINISH: Id={Id}", listedNftIndexId);
         }

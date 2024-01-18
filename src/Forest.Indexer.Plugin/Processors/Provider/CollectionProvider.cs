@@ -84,6 +84,9 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         //Add conditions within effective time
         mustQuery.Add(q => q.TermRange(i 
             => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).GreaterThan(DateTime.UtcNow.ToString("O"))));
+        //add RealQuantity > 0
+        mustQuery.Add(q => q.TermRange(i
+            => i.Field(index => index.RealQuantity).GreaterThan(0.ToString())));
         QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f)
             => f.Bool(b => b.Must(mustQuery));
 
