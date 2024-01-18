@@ -5,7 +5,6 @@ public static class ForestIndexerConstants
     public const string UNDERLINE = "_";
     public const string NFTCollectionSymbolPattern = @"^.+-0$";
     public const string NFTSymbolPattern = @"^.+-(?!0+$)[0-9]+$";
-
     public const string UserBalanceScriptForNft =
         "doc['symbol'].value =~ /.-(?!0+$)[0-9]+/ && !doc['symbol'].value.contains('SEED-')";
     public const string UserBalanceScriptForSeed = "doc['symbol'].value =~ /^SEED-[0-9]+$/";
@@ -46,4 +45,5 @@ public static class ForestIndexerConstants
     public const string BrifeInfoDescriptionPrice = "Price";
     public const string BrifeInfoDescriptionOffer = "Offer";
     public const string BrifeInfoDescriptionTopBid = "Top Bid";
+    public const string SeedImageType = ".svg";
 }

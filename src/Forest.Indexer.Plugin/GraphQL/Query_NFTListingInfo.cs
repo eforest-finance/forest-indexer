@@ -229,7 +229,8 @@ public partial class Query
                 {
                     ExpireTime = listingInfo.ExpireTime,
                     Prices = listingInfo.Prices,
-                    Id = listingInfo.Id
+                    Id = listingInfo.Id,
+                    Symbol = listingInfo.Symbol
                 };
                 
                 
@@ -280,5 +281,32 @@ public partial class Query
         var result = await nftListingRepo.GetSortListAsync(Filter);
 
         return result.Item2 ?? new List<NFTListingInfoIndex>();
+    }
+
+    [Name("nftListingChange")]
+    public static async Task<NFTListingChangeDtoPageResultDto> NFTListingChangeAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<NFTListingChangeIndex, LogEventInfo> repository,
+        [FromServices] IObjectMapper objectMapper,
+        GetSeedMainChainChangeDto dto)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<NFTListingChangeIndex>, QueryContainer>>()
+        {
+            q => q.Term(i
+                => i.Field(f => f.ChainId).Value(dto.ChainId))
+        };
+        
+        mustQuery.Add(q => q.Range(i
+            => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.BlockHeight)));
+
+        QueryContainer Filter(QueryContainerDescriptor<NFTListingChangeIndex> f) =>
+            f.Bool(b => b.Must(mustQuery));
+        var result = await repository.GetListAsync(Filter, skip: dto.SkipCount, sortExp: o => o.BlockHeight);
+        var dataList = objectMapper.Map<List<NFTListingChangeIndex>, List<NFTListingChangeDto>>(result.Item2);
+        var pageResult = new NFTListingChangeDtoPageResultDto
+        {
+            TotalRecordCount = result.Item1,
+            Data = dataList
+        };
+        return pageResult;
     }
 }

@@ -42,10 +42,19 @@ public class ManagerTokenCreatedLogEventProcessorTests : ForestIndexerPluginTest
     public async Task SymbolMarketToken_Add()
     {
         const string chainId = "AELF";
-        const string toChainId = "tDVW";
+        const string toChainId = "tDVW"; 
         const string symbol = "SEED-1";
         const string seedOwnedSymbol = "seedOwnedSymbol1";
         await SymbolMarketTokenAdd(chainId, symbol, seedOwnedSymbol);
+        
+        var result0 = await Query.SymbolMarketTokenExist(_symbolMarketTokenIndexRepository, _objectMapper,
+            new GetSymbolMarketTokenExistInput()
+            {
+                IssueChainId = "AELF",
+                TokenSymbol = "seedOwnedSymbol1"
+            });
+        result0.ShouldNotBeNull();
+        result0.Symbol.ShouldBe("seedOwnedSymbol1");
 
         //issue
         var result1 = await Query.SymbolMarketTokens(_symbolMarketTokenIndexRepository, _objectMapper, new GetSymbolMarketTokensInput()

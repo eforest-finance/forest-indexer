@@ -26,10 +26,12 @@ public class OfferChangedLogEventProcessor : OfferLogEventProcessorBase<OfferCha
         ICollectionProvider collectionProvider,
         ICollectionChangeProvider collectionChangeProvider,
         IUserBalanceProvider userBalanceProvider,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger, objectMapper,
-        nftActivityIndexRepository, nftInfoIndexRepository, proxyAccountIndexRepository, infoProvider, offerProvider,collectionProvider,
+        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions,
+        INFTOfferChangeProvider nftOfferChangeProvider) : base(logger, objectMapper,
+            nftActivityIndexRepository, nftInfoIndexRepository, proxyAccountIndexRepository, infoProvider, offerProvider,collectionProvider,
         collectionChangeProvider,
-        contractInfoOptions)
+        contractInfoOptions,
+        nftOfferChangeProvider)
     {
         _nftOfferIndexRepository = nftOfferIndexRepository;
         _tokenIndexRepository = tokenIndexRepository;
@@ -43,8 +45,8 @@ public class OfferChangedLogEventProcessor : OfferLogEventProcessorBase<OfferCha
 
     protected override async Task HandleEventAsync(OfferChanged eventValue, LogEventContext context)
     {
-        var offerIndexId = IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
-            eventValue.OfferTo.ToBase58(), eventValue.ExpireTime.Seconds);
+        var offerIndexId = IdGenerateHelper.GetOfferId(context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
+            eventValue.OfferTo.ToBase58(), eventValue.ExpireTime.Seconds,eventValue.Price.Amount);
         var offerIndex = await _nftOfferIndexRepository.GetFromBlockStateSetAsync(offerIndexId, context.ChainId);
         if (offerIndex == null) return;
 
@@ -61,5 +63,6 @@ public class OfferChangedLogEventProcessor : OfferLogEventProcessorBase<OfferCha
         _objectMapper.Map(context, offerIndex);
         await _nftOfferIndexRepository.AddOrUpdateAsync(offerIndex);
         await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
+        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Modify);
     }
 }

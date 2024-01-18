@@ -717,6 +717,7 @@ namespace Forest.SymbolRegistrar {
     public const int DurationFieldNumber = 1;
     private long duration_;
     /// <summary>
+    /// 竞拍持续时间
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -731,6 +732,7 @@ namespace Forest.SymbolRegistrar {
     public const int MinMarkupFieldNumber = 2;
     private int minMarkup_;
     /// <summary>
+    /// 最小加价，可选，如果不填比上次高即可
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -745,6 +747,7 @@ namespace Forest.SymbolRegistrar {
     public const int CountdownTimeFieldNumber = 3;
     private long countdownTime_;
     /// <summary>
+    /// 阈值内，每次延长时间
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -759,6 +762,7 @@ namespace Forest.SymbolRegistrar {
     public const int MaxExtensionTimeFieldNumber = 4;
     private long maxExtensionTime_;
     /// <summary>
+    /// 最大延长时间
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]

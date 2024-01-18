@@ -29,7 +29,9 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
     private readonly ICollectionChangeProvider _collectionChangeProvider;
     private readonly INFTOfferProvider _nftOfferProvider;
     private readonly INFTInfoProvider _nftInfoProvider;
+    private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
     private readonly ILogger<AElfLogEventProcessorBase<Transferred, LogEventInfo>> _logger;
+    private readonly INFTListingChangeProvider _listingChangeProvider;
     private readonly IAElfIndexerClientEntityRepository<SymbolBidInfoIndex, LogEventInfo> _symbolBidInfoIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<SymbolAuctionInfoIndex, LogEventInfo> _symbolAuctionInfoIndexRepository;
     private readonly ITsmSeedSymbolProvider _tsmSeedSymbolProvider;
@@ -46,6 +48,8 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         ICollectionChangeProvider collectionChangeProvider,
         INFTOfferProvider nftOfferProvider,
         INFTInfoProvider nftInfoProvider,
+        INFTOfferChangeProvider nftOfferChangeProvider,
+        INFTListingChangeProvider listingChangeProvider,
         IOptionsSnapshot<ContractInfoOptions> contractInfoOptions,
         IOptionsSnapshot<CleanDataOptions> cleanDataOptions,
         ITsmSeedSymbolProvider tsmSeedSymbolProvider,
@@ -64,14 +68,15 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         _collectionChangeProvider = collectionChangeProvider;
         _nftOfferProvider = nftOfferProvider;
         _nftInfoProvider = nftInfoProvider;
+        _nftOfferChangeProvider = nftOfferChangeProvider;
         _logger = logger;
+        _listingChangeProvider = listingChangeProvider;
         _cleanDataOptions = cleanDataOptions.Value;
         _tsmSeedSymbolProvider = tsmSeedSymbolProvider;
         _symbolAuctionInfoIndexRepository = symbolAuctionInfoIndexRepository;
         _symbolBidInfoIndexRepository = symbolBidInfoIndexRepository;
         _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
         _auctionInfoProvider = auctionInfoProvider;
-
     }
 
     public override string GetContractAddress(string chainId)
@@ -281,6 +286,7 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         
         _objectMapper.Map(context, seedSymbol);
         await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbol);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         await SaveNftActivityIndexAsync(eventValue, context, seedSymbol.Id);
     }
 
@@ -295,6 +301,7 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         nftInfoIndex.OfMinNftListingInfo(minNftListing);
         _objectMapper.Map(context, nftInfoIndex);
         await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         await SaveNftActivityIndexAsync(eventValue, context, nftInfoIndex.Id);
     }
 
@@ -372,6 +379,7 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         await _nftOfferProvider.UpdateOfferRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount,
             eventValue.To.ToBase58(), context);
         await _listingInfoProvider.UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount, eventValue.To.ToBase58(), context);
+        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
     }
 
     private bool CheckIssueToIsContractAddress(string issuerToAddress)

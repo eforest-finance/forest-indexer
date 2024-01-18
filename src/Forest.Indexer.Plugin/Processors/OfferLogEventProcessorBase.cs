@@ -21,6 +21,7 @@ public abstract class OfferLogEventProcessorBase<TEvent>: AElfLogEventProcessorB
     protected readonly INFTOfferProvider _offerProvider;
     protected readonly ICollectionProvider _collectionProvider;
     protected readonly ICollectionChangeProvider _collectionChangeProvider;
+    protected readonly INFTOfferChangeProvider _nftOfferChangeProvider;
 
     
     public OfferLogEventProcessorBase(ILogger<OfferLogEventProcessorBase<TEvent>> logger, IObjectMapper objectMapper,
@@ -31,7 +32,8 @@ public abstract class OfferLogEventProcessorBase<TEvent>: AElfLogEventProcessorB
         INFTOfferProvider offerProvider,
         ICollectionProvider collectionProvider,
         ICollectionChangeProvider collectionChangeProvider,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
+        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions,
+        INFTOfferChangeProvider nftOfferChangeProvider) : base(logger)
     {
         _objectMapper = objectMapper;
         _contractInfoOptions = contractInfoOptions.Value;
@@ -42,6 +44,7 @@ public abstract class OfferLogEventProcessorBase<TEvent>: AElfLogEventProcessorB
         _infoProvider = infoProvider;
         _collectionProvider = collectionProvider;
         _collectionChangeProvider = collectionChangeProvider;
+        _nftOfferChangeProvider = nftOfferChangeProvider;
     }
 
     protected async Task AddNFTActivityRecordAsync(string symbol, string offerFrom, string offerTo,

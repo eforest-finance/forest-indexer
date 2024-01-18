@@ -2,7 +2,6 @@ using AElf.Contracts.MultiToken;
 using AElfIndexer.Client;
 using AElfIndexer.Client.Handlers;
 using AElfIndexer.Grains.State.Client;
-using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Processors.Provider;
@@ -32,8 +31,11 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
     private readonly ICollectionChangeProvider _collectionChangeProvider;
     private readonly INFTOfferProvider _nftOfferProvider;
     private readonly INFTListingInfoProvider _nftListingInfoProvider;
+    private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
 
     private readonly ILogger<AElfLogEventProcessorBase<Burned, LogEventInfo>> _logger;
+    private readonly INFTListingChangeProvider _listingChangeProvider;
+    private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
 
     public TokenBurnedLogEventProcessor(ILogger<AElfLogEventProcessorBase<Burned, LogEventInfo>> logger
         , IObjectMapper objectMapper
@@ -48,6 +50,9 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         , ICollectionChangeProvider collectionChangeProvider
         , INFTOfferProvider nftOfferProvider
         , INFTListingInfoProvider nftListingInfoProvider
+        , INFTOfferChangeProvider nftOfferChangeProvider
+        , INFTListingChangeProvider listingChangeProvider
+        ,IAElfClientServiceProvider aElfClientServiceProvider
         , IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
     {
         _logger = logger;
@@ -62,6 +67,9 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         _collectionChangeProvider = collectionChangeProvider;
         _nftOfferProvider = nftOfferProvider;
         _nftListingInfoProvider = nftListingInfoProvider;
+        _nftOfferChangeProvider = nftOfferChangeProvider;
+        _listingChangeProvider = listingChangeProvider;
+        _aElfClientServiceProvider = aElfClientServiceProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -80,6 +88,7 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
             -eventValue.Amount, context);
         await _nftOfferProvider.UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context);
         await _nftListingInfoProvider.UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context);
+        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
         if (SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;
         await _collectionChangeProvider.SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
@@ -137,7 +146,8 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         var seedSymbol = await _seedSymbolIndexRepository.GetFromBlockStateSetAsync(seedSymbolId, context.ChainId);
 
         if (seedSymbol == null) return;
-        
+
+        var checkSeedIsUsedResult = await CheckSeedIsUsed(seedSymbol.SeedOwnedSymbol, context.ChainId);
         //burned tsm seed symbol index
         var tsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, seedSymbol.SeedOwnedSymbol);
         var tsmSeedSymbolIndex =
@@ -149,6 +159,10 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         {
             _objectMapper.Map(context, tsmSeedSymbolIndex);
             tsmSeedSymbolIndex.IsBurned = true;
+            if (checkSeedIsUsedResult)
+            {
+                tsmSeedSymbolIndex.Status = SeedStatus.REGISTERED;
+            }
             _logger.Debug("DoHandleForSeedSymbolBurnedAsync tsmSeedSymbolIndex:{tsmSeedSymbolIndex}", JsonConvert.SerializeObject(tsmSeedSymbolIndex));
             await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(tsmSeedSymbolIndex);
         }
@@ -164,8 +178,25 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         _objectMapper.Map(context, seedSymbol);
         seedSymbol.IsDeleteFlag = true;
         seedSymbol.Supply -= 1;
+        if (checkSeedIsUsedResult)
+        {
+            seedSymbol.SeedStatus = SeedStatus.REGISTERED;
+        }
         await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbol);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         await SaveActivityAsync(eventValue, context, seedSymbol.Id);
+    }
+
+    private async Task<bool> CheckSeedIsUsed(string seedOwnedSymbol,string chainId)
+    {
+        var address = _contractInfoOptions.ContractInfos
+            .First(c => c.ChainId == chainId)
+            .TokenContractAddress;
+
+        
+        var tokenInfo =
+            await _aElfClientServiceProvider.GetTokenInfoAsync(chainId, address, seedOwnedSymbol);
+        return tokenInfo != null && !tokenInfo.Symbol.IsNullOrEmpty();
     }
 
     private async Task HandleForNFTBurnedAsync(Burned eventValue, LogEventContext context)
@@ -184,6 +215,7 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         _objectMapper.Map(context, nftIndex);
         await _nftIndexRepository.AddOrUpdateAsync(nftIndex);
         await _collectionChangeProvider.SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         await SaveActivityAsync(eventValue, context, nftIndex.Id);
     }
     

@@ -24,10 +24,12 @@ public class OfferCanceledLogEventProcessor : OfferLogEventProcessorBase<OfferCa
         INFTOfferProvider offerProvider,
         ICollectionProvider collectionProvider,
         ICollectionChangeProvider collectionChangeProvider,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger, objectMapper,
+        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions,
+        INFTOfferChangeProvider nftOfferChangeProvider) : base(logger, objectMapper,
         nftActivityIndexRepository, nftInfoIndexRepository, proxyAccountIndexRepository, infoProvider, offerProvider,collectionProvider,
         collectionChangeProvider,
-        contractInfoOptions)
+        contractInfoOptions,
+        nftOfferChangeProvider)
     {
         _logger = logger;
         _nftOfferIndexRepository = nftOfferIndexRepository;
@@ -87,5 +89,6 @@ public class OfferCanceledLogEventProcessor : OfferLogEventProcessorBase<OfferCa
             }
         }
         await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
+        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Cancel);
     }
 }

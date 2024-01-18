@@ -84,4 +84,29 @@ public partial class Query
             SymbolMarketTokenIssuer = result == null ? "" : result.Issuer
         };
     }
+    
+    [Name("symbolMarketTokenExist")]
+    public static async Task<SymbolMarketTokenExistDto> SymbolMarketTokenExist(
+        [FromServices]
+        IAElfIndexerClientEntityRepository<SeedSymbolMarketTokenIndex, LogEventInfo> symbolMarketTokenIndexRepository,
+        [FromServices] IObjectMapper objectMapper,
+        GetSymbolMarketTokenExistInput dto)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolMarketTokenIndex>, QueryContainer>>();
+
+        mustQuery.Add(q=>q.Term(i=>i.Field(f=>f.IssueChain).Value(dto.IssueChainId)));
+        mustQuery.Add(q=>q.Term(i=>i.Field(f=>f.Symbol).Value(dto.TokenSymbol)));
+        
+        QueryContainer Filter(QueryContainerDescriptor<SeedSymbolMarketTokenIndex> f) => f.Bool(b => b.Must(mustQuery));
+        var result = await symbolMarketTokenIndexRepository.GetListAsync(Filter,
+            sortExp: k => k.CreateTime, sortType: SortOrder.Descending);
+
+        if (result == null || result.Item2.Count == 0)
+        {
+            return new SymbolMarketTokenExistDto();
+        }
+        
+        var symbolMarketTokenDto = objectMapper.Map<SeedSymbolMarketTokenIndex, SymbolMarketTokenExistDto>(result.Item2[0]);
+        return symbolMarketTokenDto;
+    }
 }

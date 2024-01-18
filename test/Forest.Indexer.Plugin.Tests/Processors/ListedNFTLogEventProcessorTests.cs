@@ -27,6 +27,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
     private readonly INFTListingInfoProvider _listingInfoProvider;
     private readonly IAElfIndexerClientInfoProvider _indexerClientInfoProvider;
     private readonly IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> _nftInfoIndexRepository;
+    private readonly IAElfIndexerClientEntityRepository<NFTListingChangeIndex, LogEventInfo> _nftListingChangeIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository;
 
     private const string ChainId = "tDVW";
@@ -41,6 +42,8 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         _blockStateSetLogEventInfoProvider = GetRequiredService<IBlockStateSetProvider<LogEventInfo>>();
         _nftInfoIndexRepository = GetRequiredService<IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo>>();
         _userBalanceIndexRepository = GetRequiredService<IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo>>();
+        _nftListingChangeIndexRepository = 
+            GetRequiredService<IAElfIndexerClientEntityRepository<NFTListingChangeIndex, LogEventInfo>>();
 
     }
     
@@ -79,7 +82,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         const long amount = 100; // price
         const long durationHours = 1;
         const string ownerPublicKey = "AAA";
-        return await HandleListedNftAddedAsync(symbol, amount, ownerPublicKey, durationHours);
+        return await HandleListedNftAddedAsync(symbol, amount, ownerPublicKey, durationHours, DateTime.UtcNow);
     }
 
     [Fact]
@@ -159,13 +162,17 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         nftInfo.MinListingId.ShouldBe(nftListingIndexData.Id);
         Assert.Equal(0.000005m, nftInfo.MinListingPrice);
     }
-
+    
     [Fact]
     public async Task HandleListedNFTRemovedAsync_Test()
     {
-        var listingInfoIndex = await HandleListedNFTAddedAsync_Test();
-        const string chainId = "tDVW";
         const string symbol = "SYB-1";
+        const string chainId = "tDVW";
+        const long amount = 100; // price
+        const long durationHours = 1;
+        const string ownerPublicKey = "AAA";
+        var dateNow = DateTime.UtcNow;
+        var listingInfoIndex = await HandleListedNftAddedAsync(symbol, amount, ownerPublicKey, durationHours, dateNow);
 
         var logEventContext = MockLogEventContext(100);
         var blockStateSetKey = await MockBlockState(logEventContext);
@@ -184,7 +191,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
             {
                 DurationHours = 1,
                 StartTime = Timestamp.FromDateTime(listingInfoIndex.StartTime),
-                PublicTime = Timestamp.FromDateTime(DateTime.UtcNow),
+                PublicTime = Timestamp.FromDateTime(dateNow),
             }
         };
         
@@ -192,7 +199,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         listedNftRemovedLogEventProcessor.GetContractAddress(logEventContext.ChainId);
         
         // startTime does not match, record will not be deleted.
-        listedNftRemoved.Duration.StartTime = Timestamp.FromDateTime(listingInfoIndex.StartTime.AddHours(3));
+        listedNftRemoved.Duration.StartTime = Timestamp.FromDateTime(DateTime.UtcNow.AddMinutes(10));
         var logEventInfo = MockLogEventInfo(listedNftRemoved.ToLogEvent());
         await listedNftRemovedLogEventProcessor.HandleEventAsync(logEventInfo, logEventContext);
         await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
@@ -211,7 +218,11 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         var nftId = IdGenerateHelper.GetNFTInfoId(ChainId, symbol);
         var nftInfo = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftId, ChainId);
         nftInfo.MinListingId.ShouldBe(null);
-        Assert.Equal(0m, nftInfo.MinListingPrice);
+        Assert.Equal(0L, nftInfo.MinListingPrice);
+
+        var nftListingChangeInfo = await _nftListingChangeIndexRepository.GetFromBlockStateSetAsync(nftId,ChainId);
+        nftListingChangeInfo.ShouldNotBeNull();
+        nftListingChangeInfo.Symbol.ShouldBe(symbol);
     }
 
     [Fact]
@@ -276,8 +287,8 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         nftInfo0.Symbol.ShouldNotBeNull();
         nftInfo0.OtherOwnerListingFlag.ShouldBeFalse();
 
-        var firstTime = DateTime.UtcNow;
-        var secondTime = DateTime.UtcNow.AddMinutes(1);
+        var firstTime = DateTime.UtcNow.AddMinutes(1);
+        var secondTime = DateTime.UtcNow.AddMinutes(2);
         await Add1(firstTime);
         
         var nftInfo1 = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftId,chainId);
@@ -306,7 +317,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         nftInfo3.ListingToken.ShouldNotBeNull();
         nftInfo3.OtherOwnerListingFlag.ShouldBeTrue();
 
-        await Remove1(originAddress1,firstTime);
+        await Remove1(originAddress1,firstTime,chainId,"aaa");
         var nftInfo4 = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftId,chainId);
         nftInfo4.ShouldNotBeNull();
         nftInfo4.ListingAddress.ShouldBe(address2);
@@ -315,7 +326,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         nftInfo4.ListingToken.ShouldNotBeNull();
         nftInfo4.OtherOwnerListingFlag.ShouldBeFalse();
         
-        await Remove1(originAddress2,secondTime);
+        await Remove1(originAddress2,secondTime,chainId,"ccc");
         var nftInfo5 = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftId,chainId);
         nftInfo5.ShouldNotBeNull();
         nftInfo5.ListingAddress.ShouldBeNull();
@@ -325,7 +336,12 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         nftInfo5.OtherOwnerListingFlag.ShouldBeFalse();
 
     }
-    
+
+    [Fact]
+    public async Task Test1()
+    {
+    }
+
     [Fact]
     public async Task TestQueryOtherAddressNFTListingInfoByNFTIdsAsync()
     {
@@ -350,7 +366,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         result2.Result[nftId].Prices.ShouldBe(new decimal(0.0000020));
     }
 
-    private async Task Add1(DateTime StartTime)
+    private async Task Add1(DateTime startTime)
     {
         const string symbol = "SYB-1";
         const string tokenSymbol = "SYB-1";
@@ -371,7 +387,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
             Duration = new ListDuration()
             {
                 DurationHours = 1,
-                StartTime = Timestamp.FromDateTime(StartTime),
+                StartTime = Timestamp.FromDateTime(startTime),
                 PublicTime = Timestamp.FromDateTime(DateTime.UtcNow),
             },
             Price = new Price()
@@ -564,7 +580,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
     }
     
-    private async Task Add2(DateTime StartTime)
+    private async Task Add2(DateTime startTime)
     {
         const string symbol = "SYB-1";
         const string tokenSymbol = "SYB-1";
@@ -573,7 +589,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         const long quantity = 1;
         Hash whitelistId = HashHelper.ComputeFrom("test@gmail.com");
 
-        var logEventContext = MockLogEventContext(200);
+        var logEventContext = MockLogEventContext(200,"tDVW","e38c4fb1cf6af05878657cb3f7b5fc8a5fcfb2eec19cd76b73abb831973fbf4e22");
         var blockStateSetKey = await MockBlockState(logEventContext);
         
         var listedNftAdded = new ListedNFTAdded()
@@ -585,7 +601,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
             Duration = new ListDuration()
             {
                 DurationHours = 1,
-                StartTime = Timestamp.FromDateTime(StartTime),
+                StartTime = Timestamp.FromDateTime(startTime),
                 PublicTime = Timestamp.FromDateTime(DateTime.UtcNow),
             },
             Price = new Price()
@@ -601,7 +617,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
     }
 
-    public async Task Modify1(DateTime StartTime)
+    public async Task Modify1(DateTime startTime)
     {
         const string symbol = "SYB-1";
         const string tokenSymbol = "SYB-1";
@@ -621,7 +637,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
             Duration = new ListDuration()
             {
                 DurationHours = 1,
-                StartTime = Timestamp.FromDateTime(StartTime),
+                StartTime = Timestamp.FromDateTime(startTime),
                 PublicTime = Timestamp.FromDateTime(DateTime.UtcNow),
             },
             Price = new Price()
@@ -637,12 +653,11 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
 
     }
 
-    private async Task Remove1(string address,DateTime startTime)
+    private async Task Remove1(string address,DateTime startTime,string chainId,string transactionId)
     {
-        const string chainId = "tDVW";
         const string symbol = "SYB-1";
 
-        var logEventContext = MockLogEventContext(600);
+        var logEventContext = MockLogEventContext(600,chainId,transactionId);
         var blockStateSetKey = await MockBlockState(logEventContext);
 
         var listedNftRemoved = new ListedNFTRemoved
@@ -670,7 +685,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
     }
     
-    public async Task<NFTListingInfoIndex> HandleListedNftAddedAsync(string symbol, long amount, string ownerPublicKey, long durationHours)
+    public async Task<NFTListingInfoIndex> HandleListedNftAddedAsync(string symbol, long amount, string ownerPublicKey, long durationHours, DateTime dateTime)
     {
         await MockCreateNFT();
         string tokenSymbol = symbol;
@@ -690,7 +705,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
             Duration = new ListDuration()
             {
                 DurationHours = durationHours,
-                StartTime = Timestamp.FromDateTime(DateTime.UtcNow),
+                StartTime = Timestamp.FromDateTime(dateTime),
                 PublicTime = Timestamp.FromDateTime(DateTime.UtcNow),
             },
             Price = new Price()
@@ -734,8 +749,8 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         const long durationHours = 1;
         const string ownerPublicKey = "AAA";
         var nftId = IdGenerateHelper.GetNFTInfoId(ChainId, symbol);
-        
-        var listedNftAdded0 = await HandleListedNftAddedAsync(symbol, amount, ownerPublicKey, durationHours);
+
+        var listedNftAdded0 = await HandleListedNftAddedAsync(symbol, amount, ownerPublicKey, durationHours, DateTime.UtcNow);
         var nftInfo0 = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftId, ChainId);
         
         nftInfo0.MinListingId.ShouldBe(listedNftAdded0.Id);
@@ -744,8 +759,8 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         const long amount2 = 99000000; // price
         const long durationHours2 = 2;
         const string ownerPublicKey2 = "BBB";
-
-        var listedNftAdded1= await HandleListedNftAddedAsync(symbol, amount2, ownerPublicKey2, durationHours2);
+        
+        var listedNftAdded1= await HandleListedNftAddedAsync(symbol, amount2, ownerPublicKey2, durationHours2, DateTime.UtcNow);
         var nftInfo2 = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftId, ChainId);
 
         nftInfo2.MinListingId.ShouldBe(listedNftAdded1.Id);
@@ -762,7 +777,8 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         var nftId = IdGenerateHelper.GetNFTInfoId(ChainId, symbol);
         
         //listing one
-        var listedNftAdded0 = await HandleListedNftAddedAsync(symbol, amount, ownerPublicKey, durationHours);
+        var listedNftAdded0 = await HandleListedNftAddedAsync(symbol, amount, ownerPublicKey, durationHours, DateTime.UtcNow);
+
         var nftInfo0 = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftId, ChainId);
         
         nftInfo0.MinListingId.ShouldBe(listedNftAdded0.Id);
@@ -773,7 +789,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
         const string ownerPublicKey2 = "BBB";
 
         //listing two
-        var listedNftAdded1= await HandleListedNftAddedAsync(symbol, amount2, ownerPublicKey2, durationHours2);
+        var listedNftAdded1= await HandleListedNftAddedAsync(symbol, amount2, ownerPublicKey2, durationHours2, DateTime.UtcNow);
         var nftInfo2 = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftId, ChainId);
 
         nftInfo2.MinListingId.ShouldBe(listedNftAdded1.Id);
