@@ -14,6 +14,26 @@ using aelf = global::AElf.CSharp.Core;
 namespace Forest {
 
   #region Events
+  public partial class BatchBuyNowResult : aelf::IEvent<BatchBuyNowResult>
+  {
+    public global::System.Collections.Generic.IEnumerable<BatchBuyNowResult> GetIndexed()
+    {
+      return new List<BatchBuyNowResult>
+      {
+      };
+    }
+
+    public BatchBuyNowResult GetNonIndexed()
+    {
+      return new BatchBuyNowResult
+      {
+        Symbol = Symbol,
+        AllSuccessFlag = AllSuccessFlag,
+        FailPriceList = FailPriceList,
+      };
+    }
+  }
+
   public partial class FixedPriceNFTListed : aelf::IEvent<FixedPriceNFTListed>
   {
     public global::System.Collections.Generic.IEnumerable<FixedPriceNFTListed> GetIndexed()
@@ -229,6 +249,7 @@ namespace Forest {
         OfferFrom = OfferFrom,
         OfferTo = OfferTo,
         ExpireTime = ExpireTime,
+        Price = Price,
       };
     }
   }
@@ -566,6 +587,7 @@ namespace Forest {
       }
     }
     #endregion
+    
   }
 }
 #endregion
