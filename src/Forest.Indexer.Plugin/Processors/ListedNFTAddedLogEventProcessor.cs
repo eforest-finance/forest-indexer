@@ -22,6 +22,7 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
     private readonly INFTInfoProvider _nftInfoProvider;
     private readonly ICollectionProvider _collectionProvider;
     private readonly ICollectionChangeProvider _collectionChangeProvider;
+    private readonly INFTListingChangeProvider _listingChangeProvider;
 
 
     public ListedNFTAddedLogEventProcessor(ILogger<AElfLogEventProcessorBase<ListedNFTAdded, LogEventInfo>> logger,
@@ -31,6 +32,7 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
         INFTInfoProvider nftInfoProvider,
         ICollectionProvider collectionProvider,
         ICollectionChangeProvider collectionChangeProvider,
+        INFTListingChangeProvider listingChangeProvider,
         IObjectMapper objectMapper) : base(logger)
     {
         _logger = logger;
@@ -41,6 +43,7 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
         _nftInfoProvider = nftInfoProvider;
         _collectionProvider = collectionProvider;
         _collectionChangeProvider = collectionChangeProvider;
+        _listingChangeProvider = listingChangeProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -78,7 +81,7 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
             listingNftInfoIndex.PublicTime = eventValue.Duration.PublicTime.ToDateTime();
             listingNftInfoIndex.DurationHours = eventValue.Duration.DurationHours;
             listingNftInfoIndex.ExpireTime =
-                eventValue.Duration.StartTime.AddHours(eventValue.Duration.DurationHours).ToDateTime();
+                eventValue.Duration.StartTime.AddHours(eventValue.Duration.DurationHours).AddMinutes(eventValue.Duration.DurationMinutes).ToDateTime();
             listingNftInfoIndex.CollectionSymbol = SymbolHelper.GetNFTCollectionSymbol(eventValue.Symbol);
 
             // copy block data
@@ -97,6 +100,9 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
             _logger.Debug("[ListedNFTAdded] FINISH: ChainId={ChainId}, symbol={Symbol}, Quantity={Quantity}, Id={Id}",
                 context.ChainId, eventValue.Symbol, eventValue.Quantity, listedNftIndexId);
             
+            await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
+            await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
+            
             // NFT activity
             var nftActivityIndexId =
                 IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, "LISTED", context.TransactionId);
@@ -113,7 +119,6 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
                 NftInfoId = updateListedInfoResponse.NftInfoId
             });
             if (!activitySaved) throw new UserFriendlyException("Activity SAVE FAILED");
-            await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
         }
         catch (Exception e)
         {

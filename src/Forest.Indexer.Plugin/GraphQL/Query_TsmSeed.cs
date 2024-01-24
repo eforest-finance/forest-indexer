@@ -43,7 +43,7 @@ public partial class Query
     }
     
     [Name("seedMainChainChange")]
-    public static async Task<SeedMainChainChangePageResultDto> SeedMainChainChange(
+    public static async Task<SeedMainChainChangePageResultDto> SeedMainChainChangeAsync(
         [FromServices] IAElfIndexerClientEntityRepository<SeedMainChainChangeIndex, LogEventInfo> repository,
         [FromServices] IObjectMapper objectMapper,
         GetSeedMainChainChangeDto dto)
@@ -53,17 +53,9 @@ public partial class Query
             q => q.Term(i
                 => i.Field(f => f.ChainId).Value(dto.ChainId))
         };
-
-        if (dto.SkipCount == 0)
-        {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThan(dto.BlockHeight)));
-        }
-        else
-        {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.BlockHeight)));
-        }
+        
+        mustQuery.Add(q => q.Range(i
+            => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.BlockHeight)));
         
         QueryContainer Filter(QueryContainerDescriptor<SeedMainChainChangeIndex> f) => 
             f.Bool(b => b.Must(mustQuery));

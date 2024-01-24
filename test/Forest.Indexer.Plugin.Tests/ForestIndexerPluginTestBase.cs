@@ -92,11 +92,10 @@ public abstract class ForestIndexerPluginTestBase : ForestIndexerOrleansTestBase
             await _blockStateSetLogEventInfoProvider.SaveDataAsync(key);
     }
 
-    protected LogEventContext MockLogEventContext(long inputBlockHeight = 100, string chainId = "tDVW")
+    protected LogEventContext MockLogEventContext(long inputBlockHeight = 100, string chainId = "tDVW",string transactionId = "c1e625d135171c766999274a00a7003abed24cfe59a7215aabf1472ef20a2da2")
     {
         const string blockHash = "dac5cd67a2783d0a3d843426c2d45f1178f4d052235a907a0d796ae4659103b1";
         const string previousBlockHash = "e38c4fb1cf6af05878657cb3f7b5fc8a5fcfb2eec19cd76b73abb831973fbf4e";
-        const string transactionId = "c1e625d135171c766999274a00a7003abed24cfe59a7215aabf1472ef20a2da2";
         var blockHeight = inputBlockHeight;
         return new LogEventContext
         {

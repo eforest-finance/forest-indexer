@@ -98,4 +98,10 @@ public class IdGenerateHelper
     {
         return GetId(tokenType, symbolLength);
     }
+
+    public static string GetOfferId(string chainId, string symbol, string fromAddress,
+        string toAddress, long expiredSecond, long price)
+    {
+        return GetId(chainId, symbol, expiredSecond, price, fromAddress, toAddress);
+    }
 }

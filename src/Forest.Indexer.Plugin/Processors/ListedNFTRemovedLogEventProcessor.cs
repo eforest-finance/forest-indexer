@@ -23,7 +23,7 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
     private readonly INFTListingInfoProvider _listingInfoProvider;
     private readonly ICollectionProvider _collectionProvider;
     private readonly ICollectionChangeProvider _collectionChangeProvider;
-
+    private readonly INFTListingChangeProvider _listingChangeProvider;
 
 
     public ListedNFTRemovedLogEventProcessor(ILogger<AElfLogEventProcessorBase<ListedNFTRemoved, LogEventInfo>> logger,
@@ -34,6 +34,7 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
         INFTListingInfoProvider listingInfoProvider,
         ICollectionProvider collectionProvider,
         ICollectionChangeProvider collectionChangeProvider,
+        INFTListingChangeProvider listingChangeProvider,
         IObjectMapper objectMapper, INFTInfoProvider nftInfoProvider) : base(logger)
     {
         _logger = logger;
@@ -46,6 +47,8 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
         _contractInfoOptions = contractInfoOptions.Value;
         _collectionProvider = collectionProvider;
         _collectionChangeProvider = collectionChangeProvider;
+        _listingChangeProvider = listingChangeProvider;
+        
     }
 
     public override string GetContractAddress(string chainId)
@@ -102,7 +105,7 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
             });
             if (!activitySaved) throw new UserFriendlyException("Activity SAVE FAILED");
             await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
-
+            await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         }
         catch (Exception e)
         {
