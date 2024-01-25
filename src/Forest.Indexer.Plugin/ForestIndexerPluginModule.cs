@@ -23,6 +23,7 @@ public class ForestIndexerPluginModule : AElfIndexerClientPluginBaseModule<Fores
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, OfferRemovedLogEventProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, OfferCanceledLogEventProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, UniqueSeedsPriceChangedLogEventProcessor>();
+        serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, OfferCanceledByExpireTimeLogEventProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, WhitelistAddressInfoAddedProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, WhitelistAddressInfoRemovedProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, WhitelistCreatedLogEventProcessor>();
