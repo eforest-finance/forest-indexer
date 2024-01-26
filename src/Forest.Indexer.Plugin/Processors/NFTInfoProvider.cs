@@ -362,7 +362,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         var nftListingInfos = await _listingInfoProvider.GetEffectiveNftListingInfos(nftInfoId, excludeListingIds);
         if (current != null && !current.Id.IsNullOrWhiteSpace())        
         {
-            _logger.LogInformation(
+            _logger.LogDebug(
                 "GetMinNftListingAsync nftInfoId:{nftInfoId} current id:{id} price:{price}", nftInfoId, current.Id, current.Prices);
             nftListingInfos.Add(current);
         }
@@ -388,7 +388,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
             }
         }
 
-        _logger.LogInformation(
+        _logger.LogDebug(
             "GetMinNftListingAsync nftInfoId:{nftInfoId} minNftListing id:{id} minListingPrice:{minListingPrice}",
             nftInfoId, minNftListing?.Id, minNftListing?.Prices);
         return minNftListing;
@@ -404,7 +404,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         var offerInfos = await _nftOfferInfoProvider.GetEffectiveNftOfferInfosAsync(nftInfoId, excludeOfferId);
         if (current != null)
         {
-            _logger.LogInformation(
+            _logger.LogDebug(
                 "GetMaxOfferInfoAsync nftInfoId:{nftInfoId} current id:{id} price:{price}", nftInfoId, current.Id, current.Price);
             offerInfos.Add(current);
         }
@@ -415,7 +415,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
             .ThenByDescending(info => DateTimeHelper.ToUnixTimeMilliseconds(info.ExpireTime))
             .ToList();
         var maxOfferInfo = offerInfos.FirstOrDefault();
-        _logger.LogInformation(
+        _logger.LogDebug(
             "GetMaxOfferInfoAsync nftInfoId:{nftInfoId} maxOfferInfo id:{id} maxOfferPrice:{maxOfferPrice}", nftInfoId,
             maxOfferInfo?.Id, maxOfferInfo?.Price);
         return maxOfferInfo;
