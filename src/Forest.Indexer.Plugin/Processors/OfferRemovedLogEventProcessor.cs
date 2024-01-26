@@ -5,8 +5,8 @@ using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors.Provider;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Orleans.Runtime;
+using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
@@ -15,6 +15,7 @@ public class OfferRemovedLogEventProcessor : OfferLogEventProcessorBase<OfferRem
 {
     private readonly IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> _nftOfferIndexRepository;
     private readonly ILogger<OfferRemovedLogEventProcessor> _logger;
+
     public OfferRemovedLogEventProcessor(ILogger<OfferRemovedLogEventProcessor> logger, IObjectMapper objectMapper,
         IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo> nftActivityIndexRepository,
         IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoIndexRepository,
@@ -31,8 +32,8 @@ public class OfferRemovedLogEventProcessor : OfferLogEventProcessorBase<OfferRem
         contractInfoOptions,
         nftOfferChangeProvider)
     {
-        _nftOfferIndexRepository = nftOfferIndexRepository;
         _logger = logger;
+        _nftOfferIndexRepository = nftOfferIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
@@ -44,6 +45,7 @@ public class OfferRemovedLogEventProcessor : OfferLogEventProcessorBase<OfferRem
     {
         _logger.Debug("OfferRemovedLogEventProcessor-1 {context}",JsonConvert.SerializeObject(context));
         _logger.Debug("OfferRemovedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
+
         var offerIndexId = IdGenerateHelper.GetOfferId(context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
             eventValue.OfferTo.ToBase58(), eventValue.ExpireTime.Seconds,eventValue.Price.Amount);
         var offerIndex = await _nftOfferIndexRepository.GetFromBlockStateSetAsync(offerIndexId, context.ChainId);

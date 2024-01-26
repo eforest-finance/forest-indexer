@@ -159,6 +159,27 @@ namespace Forest {
     }
   }
 
+  public partial class OfferCanceledByExpireTime : aelf::IEvent<OfferCanceledByExpireTime>
+  {
+    public global::System.Collections.Generic.IEnumerable<OfferCanceledByExpireTime> GetIndexed()
+    {
+      return new List<OfferCanceledByExpireTime>
+      {
+      };
+    }
+
+    public OfferCanceledByExpireTime GetNonIndexed()
+    {
+      return new OfferCanceledByExpireTime
+      {
+        Symbol = Symbol,
+        OfferFrom = OfferFrom,
+        OfferTo = OfferTo,
+        ExpireTime = ExpireTime,
+      };
+    }
+  }
+
   public partial class Sold : aelf::IEvent<Sold>
   {
     public global::System.Collections.Generic.IEnumerable<Sold> GetIndexed()
@@ -587,7 +608,7 @@ namespace Forest {
       }
     }
     #endregion
-
+    
   }
 }
 #endregion
