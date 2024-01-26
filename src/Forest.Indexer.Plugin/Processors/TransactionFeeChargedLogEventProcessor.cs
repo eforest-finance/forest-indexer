@@ -48,6 +48,5 @@ public class TransactionFeeChargedLogEventProcessor : AElfLogEventProcessorBase<
             eventValue.ChargingAddress.ToBase58(),
             -eventValue.Amount, context);
         await _nftOfferProvider.UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.ChargingAddress.ToBase58(), context);
-        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
     }
 }
