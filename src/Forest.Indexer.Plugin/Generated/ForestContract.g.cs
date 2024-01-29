@@ -131,9 +131,9 @@ namespace Forest {
             "CRIhCgpvZmZlcl9mcm9tGAMgASgLMg0uYWVsZi5BZGRyZXNzEh8KCG9mZmVy",
             "X3RvGAQgASgLMg0uYWVsZi5BZGRyZXNzEiUKCmluZGV4X2xpc3QYBSABKAsy",
             "ES5Gb3Jlc3QuSW50MzJMaXN0OgSguxgBIqYBChlPZmZlckNhbmNlbGVkQnlF",
-            "eHBpcmVUaW1lEg4KBnN5bWJvbBgBIAEoCRIhCgpvZmZlcl9mcm9tGAMgASgL",
-            "Mg0uYWVsZi5BZGRyZXNzEh8KCG9mZmVyX3RvGAQgASgLMg0uYWVsZi5BZGRy",
-            "ZXNzEi8KC2V4cGlyZV90aW1lGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRp",
+            "eHBpcmVUaW1lEg4KBnN5bWJvbBgBIAEoCRIhCgpvZmZlcl9mcm9tGAIgASgL",
+            "Mg0uYWVsZi5BZGRyZXNzEh8KCG9mZmVyX3RvGAMgASgLMg0uYWVsZi5BZGRy",
+            "ZXNzEi8KC2V4cGlyZV90aW1lGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRp",
             "bWVzdGFtcDoEoLsYASKoAQoEU29sZBIfCghuZnRfZnJvbRgBIAEoCzINLmFl",
             "bGYuQWRkcmVzcxIdCgZuZnRfdG8YAiABKAsyDS5hZWxmLkFkZHJlc3MSEgoK",
             "bmZ0X3N5bWJvbBgDIAEoCRIUCgxuZnRfcXVhbnRpdHkYBSABKAMSFwoPcHVy",
@@ -12196,7 +12196,7 @@ namespace Forest {
     }
 
     /// <summary>Field number for the "offer_from" field.</summary>
-    public const int OfferFromFieldNumber = 3;
+    public const int OfferFromFieldNumber = 2;
     private global::AElf.Types.Address offerFrom_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -12208,7 +12208,7 @@ namespace Forest {
     }
 
     /// <summary>Field number for the "offer_to" field.</summary>
-    public const int OfferToFieldNumber = 4;
+    public const int OfferToFieldNumber = 3;
     private global::AElf.Types.Address offerTo_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -12220,7 +12220,7 @@ namespace Forest {
     }
 
     /// <summary>Field number for the "expire_time" field.</summary>
-    public const int ExpireTimeFieldNumber = 5;
+    public const int ExpireTimeFieldNumber = 4;
     private global::Google.Protobuf.WellKnownTypes.Timestamp expireTime_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -12284,15 +12284,15 @@ namespace Forest {
         output.WriteString(Symbol);
       }
       if (offerFrom_ != null) {
-        output.WriteRawTag(26);
+        output.WriteRawTag(18);
         output.WriteMessage(OfferFrom);
       }
       if (offerTo_ != null) {
-        output.WriteRawTag(34);
+        output.WriteRawTag(26);
         output.WriteMessage(OfferTo);
       }
       if (expireTime_ != null) {
-        output.WriteRawTag(42);
+        output.WriteRawTag(34);
         output.WriteMessage(ExpireTime);
       }
       if (_unknownFields != null) {
@@ -12310,15 +12310,15 @@ namespace Forest {
         output.WriteString(Symbol);
       }
       if (offerFrom_ != null) {
-        output.WriteRawTag(26);
+        output.WriteRawTag(18);
         output.WriteMessage(OfferFrom);
       }
       if (offerTo_ != null) {
-        output.WriteRawTag(34);
+        output.WriteRawTag(26);
         output.WriteMessage(OfferTo);
       }
       if (expireTime_ != null) {
-        output.WriteRawTag(42);
+        output.WriteRawTag(34);
         output.WriteMessage(ExpireTime);
       }
       if (_unknownFields != null) {
@@ -12395,21 +12395,21 @@ namespace Forest {
             Symbol = input.ReadString();
             break;
           }
-          case 26: {
+          case 18: {
             if (offerFrom_ == null) {
               OfferFrom = new global::AElf.Types.Address();
             }
             input.ReadMessage(OfferFrom);
             break;
           }
-          case 34: {
+          case 26: {
             if (offerTo_ == null) {
               OfferTo = new global::AElf.Types.Address();
             }
             input.ReadMessage(OfferTo);
             break;
           }
-          case 42: {
+          case 34: {
             if (expireTime_ == null) {
               ExpireTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
             }
@@ -12435,21 +12435,21 @@ namespace Forest {
             Symbol = input.ReadString();
             break;
           }
-          case 26: {
+          case 18: {
             if (offerFrom_ == null) {
               OfferFrom = new global::AElf.Types.Address();
             }
             input.ReadMessage(OfferFrom);
             break;
           }
-          case 34: {
+          case 26: {
             if (offerTo_ == null) {
               OfferTo = new global::AElf.Types.Address();
             }
             input.ReadMessage(OfferTo);
             break;
           }
-          case 42: {
+          case 34: {
             if (expireTime_ == null) {
               ExpireTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
             }
