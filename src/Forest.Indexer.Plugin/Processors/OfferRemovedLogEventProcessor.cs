@@ -62,7 +62,7 @@ public class OfferRemovedLogEventProcessor : OfferLogEventProcessorBase<OfferRem
 
         QueryContainer ListingFilter(QueryContainerDescriptor<OfferInfoIndex> f) =>
             f.Bool(b => b.Must(mustQuery));
-
+       
         var offerIndexList = await _nftOfferIndexRepository.GetListAsync(ListingFilter);
         if (offerIndexList.Item1 == 0) return;
         foreach (var index in offerIndexList.Item2)
@@ -89,6 +89,9 @@ public class OfferRemovedLogEventProcessor : OfferLogEventProcessorBase<OfferRem
                 latestNFTOffer,
                 offerIndexId);
         }
+
+        await _offerProvider.UpdateOfferNumAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
+            -offerIndexList.Item2.Count, context);
         await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
         await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Remove);
     }

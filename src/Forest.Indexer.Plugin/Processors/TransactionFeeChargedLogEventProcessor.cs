@@ -44,6 +44,13 @@ public class TransactionFeeChargedLogEventProcessor : AElfLogEventProcessorBase<
         _logger.Debug("TransactionFeeChargedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
+        var offerNum =
+            await _nftOfferProvider.GetOfferNumAsync(eventValue.Symbol, eventValue.ChargingAddress.ToBase58(),
+                context.ChainId);
+        if (offerNum == 0 && SymbolHelper.CheckSymbolIsELF(eventValue.Symbol))
+        {
+            return;
+        }
         var userBalance = await _userBalanceProvider.SaveUserBalanceAsync(eventValue.Symbol,
             eventValue.ChargingAddress.ToBase58(),
             -eventValue.Amount, context);

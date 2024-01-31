@@ -83,6 +83,13 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         _logger.Debug("TokenBurnedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
+        var offerNum =
+            await _nftOfferProvider.GetOfferNumAsync(eventValue.Symbol, eventValue.Burner.ToBase58(),
+                context.ChainId);
+        if (offerNum == 0 && SymbolHelper.CheckSymbolIsELF(eventValue.Symbol))
+        {
+            return;
+        }
         var userBalance = await _userBalanceProvider.SaveUserBalanceAsync(eventValue.Symbol,
             eventValue.Burner.ToBase58(),
             -eventValue.Amount, context);
