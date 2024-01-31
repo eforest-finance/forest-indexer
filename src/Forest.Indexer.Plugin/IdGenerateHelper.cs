@@ -1,3 +1,4 @@
+using AElf.Types;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Nest;
@@ -103,5 +104,10 @@ public class IdGenerateHelper
         string toAddress, long expiredSecond, long price)
     {
         return GetId(chainId, symbol, expiredSecond, price, fromAddress, toAddress);
+    }
+    
+    public static string GetNFTDropClaimId(string dropId, string address)
+    {
+        return dropId.Substring(0, 20) + address.Substring(20, 10);
     }
 }
