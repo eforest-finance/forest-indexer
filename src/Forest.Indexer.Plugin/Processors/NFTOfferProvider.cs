@@ -199,7 +199,7 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
         {
             nftOfferNumIndex.OfferNum += change;
             // deal history data
-            if (nftOfferNumIndex.OfferNum <= 0)
+            if (nftOfferNumIndex.OfferNum < 0)
             {
                 _logger.LogWarning(
                     "UpdateOfferNumAsync has history Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
@@ -208,7 +208,6 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
             }
         }
 
-        _objectMapper.Map(context, nftOfferNumIndex);
         _logger.LogInformation("UpdateOfferNumAsync Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
             symbol, nftOfferNumIndex.OfferNum);
         _objectMapper.Map(context, nftOfferNumIndex);
