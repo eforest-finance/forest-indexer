@@ -6,7 +6,7 @@ public class NFTDropInfoDto
 {
     public string DropId { get; set; }
     
-    public string CollectionSymbol { get; set; }
+    public string CollectionId { get; set; }
     
     public DateTime StartTime { get; set; }
     

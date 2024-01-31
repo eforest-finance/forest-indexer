@@ -52,6 +52,7 @@ public class DropCreatedLogEventProcessor : AElfLogEventProcessorBase<DropCreate
         
         dropIndex.ClaimPrice = eventValue.ClaimPrice.Amount / (decimal)Math.Pow(10, tokenIndex.Decimals);
         dropIndex.ClaimSymbol = eventValue.ClaimPrice.Symbol;
+        dropIndex.CollectionId = context.ChainId + "-" + eventValue.CollectionSymbol;
         
         _objectMapper.Map(context, dropIndex);
         await _nftDropIndexRepository.AddOrUpdateAsync(dropIndex);
