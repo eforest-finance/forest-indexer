@@ -172,9 +172,9 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
 
     private async Task UpdateUserFromBalanceAsync(Transferred eventValue, LogEventContext context)
     {
-        var offerNum =
-            await _nftOfferProvider.GetOfferNumAsync(eventValue.Symbol, eventValue.From.ToBase58(), context.ChainId);
-        if (offerNum == 0 && SymbolHelper.CheckSymbolIsELF(eventValue.Symbol))
+        var needRecordBalance =
+            await _nftOfferProvider.NeedRecordBalance(eventValue.Symbol, eventValue.From.ToBase58(), context.ChainId);
+        if (!needRecordBalance)
         {
             return;
         }
@@ -191,9 +191,9 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
 
     private async Task UpdateUserToBalanceAsync(Transferred eventValue, LogEventContext context)
     {
-        var offerNum =
-            await _nftOfferProvider.GetOfferNumAsync(eventValue.Symbol, eventValue.To.ToBase58(), context.ChainId);
-        if (offerNum == 0 && SymbolHelper.CheckSymbolIsELF(eventValue.Symbol))
+        var needRecordBalance =
+            await _nftOfferProvider.NeedRecordBalance(eventValue.Symbol, eventValue.To.ToBase58(), context.ChainId);
+        if (!needRecordBalance)
         {
             return;
         }
