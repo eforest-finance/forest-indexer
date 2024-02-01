@@ -252,7 +252,7 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
 
     private decimal CalSinglePrice(decimal totalPrice, int count)
     {
-        return Math.Round(totalPrice / Math.Max(1, count), 2);
+        return Math.Round(totalPrice / Math.Max(1, count), 8);
     }
     
     private decimal CalculateNewAveragePrice(decimal averagePrice
