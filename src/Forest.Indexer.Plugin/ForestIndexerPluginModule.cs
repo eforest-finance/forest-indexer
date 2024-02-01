@@ -80,5 +80,5 @@ public class ForestIndexerPluginModule : AElfIndexerClientPluginBaseModule<Fores
 
     
     protected override string ClientId => "AElfIndexer_Forest";
-    protected override string Version => "f59e35c0de3d472181d1bf3b16780a71";
+    protected override string Version => "1e12f51f5fdc465997c4441dd5a47b5e";
 }
