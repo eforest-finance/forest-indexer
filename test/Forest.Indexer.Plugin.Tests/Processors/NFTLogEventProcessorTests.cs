@@ -1078,9 +1078,9 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
 
         //step5: check result
-        string id = IdGenerateHelper.GetId(chainId, offerAdded.Symbol,
-            offerAdded.OfferFrom.ToBase58(),
-            offerAdded.OfferTo.ToBase58(), offerAdded.ExpireTime.Seconds);
+        string id =
+            IdGenerateHelper.GetOfferId(chainId, offerAdded.Symbol, offerAdded.OfferFrom.ToBase58(),
+                offerAdded.OfferTo.ToBase58(), offerAdded.ExpireTime.Seconds, offerAdded.Price.Amount);
         var offerIndexData = await _nftOfferIndexRepository.GetFromBlockStateSetAsync(id, chainId);
         
         offerIndexData.ShouldNotBeNull();
@@ -1134,10 +1134,10 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
             OfferTo = Address.FromPublicKey("BBB".HexToByteArray()),
             Price = new Price()
             {
-                Amount = 300,
+                Amount = 500,
                 Symbol = "SYB"
             },
-            Quantity = 800
+            Quantity = 500
         };
         var logEventInfo = LogEventHelper.ConvertAElfLogEventToLogEventInfo(offerChanged.ToLogEvent());
         logEventInfo.BlockHeight = blockHeight;
@@ -1177,10 +1177,9 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         await Task.Delay(1000);
 
         //step5: check result
-        var offerIndexData = await _nftOfferIndexRepository.GetAsync(IdGenerateHelper.GetId(chainId,
-            offerChanged.Symbol,
-            offerChanged.OfferFrom.ToBase58(),
-            offerChanged.OfferTo.ToBase58(), offerChanged.ExpireTime.Seconds));
+        var offerIndexData = await _nftOfferIndexRepository.GetAsync(
+            IdGenerateHelper.GetOfferId(chainId, offerChanged.Symbol, offerChanged.OfferFrom.ToBase58(),
+                offerChanged.OfferTo.ToBase58(), offerChanged.ExpireTime.Seconds, offerChanged.Price.Amount));
         
         offerIndexData.ShouldNotBeNull();
         offerIndexData.BizSymbol.ShouldBe(offerChanged.Symbol);
@@ -1247,7 +1246,7 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         await _userBalanceIndexRepository.AddOrUpdateAsync(userBalanceIndex);
         Transferred transferred = new Transferred()
         {
-            Symbol = Symbol,
+            Symbol = "ELF",
             Amount = 10,
             From = Address.FromBase58(from),
             To = Address.FromBase58(to)
@@ -1287,7 +1286,7 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         var result = await _nftOfferIndexRepository.GetListAsync(Filter, null, sortExp: k => k.Price,
             sortType: SortOrder.Descending);
         result.Item2.Count.ShouldBeGreaterThan(0);
-        result.Item2[0].Quantity.ShouldBeGreaterThan(result.Item2[0].RealQuantity);
+        result.Item2[0].Quantity.ShouldBe(result.Item2[0].RealQuantity);
     }
 
     [Fact]
