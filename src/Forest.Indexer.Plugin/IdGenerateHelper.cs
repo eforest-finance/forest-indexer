@@ -105,9 +105,14 @@ public class IdGenerateHelper
     {
         return GetId(chainId, symbol, expiredSecond, price, fromAddress, toAddress);
     }
-    
+
     public static string GetNFTDropClaimId(string dropId, string address)
     {
         return dropId.Substring(0, 20) + address.Substring(20, 10);
+    }
+
+    public static string GetOfferNumId(string chainId, string fromAddress)
+    {
+        return GetId(chainId, fromAddress);
     }
 }

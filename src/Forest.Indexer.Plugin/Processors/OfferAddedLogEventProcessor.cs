@@ -83,6 +83,7 @@ public class OfferAddedLogEventProcessor : OfferLogEventProcessorBase<OfferAdded
             context,
             tokenIndex);
         await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
+        await _offerProvider.UpdateOfferNumAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(), 1, context);
         await _userBalanceProvider.ReCoverUserBalanceAsync(eventValue.OriginBalanceSymbol, eventValue.OfferFrom.ToBase58(), eventValue.OriginBalance, context);
         await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Add);
     }

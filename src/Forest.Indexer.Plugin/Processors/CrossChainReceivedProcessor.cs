@@ -66,6 +66,12 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
         _logger.Debug("CrossChainReceived-1-eventValue"+JsonConvert.SerializeObject(eventValue));
         _logger.Debug("CrossChainReceived-2-context"+JsonConvert.SerializeObject(context));
         if (eventValue == null || context == null) return;
+        var needRecordBalance =
+            await _nftOfferProvider.NeedRecordBalance(eventValue.Symbol, eventValue.To.ToBase58(), context.ChainId);
+        if (!needRecordBalance)
+        {
+            return;
+        }
         var userBalance = await _balanceProvider.SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
             eventValue.Amount,
             context);

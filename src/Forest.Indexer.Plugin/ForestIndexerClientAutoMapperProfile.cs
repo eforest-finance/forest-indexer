@@ -250,5 +250,6 @@ public class ForestIndexerClientAutoMapperProfile : Profile
             .ForMember(destination => destination.ClaimAmount,
                 opt => opt.MapFrom(source => source.CurrentAmount));
         CreateMap<NFTDropClaimIndex, NFTDropClaimDto>();
+        CreateMap<LogEventContext, UserNFTOfferNumIndex>();
     }
 }

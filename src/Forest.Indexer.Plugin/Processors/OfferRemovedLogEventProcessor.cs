@@ -68,6 +68,9 @@ public class OfferRemovedLogEventProcessor : OfferLogEventProcessorBase<OfferRem
         await _infoProvider.UpdateOfferCommonAsync(context.ChainId, eventValue.Symbol, context,
             latestNFTOffer,
             offerIndexId);
+        await _offerProvider.UpdateOfferNumAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
+            -1, context);
+
         await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
         await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Remove);
     }

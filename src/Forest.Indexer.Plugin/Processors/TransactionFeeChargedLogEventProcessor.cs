@@ -13,12 +13,11 @@ namespace Forest.Indexer.Plugin.Processors;
 public class TransactionFeeChargedLogEventProcessor : AElfLogEventProcessorBase<TransactionFeeCharged, LogEventInfo>
 {
     private readonly ContractInfoOptions _contractInfoOptions;
-    
     private readonly IUserBalanceProvider _userBalanceProvider;
     private readonly INFTOfferProvider _nftOfferProvider;
     private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
-
     private readonly ILogger<AElfLogEventProcessorBase<TransactionFeeCharged, LogEventInfo>> _logger;
+    
 
     public TransactionFeeChargedLogEventProcessor(ILogger<AElfLogEventProcessorBase<TransactionFeeCharged, LogEventInfo>> logger
         , IUserBalanceProvider userBalanceProvider
@@ -44,6 +43,13 @@ public class TransactionFeeChargedLogEventProcessor : AElfLogEventProcessorBase<
         _logger.Debug("TransactionFeeChargedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
+        var needRecordBalance =
+            await _nftOfferProvider.NeedRecordBalance(eventValue.Symbol, eventValue.ChargingAddress.ToBase58(),
+                context.ChainId);
+        if (!needRecordBalance)
+        {
+            return;
+        }
         var userBalance = await _userBalanceProvider.SaveUserBalanceAsync(eventValue.Symbol,
             eventValue.ChargingAddress.ToBase58(),
             -eventValue.Amount, context);
