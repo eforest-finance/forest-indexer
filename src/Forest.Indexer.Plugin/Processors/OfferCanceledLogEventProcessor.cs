@@ -88,6 +88,9 @@ public class OfferCanceledLogEventProcessor : OfferLogEventProcessorBase<OfferCa
                 throw;
             }
         }
+
+        await _offerProvider.UpdateOfferNumAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
+            -eventValue.IndexList.Value.Count, context);
         await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
         await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Cancel);
     }

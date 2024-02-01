@@ -179,6 +179,10 @@ public class NFTListingInfoProvider : INFTListingInfoProvider, ISingletonDepende
     
     public async Task UpdateListingInfoRealQualityAsync(string symbol, long balance, string ownerAddress, LogEventContext context)
     {
+        if (SymbolHelper.CheckSymbolIsELF(symbol))
+        {
+            return;
+        }
         var nftId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, symbol);
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
         mustQuery.Add(q => q.TermRange(i

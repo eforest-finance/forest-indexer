@@ -55,6 +55,8 @@ public class ForestIndexerPluginModule : AElfIndexerClientPluginBaseModule<Fores
         Configure<ContractInfoOptions>(configuration.GetSection("ContractInfo"));
         Configure<InitialInfoOptions>(configuration.GetSection("InitialInfo"));
         Configure<CleanDataOptions>(configuration.GetSection("CleanData"));
+        Configure<NeedRecordBalanceOptions>(configuration.GetSection("NeedRecordBalance"));
+
 
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, AuctionCreatedLogEventProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, BidPlacedLogEventProcessor>();

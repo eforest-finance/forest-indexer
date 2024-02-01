@@ -3,6 +3,7 @@ using AElfIndexer.Client.Handlers;
 using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Nest;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.ObjectMapping;
@@ -19,6 +20,11 @@ public interface INFTOfferProvider
     public Task UpdateOfferRealQualityAsync(string symbol, long balance, string offerFrom, LogEventContext context);
     
     public Task<List<OfferInfoIndex>> GetEffectiveNftOfferInfosAsync(string bizId, string excludeOfferId);
+
+    public Task<int> UpdateOfferNumAsync(string symbol, string offerFrom, int change, LogEventContext context);
+    public Task<int> GetOfferNumAsync(string offerFrom, string chainId);
+
+    public Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId);
 }
 
 public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
@@ -28,16 +34,25 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
     private readonly IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> _nftOfferIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> _tokenIndexRepository;
 
+    private readonly IAElfIndexerClientEntityRepository<UserNFTOfferNumIndex, LogEventInfo>
+        _userNFTOfferNumIndexRepository;
+
+    private readonly NeedRecordBalanceOptions _needRecordBalanceOptions;
 
     public NFTOfferProvider(ILogger<NFTOfferProvider> logger,
         IObjectMapper objectMapper,
         IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> nftOfferIndexRepository,
-        IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository)
+        IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
+        IAElfIndexerClientEntityRepository<UserNFTOfferNumIndex, LogEventInfo> userNFTOfferNumIndexRepository,
+        IOptionsSnapshot<NeedRecordBalanceOptions> needRecordBalanceOptions
+    )
     {
         _logger = logger;
         _objectMapper = objectMapper;
         _nftOfferIndexRepository = nftOfferIndexRepository;
         _tokenIndexRepository = tokenIndexRepository;
+        _userNFTOfferNumIndexRepository = userNFTOfferNumIndexRepository;
+        _needRecordBalanceOptions = needRecordBalanceOptions.Value;
     }
 
     public async Task<Dictionary<string, OfferInfoIndex>> QueryLatestNFTOfferByNFTIdsAsync(
@@ -82,6 +97,10 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
     public async Task UpdateOfferRealQualityAsync(string symbol, long balance, string offerFrom,
         LogEventContext context)
     {
+        if (!SymbolHelper.CheckSymbolIsELF(symbol))
+        {
+            return;
+        }
         int skip = 0;
         int queryCount;
         int limit = 1000;
@@ -166,6 +185,74 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
         return result.Item2 ?? new List<OfferInfoIndex>();
     }
 
+    public async Task<int> UpdateOfferNumAsync(string symbol, string offerFrom, int change, LogEventContext context)
+    {
+        var offerNumId = IdGenerateHelper.GetOfferNumId(context.ChainId, offerFrom);
+        var nftOfferNumIndex =
+            await _userNFTOfferNumIndexRepository.GetFromBlockStateSetAsync(offerNumId, context.ChainId);
+        if (nftOfferNumIndex == null)
+        {
+            nftOfferNumIndex = new UserNFTOfferNumIndex()
+            {
+                Id = offerNumId,
+                Address = offerFrom,
+                OfferNum = change
+            };
+        }
+        else
+        {
+            nftOfferNumIndex.OfferNum += change;
+            // deal history data
+            if (nftOfferNumIndex.OfferNum < 0)
+            {
+                _logger.LogWarning(
+                    "UpdateOfferNumAsync has history Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
+                    symbol, nftOfferNumIndex.OfferNum);
+                nftOfferNumIndex.OfferNum = 0;
+            }
+        }
+
+        _logger.LogInformation("UpdateOfferNumAsync Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
+            symbol, nftOfferNumIndex.OfferNum);
+        _objectMapper.Map(context, nftOfferNumIndex);
+        await _userNFTOfferNumIndexRepository.AddOrUpdateAsync(nftOfferNumIndex);
+        return nftOfferNumIndex.OfferNum;
+    }
+
+    public async Task<int> GetOfferNumAsync(string offerFrom, string chainId)
+    {
+        var offerNumId = IdGenerateHelper.GetOfferNumId(chainId, offerFrom);
+        var nftOfferNumIndex =
+            await _userNFTOfferNumIndexRepository.GetFromBlockStateSetAsync(offerNumId, chainId);
+        if (nftOfferNumIndex == null)
+        {
+            return 0;
+        }
+
+        return nftOfferNumIndex.OfferNum;
+    }
+
+    public async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
+    {
+        if (!SymbolHelper.CheckSymbolIsELF(symbol))
+        {
+            return true;
+        }
+
+        if (_needRecordBalanceOptions.AddressList.Contains(offerFrom))
+        {
+            return true;
+        }
+
+        var num = await GetOfferNumAsync(offerFrom, chainId);
+        if (num > 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private async Task<OfferInfoIndex> QueryLatestNFTOfferByNFTIdAsync(string nftInfoId, string noListingId)
     {
         var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
@@ -199,4 +286,6 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
             ? new Dictionary<string, OfferInfoIndex>()
             : nftOfferIndices.ToDictionary(item => item.BizInfoId);
     }
+    
+    
 }

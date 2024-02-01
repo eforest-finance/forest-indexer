@@ -104,4 +104,9 @@ public class IdGenerateHelper
     {
         return GetId(chainId, symbol, expiredSecond, price, fromAddress, toAddress);
     }
+
+    public static string GetOfferNumId(string chainId, string fromAddress)
+    {
+        return GetId(chainId, fromAddress);
+    }
 }
