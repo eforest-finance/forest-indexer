@@ -17,12 +17,15 @@ public class DropIndexerPluginModule : AElfIndexerClientPluginBaseModule<DropInd
     protected override void ConfigureServices(IServiceCollection serviceCollection)
     {
         var configuration = serviceCollection.GetConfiguration();
+        Configure<ContractInfoOptions>(configuration.GetSection("ContractInfo"));
         
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, DropCreatedLogEventProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, DropChangedLogEventProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, DropStateChangedLogEventProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, DropClaimedLogEventProcessor>();
         serviceCollection.AddSingleton<IBlockChainDataHandler, DropTransactionHandler>();
+        
+        
        
     }
     
