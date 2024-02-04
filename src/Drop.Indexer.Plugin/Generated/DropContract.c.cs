@@ -143,7 +143,7 @@ namespace Forest.Contracts.Drop {
       {
         DropId = DropId,
         Address = Address,
-        ClaimDetailRecord = ClaimDetailRecord,
+        ClaimDetailList = ClaimDetailList,
         CurrentAmount = CurrentAmount,
         TotalAmount = TotalAmount,
       };
@@ -167,9 +167,12 @@ namespace Forest.Contracts.Drop {
     static readonly aelf::Marshaller<global::Forest.Contracts.Drop.ClaimDropInput> __Marshaller_ClaimDropInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.ClaimDropInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.Drop.GetDropInfoInput> __Marshaller_GetDropInfoInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.GetDropInfoInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.Drop.DropInfo> __Marshaller_DropInfo = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.DropInfo.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.Contracts.Drop.GetDropDetailListInput> __Marshaller_GetDropDetailListInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.GetDropDetailListInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.Contracts.Drop.DropDetailList> __Marshaller_DropDetailList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.DropDetailList.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.Drop.GetClaimDropInfoInput> __Marshaller_GetClaimDropInfoInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.GetClaimDropInfoInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.Drop.ClaimDropDetail> __Marshaller_ClaimDropDetail = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.ClaimDropDetail.Parser.ParseFrom);
-    static readonly aelf::Marshaller<global::Forest.Contracts.Drop.GetDropSymbolIndexInput> __Marshaller_GetDropSymbolIndexInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.GetDropSymbolIndexInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.Contracts.Drop.GetDropSymbolExistInput> __Marshaller_GetDropSymbolExistInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.GetDropSymbolExistInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.Contracts.Drop.GetDropIdInput> __Marshaller_GetDropIdInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.Drop.GetDropIdInput.Parser.ParseFrom);
     #endregion
 
     #region Methods
@@ -192,6 +195,13 @@ namespace Forest.Contracts.Drop {
         __ServiceName,
         "SetMaxDropDetailListCount",
         __Marshaller_google_protobuf_Int32Value,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::AElf.Types.Address, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetProxyAccountContractAddress = new aelf::Method<global::AElf.Types.Address, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SetProxyAccountContractAddress",
+        __Marshaller_aelf_Address,
         __Marshaller_google_protobuf_Empty);
 
     static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Int32Value, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetMaxDropDetailIndexCount = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Int32Value, global::Google.Protobuf.WellKnownTypes.Empty>(
@@ -257,6 +267,13 @@ namespace Forest.Contracts.Drop {
         __Marshaller_google_protobuf_Empty,
         __Marshaller_google_protobuf_Int32Value);
 
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address> __Method_GetProxyAccountContractAddress = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetProxyAccountContractAddress",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_aelf_Address);
+
     static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Google.Protobuf.WellKnownTypes.Int32Value> __Method_GetMaxDropDetailIndexCount = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Google.Protobuf.WellKnownTypes.Int32Value>(
         aelf::MethodType.View,
         __ServiceName,
@@ -271,6 +288,13 @@ namespace Forest.Contracts.Drop {
         __Marshaller_GetDropInfoInput,
         __Marshaller_DropInfo);
 
+    static readonly aelf::Method<global::Forest.Contracts.Drop.GetDropDetailListInput, global::Forest.Contracts.Drop.DropDetailList> __Method_GetDropDetailList = new aelf::Method<global::Forest.Contracts.Drop.GetDropDetailListInput, global::Forest.Contracts.Drop.DropDetailList>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetDropDetailList",
+        __Marshaller_GetDropDetailListInput,
+        __Marshaller_DropDetailList);
+
     static readonly aelf::Method<global::Forest.Contracts.Drop.GetClaimDropInfoInput, global::Forest.Contracts.Drop.ClaimDropDetail> __Method_GetClaimDropInfo = new aelf::Method<global::Forest.Contracts.Drop.GetClaimDropInfoInput, global::Forest.Contracts.Drop.ClaimDropDetail>(
         aelf::MethodType.View,
         __ServiceName,
@@ -278,12 +302,19 @@ namespace Forest.Contracts.Drop {
         __Marshaller_GetClaimDropInfoInput,
         __Marshaller_ClaimDropDetail);
 
-    static readonly aelf::Method<global::Forest.Contracts.Drop.GetDropSymbolIndexInput, global::Google.Protobuf.WellKnownTypes.Int32Value> __Method_GetDropSymbolIndex = new aelf::Method<global::Forest.Contracts.Drop.GetDropSymbolIndexInput, global::Google.Protobuf.WellKnownTypes.Int32Value>(
+    static readonly aelf::Method<global::Forest.Contracts.Drop.GetDropSymbolExistInput, global::Google.Protobuf.WellKnownTypes.Int32Value> __Method_GetDropSymbolExist = new aelf::Method<global::Forest.Contracts.Drop.GetDropSymbolExistInput, global::Google.Protobuf.WellKnownTypes.Int32Value>(
         aelf::MethodType.View,
         __ServiceName,
-        "GetDropSymbolIndex",
-        __Marshaller_GetDropSymbolIndexInput,
+        "GetDropSymbolExist",
+        __Marshaller_GetDropSymbolExistInput,
         __Marshaller_google_protobuf_Int32Value);
+
+    static readonly aelf::Method<global::Forest.Contracts.Drop.GetDropIdInput, global::AElf.Types.Hash> __Method_GetDropId = new aelf::Method<global::Forest.Contracts.Drop.GetDropIdInput, global::AElf.Types.Hash>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetDropId",
+        __Marshaller_GetDropIdInput,
+        __Marshaller_aelf_Hash);
 
     #endregion
 
@@ -305,7 +336,7 @@ namespace Forest.Contracts.Drop {
       }
     }
     #endregion
-
+    
   }
 }
 #endregion

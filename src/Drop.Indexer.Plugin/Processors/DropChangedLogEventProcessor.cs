@@ -37,18 +37,24 @@ public class DropChangedLogEventProcessor : AElfLogEventProcessorBase<DropChange
     
     protected override async Task HandleEventAsync(DropChanged eventValue, LogEventContext context)
     {
-        _logger.Debug("DropChangedLogEventProcessor: {context}",JsonConvert.SerializeObject(context));
-        var dropIndex = await _nftDropIndexRepository.GetFromBlockStateSetAsync(eventValue.DropId.ToString(), context.ChainId);
+        _logger.Debug("DropChanged: {eventValue} context: {context}",JsonConvert.SerializeObject(eventValue), 
+            JsonConvert.SerializeObject(context));
+        var dropIndex = await _nftDropIndexRepository.GetFromBlockStateSetAsync(eventValue.DropId.ToHex(), context.ChainId);
         if (dropIndex == null)
         {
-            _logger.Info("Drop Not Exist: {id}",eventValue.DropId.ToString());
+            _logger.Info("Drop Not Exist: {id}",eventValue.DropId.ToHex());
             return;
         }
 
-        dropIndex.TotalAmount = eventValue.TotalAmount;
-        dropIndex.ClaimAmount = eventValue.ClaimAmount;
-        dropIndex.MaxIndex = eventValue.MaxIndex;
-        dropIndex.UpdateTime = eventValue.UpdateTime.ToDateTime();
+        dropIndex.TotalAmount = Math.Max(dropIndex.TotalAmount, eventValue.TotalAmount);
+        dropIndex.ClaimAmount = Math.Max(dropIndex.ClaimAmount, eventValue.ClaimAmount);
+        dropIndex.MaxIndex = Math.Max(dropIndex.MaxIndex, eventValue.MaxIndex);
+        dropIndex.CurrentIndex = Math.Max(dropIndex.CurrentIndex, eventValue.CurrentIndex);
+        var newUpdatetime = eventValue.UpdateTime.ToDateTime();
+        var oldUpdatetime = dropIndex.UpdateTime;
+        dropIndex.UpdateTime = DateTime.Compare(newUpdatetime, oldUpdatetime) == 1 ? newUpdatetime : oldUpdatetime;
+        
+        _objectMapper.Map(context, dropIndex);
         await _nftDropIndexRepository.AddOrUpdateAsync(dropIndex);
     }
 }

@@ -7,7 +7,7 @@ public class NFTDropClaimDto
     
     public string DropId { get; set; }
     
-    public long ClaimLimit { get; set; }
+    public long ClaimTotal { get; set; }
     
     public long ClaimAmount { get; set; }
     

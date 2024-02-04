@@ -38,22 +38,33 @@ public class DropClaimedLogEventProcessor : AElfLogEventProcessorBase<DropClaimA
     
     protected override async Task HandleEventAsync(DropClaimAdded eventValue, LogEventContext context)
     {
-        _logger.Debug("DropClaimedLogEventProcessor: {context}",JsonConvert.SerializeObject(context));
-        var id = IdGenerateHelper.GetNFTDropClaimId(eventValue.DropId.ToString(), eventValue.Address.ToString());
+        _logger.Debug("DropClaimed: {eventValue} context: {context}",JsonConvert.SerializeObject(eventValue), 
+            JsonConvert.SerializeObject(context));
+        var id = IdGenerateHelper.GetNFTDropClaimId(eventValue.DropId.ToHex(), eventValue.Address.ToBase58());
         var claimIndex = await _nftDropClaimIndexRepository.GetFromBlockStateSetAsync(id, context.ChainId);
         if (claimIndex == null)
         {
-            claimIndex = _objectMapper.Map<DropClaimAdded, NFTDropClaimIndex>(eventValue);
-            claimIndex.CreateTime = context.BlockTime;
-            claimIndex.Id = id;
+            claimIndex = new NFTDropClaimIndex
+            {
+                Id = id,
+                DropId = eventValue.DropId.ToHex(),
+                CreateTime = context.BlockTime,
+                Address = eventValue.Address.ToBase58(),
+                ClaimTotal = eventValue.TotalAmount,
+                ClaimAmount = eventValue.CurrentAmount
+            };
         }
         else
         {
-            _objectMapper.Map(eventValue, claimIndex);
+            claimIndex.ClaimTotal = Math.Max(claimIndex.ClaimTotal, eventValue.TotalAmount);
+            claimIndex.ClaimAmount = Math.Max(claimIndex.ClaimAmount, eventValue.CurrentAmount);
         }
         
         _objectMapper.Map(context, claimIndex);
-        claimIndex.UpdateTime = context.BlockTime;
+        var newUpdatetime = context.BlockTime;
+        var oldUpdatetime = claimIndex.UpdateTime;
+        
+        claimIndex.UpdateTime = DateTime.Compare(newUpdatetime, oldUpdatetime) == 1 ? newUpdatetime : oldUpdatetime;
         await _nftDropClaimIndexRepository.AddOrUpdateAsync(claimIndex);
     }
 }

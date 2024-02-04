@@ -14,6 +14,8 @@ namespace Drop.Indexer.Plugin.Processors;
 
 public class DropCreatedLogEventProcessor : AElfLogEventProcessorBase<DropCreated, LogEventInfo>
 {
+    private const int ELF_DECIMAL = 8;
+    
     private readonly IObjectMapper _objectMapper;
     private readonly ContractInfoOptions _contractInfoOptions;
     private readonly IAElfIndexerClientEntityRepository<NFTDropIndex, LogEventInfo> _nftDropIndexRepository;
@@ -41,20 +43,36 @@ public class DropCreatedLogEventProcessor : AElfLogEventProcessorBase<DropCreate
     
     protected override async Task HandleEventAsync(DropCreated eventValue, LogEventContext context)
     {
-        _logger.Debug("DropCreatedLogEventProcessor: {context}",JsonConvert.SerializeObject(context));
-        var dropIndex = await _nftDropIndexRepository.GetFromBlockStateSetAsync(eventValue.DropId.ToString(), context.ChainId);
+        _logger.Debug("DropCreated: eventValue: {eventValue} context: {context}",JsonConvert.SerializeObject(eventValue), 
+            JsonConvert.SerializeObject(context));
+        var dropIndex = await _nftDropIndexRepository.GetFromBlockStateSetAsync(eventValue.DropId.ToHex(), context.ChainId);
         if (dropIndex != null) return;
         
-        dropIndex = _objectMapper.Map<DropCreated, NFTDropIndex>(eventValue);
-        
-        var tokenIndexId = IdGenerateHelper.GetId(context.ChainId, eventValue.ClaimPrice.Symbol);
-        // var tokenIndex = await _tokenIndexRepository.GetFromBlockStateSetAsync(tokenIndexId, context.ChainId);
-        
-        // dropIndex.ClaimPrice = eventValue.ClaimPrice.Amount / (decimal)Math.Pow(10, tokenIndex.Decimals);
-        dropIndex.ClaimSymbol = eventValue.ClaimPrice.Symbol;
-        dropIndex.CollectionId = context.ChainId + "-" + eventValue.CollectionSymbol;
+        // dropIndex = _objectMapper.Map<DropCreated, NFTDropIndex>(eventValue);
+        dropIndex = new NFTDropIndex
+        {
+            Id = eventValue.DropId.ToHex(),
+            CollectionId = context.ChainId + "-" + eventValue.CollectionSymbol,
+            StartTime = eventValue.StartTime.ToDateTime(),
+            ExpireTime = eventValue.ExpireTime.ToDateTime(),
+            ClaimMax = eventValue.ClaimMax,
+            ClaimPrice = eventValue.ClaimPrice.Amount / (decimal)Math.Pow(10, ELF_DECIMAL),
+            MaxIndex = eventValue.MaxIndex,
+            ClaimSymbol = eventValue.ClaimPrice.Symbol,
+            CurrentIndex = eventValue.CurrentIndex, 
+    
+            TotalAmount = eventValue.TotalAmount,
+    
+            ClaimAmount = eventValue.ClaimAmount,
+            Owner = eventValue.Owner.ToBase58(),
+            IsBurn = eventValue.IsBurn,
+            State = eventValue.State,
+            CreateTime = eventValue.CreateTime.ToDateTime(),
+            UpdateTime = eventValue.UpdateTime.ToDateTime()
+        };
         
         _objectMapper.Map(context, dropIndex);
+        _logger.Debug("DropCreatedUpdate: id: {eventValue}", dropIndex.Id);
         await _nftDropIndexRepository.AddOrUpdateAsync(dropIndex);
     }
 }

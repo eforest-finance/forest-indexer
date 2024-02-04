@@ -38,16 +38,20 @@ public class DropStateChangedLogEventProcessor : AElfLogEventProcessorBase<DropS
     
     protected override async Task HandleEventAsync(DropStateChanged eventValue, LogEventContext context)
     {
-        _logger.Debug("DropStateChangedLogEventProcessor: {context}",JsonConvert.SerializeObject(context));
-        var dropIndex = await _nftDropIndexRepository.GetFromBlockStateSetAsync(eventValue.DropId.ToString(), context.ChainId);
+        _logger.Debug("DropStateChanged: {eventValue} context: {context}",JsonConvert.SerializeObject(eventValue), 
+            JsonConvert.SerializeObject(context));
+        
+        var dropIndex = await _nftDropIndexRepository.GetFromBlockStateSetAsync(eventValue.DropId.ToHex(), context.ChainId);
         if (dropIndex == null)
         {
-            _logger.Info("Drop Not Exist: {id}",eventValue.DropId.ToString());
+            _logger.Info("Drop Not Exist: {id}",eventValue.DropId.ToHex());
             return;
         }
 
         dropIndex.State = eventValue.State;
         dropIndex.UpdateTime = eventValue.UpdateTime.ToDateTime();
+        _objectMapper.Map(context, dropIndex);
+        _logger.Debug("DropStateChangedUpdate: id: {eventValue}",dropIndex.Id);
         await _nftDropIndexRepository.AddOrUpdateAsync(dropIndex);
     }
 }
