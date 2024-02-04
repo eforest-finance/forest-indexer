@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forest.Indexer.Orleans.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forest.Indexer.Plugin.Tests", "test\Forest.Indexer.Plugin.Tests\Forest.Indexer.Plugin.Tests.csproj", "{0AF66A42-DAF9-4FC4-B268-C92418F2FD94}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drop.Indexer.Plugin", "src\Drop.Indexer.Plugin\Drop.Indexer.Plugin.csproj", "{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +24,7 @@ Global
 		{A6A16EA3-98FA-48D9-92F5-05A866CCD751} = {BCA05EEC-6025-4CE7-8428-3E469E7BB9DA}
 		{18F99155-F203-4BAA-A407-91593CDE3693} = {BCA05EEC-6025-4CE7-8428-3E469E7BB9DA}
 		{0AF66A42-DAF9-4FC4-B268-C92418F2FD94} = {BCA05EEC-6025-4CE7-8428-3E469E7BB9DA}
+		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3} = {C3022ECE-9FC4-4F50-8EDB-85532F6ADC8B}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6BF510F9-17E9-4ECE-B084-1A0BAF7715B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -40,5 +43,9 @@ Global
 		{0AF66A42-DAF9-4FC4-B268-C92418F2FD94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AF66A42-DAF9-4FC4-B268-C92418F2FD94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AF66A42-DAF9-4FC4-B268-C92418F2FD94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
