@@ -16,6 +16,8 @@ public class NFTDropInfoDto
     
     public decimal ClaimPrice { get; set; }
     
+    public string ClaimSymbol { get; set; }
+    
     public long MaxIndex { get; set; }
     
     public long TotalAmount { get; set; }
