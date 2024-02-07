@@ -19,5 +19,4 @@ public class ContractInfo
     
     public string AuctionContractAddress { get; set; }
     public string SymbolRegistrarContractAddress { get; set; }
-    public string NFTDropContractAddress { get; set; }
 }
