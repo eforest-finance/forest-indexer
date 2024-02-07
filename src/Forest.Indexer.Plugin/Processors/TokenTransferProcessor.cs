@@ -110,12 +110,6 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         _logger.Debug("TokenTransferProcessor-8"+JsonConvert.SerializeObject
             (seedSymbol));
         
-        if(!CheckIssueToIsContractAddress(eventValue.To.ToBase58()))
-        {
-            _logger.Debug("TokenTransferProcessor-9");
-            seedSymbol.IssuerTo = eventValue.To.ToBase58();
-            _logger.Debug("TokenTransferProcessor-10");
-        }
         //add calc minNftListing
         var minNftListing = await _nftInfoProvider.GetMinListingNftAsync(seedSymbolId);
         seedSymbol.OfMinNftListingInfo(minNftListing);
@@ -161,12 +155,9 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         };
         _objectMapper.Map(context, nftActivityIndex);
         nftActivityIndex.From =
-            CheckIssueToIsContractAddress(eventValue.From.ToBase58())
-                ? SymbolHelper.FullAddress(context.ChainId, eventValue.From.ToBase58())
-                : eventValue.From.ToBase58();
-        nftActivityIndex.To = CheckIssueToIsContractAddress(eventValue.To.ToBase58())
-            ? SymbolHelper.FullAddress(context.ChainId, eventValue.To.ToBase58())
-            : eventValue.To.ToBase58();
+            FullAddressHelper.ToFullAddress(eventValue.From.ToBase58(), context.ChainId);
+         nftActivityIndex.To =
+             FullAddressHelper.ToFullAddress(eventValue.To.ToBase58(), context.ChainId);
         await _nftActivityIndexRepository.AddOrUpdateAsync(nftActivityIndex);
     }
 
@@ -234,12 +225,5 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
             eventValue.To.ToBase58(), context);
         await _listingInfoProvider.UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount, eventValue.To.ToBase58(), context);
         await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
-    }
-
-    private bool CheckIssueToIsContractAddress(string issuerToAddress)
-    {
-        return _contractInfoOptions.ContractInfos.First().TokenContractAddress.Equals(issuerToAddress) ||
-               _contractInfoOptions.ContractInfos.First().TokenAdaptorContractAddress.Equals(issuerToAddress) ||
-               _contractInfoOptions.ContractInfos.Last().TokenContractAddress.Equals(issuerToAddress)||_contractInfoOptions.ContractInfos.Last().AuctionContractAddress.Equals(issuerToAddress);
     }
 }

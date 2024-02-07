@@ -195,7 +195,7 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
         {
             Id = nftActivityIndexId,
             Type = NFTActivityType.Issue,
-            To = eventValue.To.ToBase58(),
+            To = FullAddressHelper.ToFullAddress(eventValue.To.ToBase58(), context.ChainId),
             Amount = eventValue.Amount,
             TransactionHash = context.TransactionId,
             Timestamp = context.BlockTime,
