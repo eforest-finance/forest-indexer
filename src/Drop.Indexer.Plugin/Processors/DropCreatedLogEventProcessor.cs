@@ -19,7 +19,6 @@ public class DropCreatedLogEventProcessor : AElfLogEventProcessorBase<DropCreate
     private readonly IObjectMapper _objectMapper;
     private readonly ContractInfoOptions _contractInfoOptions;
     private readonly IAElfIndexerClientEntityRepository<NFTDropIndex, LogEventInfo> _nftDropIndexRepository;
-    // private readonly IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> _tokenIndexRepository;
     private readonly ILogger<DropCreatedLogEventProcessor> _logger;
     
     public DropCreatedLogEventProcessor(ILogger<DropCreatedLogEventProcessor> logger, 
@@ -29,7 +28,6 @@ public class DropCreatedLogEventProcessor : AElfLogEventProcessorBase<DropCreate
         ) : base(logger)
     {
         _nftDropIndexRepository = nftDropIndexRepository;
-        // _tokenIndexRepository = tokenIndexRepository;
         _logger = logger;
         _contractInfoOptions = contractInfoOptions.Value;
         _objectMapper = objectMapper;
@@ -48,7 +46,6 @@ public class DropCreatedLogEventProcessor : AElfLogEventProcessorBase<DropCreate
         var dropIndex = await _nftDropIndexRepository.GetFromBlockStateSetAsync(eventValue.DropId.ToHex(), context.ChainId);
         if (dropIndex != null) return;
         
-        // dropIndex = _objectMapper.Map<DropCreated, NFTDropIndex>(eventValue);
         dropIndex = new NFTDropIndex
         {
             Id = eventValue.DropId.ToHex(),
