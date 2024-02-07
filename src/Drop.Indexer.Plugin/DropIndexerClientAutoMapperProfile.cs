@@ -1,9 +1,7 @@
 using AElfIndexer.Client.Handlers;
 using AutoMapper;
 using Drop.Indexer.Plugin.GraphQL;
-using Forest.Contracts.Drop;
 using Drop.Indexer.Plugin.Entities;
-using Volo.Abp.AutoMapper;
 
 namespace Drop.Indexer.Plugin;
 
