@@ -223,12 +223,35 @@ public partial class Query
         {
             nftIds.AddRange(userBalanceIndexList.Select(o => o.NFTInfoId).ToList());
         }
-        
+
+        var totalCount = resultUserBalanceIndex?.Item1;
+        if (resultUserBalanceIndex?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        {
+            totalCount = await QueryRealCountAsync(userBalanceAppService, userBalanceMustQuery);
+        }
+
         logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
-        Tuple<long, List<string>> resultTuple = new Tuple<long, List<string>>(resultUserBalanceIndex.Item1, nftIds);
-        return resultTuple;
+        var count = (long)(totalCount == null ? 0 : totalCount);
+        return new Tuple<long, List<string>>(count, nftIds);
     }
-    
+    private static async Task<long> QueryRealCountAsync(IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceAppService,List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>> mustQuery)
+    {
+        var countRequest = new SearchRequest<UserBalanceIndex>
+        {
+            Query = new BoolQuery
+            {
+                Must = mustQuery
+                    .Select(func => func(new QueryContainerDescriptor<UserBalanceIndex>()))
+                    .ToList()
+                    .AsEnumerable()
+            },
+            Size = 0
+        };
+        
+        Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer> queryFunc = q => countRequest.Query;
+        var realCount = await userBalanceAppService.CountAsync(queryFunc);
+        return realCount.Count;
+    }
     private static NFTInfoPageResultDto BuildInitNftInfoPageResultDto()
     {
         return new NFTInfoPageResultDto
