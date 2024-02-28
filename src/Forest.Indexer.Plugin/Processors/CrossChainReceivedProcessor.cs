@@ -22,6 +22,7 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
     private readonly INFTListingInfoProvider _nftListingInfoProvider;
     private readonly INFTInfoProvider _nftInfoProvider;
     private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
+    private readonly IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> _nftInfoIndexRepository;
 
     private readonly IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> _seedSymbolIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo>
@@ -39,6 +40,7 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
         INFTListingInfoProvider nftListingInfoProvider,
         INFTOfferChangeProvider nftOfferChangeProvider,
         INFTListingChangeProvider listingChangeProvider,
+        IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoIndexRepository,
         INFTInfoProvider nftInfoProvider) :
         base(logger)
     {
@@ -53,6 +55,7 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
         _nftOfferChangeProvider = nftOfferChangeProvider;
         _logger = logger;
         _listingChangeProvider = listingChangeProvider;
+        _nftInfoIndexRepository = nftInfoIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
@@ -84,10 +87,10 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
             await HandleEventForSeedAsync(eventValue, context);
         }else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(eventValue.Symbol, context.ChainId))
         {
-            await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
+            await HandleEventForNFTAsync(eventValue, context);
         }
     }
-
+    
     private async Task HandleEventForSeedAsync(CrossChainReceived eventValue, LogEventContext context)
     {
         //Get the seed owned symbol from seed symbol index
@@ -103,7 +106,7 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
         seedSymbolIndexToChain.ChainId = context.ChainId;
         seedSymbolIndexToChain.IssuerTo = eventValue.To.ToBase58();
         _objectMapper.Map(context, seedSymbolIndexToChain);
-        seedSymbolIndexToChain.Supply = 1;
+        seedSymbolIndexToChain.Supply = eventValue.Amount;
         //add calc minNftListing
         var minNftListing = await _nftInfoProvider.GetMinListingNftAsync(seedSymbolIndexIdToChainId);
         seedSymbolIndexToChain.OfMinNftListingInfo(minNftListing);
@@ -122,6 +125,21 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
         tsmSeedSymbolIndexToChain.Owner = eventValue.To.ToBase58();
         _objectMapper.Map(context, tsmSeedSymbolIndexToChain);
         await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(tsmSeedSymbolIndexToChain);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
+    }
+    
+    private async Task HandleEventForNFTAsync(CrossChainReceived eventValue, LogEventContext context)
+    {
+        var nftInfoId =
+            IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
+        var nftInfoIndex = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftInfoId, context.ChainId);
+        _logger.Debug("CrossChainReceived-5-nftInfoId"+nftInfoId);
+        _logger.Debug("CrossChainReceived-6-nftInfo"+JsonConvert.SerializeObject(nftInfoIndex));
+        if(nftInfoIndex == null) return;
+        
+        _objectMapper.Map(context, nftInfoIndex);
+        nftInfoIndex.Supply += eventValue.Amount;
+        await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
 }
