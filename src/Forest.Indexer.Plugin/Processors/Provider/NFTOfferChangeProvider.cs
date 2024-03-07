@@ -31,6 +31,16 @@ public class NFTOfferChangeProvider : INFTOfferChangeProvider, ISingletonDepende
     
     public async Task SaveNFTOfferChangeIndexAsync(LogEventContext context, string symbol, EventType eventType)
     {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+
+        if (symbol.Equals(ForestIndexerConstants.TokenSimpleElf))
+        {
+            return;
+        }
+
         var nftOfferChangeIndex = new NFTOfferChangeIndex
         {
             Id = IdGenerateHelper.GetId(context.ChainId, symbol, Guid.NewGuid()),
