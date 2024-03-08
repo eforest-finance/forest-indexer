@@ -29,6 +29,8 @@ public interface INFTInfoProvider
     public Task<OfferInfoIndex> GetMaxOfferInfoAsync(string nftInfoId);
     
     public Task<OfferInfoIndex> GetMaxOfferInfoAsync(string nftInfoId, string excludeOfferId, OfferInfoIndex current);
+
+    public Task<int> QueryDecimal(string chainId, string symbol);
 }
 
 public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
@@ -419,6 +421,25 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
             "GetMaxOfferInfoAsync nftInfoId:{nftInfoId} maxOfferInfo id:{id} maxOfferPrice:{maxOfferPrice}", nftInfoId,
             maxOfferInfo?.Id, maxOfferInfo?.Price);
         return maxOfferInfo;
+    }
+
+    public async Task<int> QueryDecimal(string chainId,string symbol)
+    {
+        var decimals = 0;
+        if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
+        {
+            var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, symbol);
+            var seedSymbol = await _seedSymbolIndexRepository.GetFromBlockStateSetAsync(seedSymbolId, chainId);
+            decimals = seedSymbol.Decimals;
+        }
+        else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, chainId))
+        {
+            var nftIndexId = IdGenerateHelper.GetNFTInfoId(chainId, symbol);
+            var nftIndex = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftIndexId, chainId);
+            decimals = nftIndex.Decimals;
+        }
+
+        return decimals;
     }
 
     private async Task<bool> CheckOtherListExistAsync(string bizId, string noListingOwner, string excludeListingId)

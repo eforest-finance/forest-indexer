@@ -47,4 +47,5 @@ public static class ForestIndexerConstants
     public const string BrifeInfoDescriptionTopBid = "Top Bid";
     public const string SeedImageType = ".svg";
     public const long EsLimitTotalNumber = 10000;
+    public const int IntZero = 0;
 }

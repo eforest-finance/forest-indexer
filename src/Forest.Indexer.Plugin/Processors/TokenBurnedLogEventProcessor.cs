@@ -138,7 +138,7 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         symbolMarketTokenIndex.Supply -= eventValue.Amount;
         _objectMapper.Map(context, symbolMarketTokenIndex);
         await _symbolMarketTokenIndexRepository.AddOrUpdateAsync(symbolMarketTokenIndex);
-        await SaveActivityAsync(eventValue, context, symbolMarketTokenIndex.Id);
+        await SaveActivityAsync(eventValue, context, symbolMarketTokenIndex.Id, symbolMarketTokenIndex.Decimals);
     }
 
     private async Task HandleForSeedSymbolBurnedAsync(Burned eventValue, LogEventContext context)
@@ -191,7 +191,7 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         }
         await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbol);
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
-        await SaveActivityAsync(eventValue, context, seedSymbol.Id);
+        await SaveActivityAsync(eventValue, context, seedSymbol.Id, seedSymbol.Decimals);
     }
 
     private async Task<bool> CheckSeedIsUsed(string seedOwnedSymbol,string chainId)
@@ -223,10 +223,10 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         await _nftIndexRepository.AddOrUpdateAsync(nftIndex);
         await _collectionChangeProvider.SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
-        await SaveActivityAsync(eventValue, context, nftIndex.Id);
+        await SaveActivityAsync(eventValue, context, nftIndex.Id, nftIndex.Decimals);
     }
-    
-    private async Task SaveActivityAsync(Burned eventValue, LogEventContext context, string bizId)
+
+    private async Task SaveActivityAsync(Burned eventValue, LogEventContext context, string bizId, int decimals)
     {
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, NFTActivityType.Burn.ToString(),
@@ -236,7 +236,7 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
             Id = nftActivityIndexId,
             Type = NFTActivityType.Burn,
             From = eventValue.Burner.ToBase58(),
-            Amount = eventValue.Amount,
+            Amount = TokenHelper.GetIntegerDivision(eventValue.Amount,decimals),
             TransactionHash = context.TransactionId,
             Timestamp = context.BlockTime,
             NftInfoId = bizId

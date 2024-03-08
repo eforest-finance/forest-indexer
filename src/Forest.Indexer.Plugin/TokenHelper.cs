@@ -20,4 +20,14 @@ public class TokenHelper
     {
         return nftSymbol.Replace("-" + ForestIndexerConstants.NftSubfix, "");
     }
+    
+    public static long GetIntegerDivision(long number, int decimals)
+    {
+        if (decimals == ForestIndexerConstants.IntZero || number == ForestIndexerConstants.IntZero)
+        {
+            return ForestIndexerConstants.IntZero;
+        }
+
+        return number / decimals;
+    }
 }
