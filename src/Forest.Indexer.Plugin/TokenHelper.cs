@@ -15,12 +15,12 @@ public class TokenHelper
     {
         return IdGenerateHelper.GetId(ftSymbol, ForestIndexerConstants.NftSubfix);
     }
-    
+
     public static string GetFtSymbol(string nftSymbol)
     {
         return nftSymbol.Replace("-" + ForestIndexerConstants.NftSubfix, "");
     }
-    
+
     public static long GetIntegerDivision(long number, int decimals)
     {
         if (decimals == ForestIndexerConstants.IntZero || number == ForestIndexerConstants.IntZero)
@@ -28,6 +28,7 @@ public class TokenHelper
             return ForestIndexerConstants.IntZero;
         }
 
-        return number / decimals;
+        var divisor = (long)Math.Pow(ForestIndexerConstants.IntTen, decimals);
+        return number / divisor;
     }
 }
