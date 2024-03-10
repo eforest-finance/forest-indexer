@@ -6,6 +6,7 @@ using AElfIndexer.Grains.State.Client;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
+using Forest.Indexer.Plugin.Processors.Provider;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -31,6 +32,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
     private readonly IProxyAccountProvider _proxyAccountProvider;
     private readonly ILogger<AElfLogEventProcessorBase<TokenCreated, LogEventInfo>> _logger;
     private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
+    private readonly INFTListingChangeProvider _listingChangeProvider;
 
     public TokenCreatedLogEventProcessor(ILogger<AElfLogEventProcessorBase<TokenCreated, LogEventInfo>> logger
         , IObjectMapper objectMapper
@@ -44,6 +46,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         , IProxyAccountProvider proxyAccountProvider
         , IOptionsSnapshot<ContractInfoOptions> contractInfoOptions, 
         IAElfClientServiceProvider aElfClientServiceProvider,
+        INFTListingChangeProvider listingChangeProvider,
         IAElfIndexerClientEntityRepository<CollectionChangeIndex, LogEventInfo> collectionChangeIndexRepository) : base(logger)
     {
         _objectMapper = objectMapper;
@@ -58,6 +61,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         _collectionChangeIndexRepository = collectionChangeIndexRepository;
         _logger = logger;
         _aElfClientServiceProvider = aElfClientServiceProvider;
+        _listingChangeProvider = listingChangeProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -419,6 +423,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
             await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(tsmSeedSymbolIndexNoMainChain);
         }
         await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbolIndex);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
 
     private async Task HandleForNFTCreateAsync(TokenCreated eventValue, LogEventContext context)
@@ -477,6 +482,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
 
         _objectMapper.Map(context, nftInfoIndex);
         await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
 
     private async Task HandleForNFTCollectionCreateAsync(TokenCreated eventValue, LogEventContext context)
