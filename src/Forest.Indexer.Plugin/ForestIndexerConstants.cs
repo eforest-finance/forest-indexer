@@ -48,5 +48,6 @@ public static class ForestIndexerConstants
     public const string SeedImageType = ".svg";
     public const long EsLimitTotalNumber = 10000;
     public const int IntZero = 0;
+    public const int IntOne = 0;
     public const int IntTen = 10;
 }

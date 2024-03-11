@@ -115,24 +115,23 @@ public partial class Query
                 };
         
         var decimals = 0;
-        if (SymbolHelper.CheckSymbolIsNoMainChainNFT(dto.Symbol, dto.ChainId))
+        var symbol = SymbolHelper.RemovePrefix(dto.NFTInfoId);
+        if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, dto.ChainId))
         {
-            var nftInfoId = IdGenerateHelper.GetNFTInfoId(dto.ChainId, dto.Symbol);
-            var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(nftInfoId, dto.ChainId);
+            var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
             if (nftInfo == null)
             {
-                throw new Exception("nft not exists nftInfoId="+nftInfoId);
+                throw new Exception("nft not exists nftInfoId="+dto.NFTInfoId);
             }
-
+        
             decimals = nftInfo.Decimals;
         }
-        else if (SymbolHelper.CheckSymbolIsSeedSymbol(dto.Symbol))
+        else if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
         {
-            var nftInfoId = IdGenerateHelper.GetSeedSymbolId(dto.ChainId, dto.Symbol);
-            var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(nftInfoId, dto.ChainId);
+            var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
             if (nftInfo == null)
             {
-                throw new Exception("nft not exists nftInfoId(seed)="+nftInfoId);
+                throw new Exception("nft not exists nftInfoId(seed)="+dto.NFTInfoId);
             }
             decimals = nftInfo.Decimals;
         }
