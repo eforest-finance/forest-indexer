@@ -25,7 +25,7 @@ public class TokenHelper
     {
         if (decimals == ForestIndexerConstants.IntZero || number == ForestIndexerConstants.IntZero)
         {
-            return ForestIndexerConstants.IntZero;
+            return number;
         }
 
         var divisor = (long)Math.Pow(ForestIndexerConstants.IntTen, decimals);
