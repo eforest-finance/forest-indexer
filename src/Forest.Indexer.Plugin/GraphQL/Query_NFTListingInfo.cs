@@ -19,8 +19,6 @@ public partial class Query
         [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
         [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepo,
         [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolIndexRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<WhiteListExtraInfoIndex, LogEventInfo> whiteListExtRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<TagInfoIndex, LogEventInfo> tagInfoRepo,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] ILogger<NFTListingInfoIndex> _logger,
         GetNFTListingDto input)
@@ -37,7 +35,7 @@ public partial class Query
             var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(nftInfoId, input.ChainId);
             if (nftInfo == null)
             {
-                throw new Exception("nft not exists nftInfoId="+nftInfoId);
+                return new NftListingPageResultDto("nft not exists nftInfoId" + nftInfoId);
             }
 
             decimals = nftInfo.Decimals;
@@ -48,7 +46,7 @@ public partial class Query
             var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(nftInfoId, input.ChainId);
             if (nftInfo == null)
             {
-                throw new Exception("nft not exists nftInfoId(seed)="+nftInfoId);
+                return new NftListingPageResultDto("nft not exists nftInfoId(seed)" + nftInfoId);
             }
             decimals = nftInfo.Decimals;
         }

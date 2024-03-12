@@ -121,7 +121,12 @@ public partial class Query
             var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
             if (nftInfo == null)
             {
-                throw new Exception("nft not exists nftInfoId="+dto.NFTInfoId);
+                return
+                    new NftOfferPageResultDto
+                    {
+                        TotalRecordCount = 0,
+                        Data = new List<NFTOfferDto>()
+                    };
             }
         
             decimals = nftInfo.Decimals;
@@ -131,7 +136,12 @@ public partial class Query
             var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
             if (nftInfo == null)
             {
-                throw new Exception("nft not exists nftInfoId(seed)="+dto.NFTInfoId);
+                return
+                    new NftOfferPageResultDto
+                    {
+                        TotalRecordCount = 0,
+                        Data = new List<NFTOfferDto>()
+                    };
             }
             decimals = nftInfo.Decimals;
         }
