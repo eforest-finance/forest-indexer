@@ -88,6 +88,11 @@ public partial class Query
         {
            
             var item = objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(i);
+            
+           
+            _logger.Debug("listing quantity={Quantity} after quantity {AQuantity} decimal {Decimals} ",item.Quantity,TokenHelper.GetIntegerDivision(item.Quantity, decimals),decimals);
+            _logger.Debug("listing quantity real={Quantity} after quantity {AQuantity} decimal {Decimals}",item.RealQuantity,TokenHelper.GetIntegerDivision(item.RealQuantity, decimals),decimals);
+            
             item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
             item.Quantity = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
             item.RealQuantity = TokenHelper.GetIntegerDivision(item.RealQuantity, decimals);
