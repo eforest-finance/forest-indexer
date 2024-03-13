@@ -12,6 +12,7 @@ public static class ForestIndexerConstants
         "painless";
     public const string  BurnedAllNftScript = "doc['supply'].value == 0 && doc['issued'].value == doc['totalSupply'].value";
     public const string  CreateFailedANftScript = "doc['supply'].value == 0 && doc['issued'].value == 0";
+    public const string IssuedLessThenOneANftScript = "(doc['supply'].value / Math.pow(10, doc['decimals'].value)) < 1";
 
     public const char NFTSymbolSeparator = '-';
     
