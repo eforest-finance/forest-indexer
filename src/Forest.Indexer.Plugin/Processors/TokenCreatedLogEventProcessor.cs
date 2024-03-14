@@ -431,7 +431,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         var nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, eventValue.Symbol);
         var nftInfoIndex = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftInfoIndexId, context.ChainId);
         if (nftInfoIndex != null) return;
-
+        _logger.Debug("TokenCreatedLogEventProcessor-6 symbol:{A}", eventValue.Symbol);
         var collectionSymbol = SymbolHelper.GetNFTCollectionSymbol(eventValue.Symbol);
         if (collectionSymbol == null) return;
 
@@ -482,6 +482,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
 
         _objectMapper.Map(context, nftInfoIndex);
         await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
+        _logger.Debug("TokenCreatedLogEventProcessor-7 nftSave Id:{A} Symbol:{B}", nftInfoIndex.Id, nftInfoIndex.Symbol);
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
 
