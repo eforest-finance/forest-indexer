@@ -227,20 +227,25 @@ public partial class Query
         var totalCount = resultUserBalanceIndex?.Item1;
         if (resultUserBalanceIndex?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
         {
-            totalCount = await QueryRealCountAsync(userBalanceAppService, userBalanceMustQuery);
+            totalCount =
+                await QueryRealCountAsync(userBalanceAppService, userBalanceMustQuery, userBalanceMustNotQuery);
         }
 
         logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
         var count = (long)(totalCount == null ? 0 : totalCount);
         return new Tuple<long, List<string>>(count, nftIds);
     }
-    private static async Task<long> QueryRealCountAsync(IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceAppService,List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>> mustQuery)
+    private static async Task<long> QueryRealCountAsync(IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceAppService,List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>> mustQuery,List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>> mustNotQuery)
     {
         var countRequest = new SearchRequest<UserBalanceIndex>
         {
             Query = new BoolQuery
             {
                 Must = mustQuery
+                    .Select(func => func(new QueryContainerDescriptor<UserBalanceIndex>()))
+                    .ToList()
+                    .AsEnumerable(),
+                MustNot = mustNotQuery
                     .Select(func => func(new QueryContainerDescriptor<UserBalanceIndex>()))
                     .ToList()
                     .AsEnumerable()
