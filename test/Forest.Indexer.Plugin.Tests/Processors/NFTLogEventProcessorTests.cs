@@ -1425,8 +1425,9 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
     {
         await HandleOfferAddedLogEventAsync_Test();
 
-        var result = await Query.NftOffers(_nftOfferIndexRepository, _objectMapper, new GetNFTOffersDto()
-        {
+        var result = await Query.NftOffers(_nftOfferIndexRepository, _objectMapper, _nftInfoIndexRepository,
+            _seedSymbolIndexRepository, new GetNFTOffersDto()
+            {
             SkipCount = 0,
             MaxResultCount = 10,
             ChainId = "tDVW",
