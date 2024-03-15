@@ -16,5 +16,5 @@ public enum TokenCreatedExternalInfoEnum
     [Description("__seed_owned_symbol")] SeedOwnedSymbol,
     [Description("__seed_exp_time")] SeedExpTime,
     [Description("inscription_image")] SpecialInscriptionImage,
-    [Description("__inscription_image")] CommonInscriptionImage
+    [Description("__nft_image_uri")] NFTImageUri
 }

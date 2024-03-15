@@ -474,10 +474,10 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
             nftInfoIndex.ImageUrl = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
                 TokenCreatedExternalInfoEnum.SpecialInscriptionImage);
         }else if (eventValue.ExternalInfo.Value.ContainsKey(
-                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.CommonInscriptionImage)))
+                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.NFTImageUri)))
         {
             nftInfoIndex.ImageUrl = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
-                TokenCreatedExternalInfoEnum.CommonInscriptionImage);
+                TokenCreatedExternalInfoEnum.NFTImageUri);
         }
 
         _objectMapper.Map(context, nftInfoIndex);
@@ -521,10 +521,10 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
             nftCollectionIndex.LogoImage = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
                 TokenCreatedExternalInfoEnum.SpecialInscriptionImage);
         }else if (eventValue.ExternalInfo.Value.ContainsKey(
-                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.CommonInscriptionImage)))
+                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.NFTImageUri)))
         {
             nftCollectionIndex.LogoImage = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
-                TokenCreatedExternalInfoEnum.CommonInscriptionImage);
+                TokenCreatedExternalInfoEnum.NFTImageUri);
         }
         
         nftCollectionIndex.FeaturedImageLink = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
