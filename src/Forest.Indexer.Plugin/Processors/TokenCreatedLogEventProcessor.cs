@@ -442,6 +442,9 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
 
         nftInfoIndex = _objectMapper.Map<TokenCreated, NFTInfoIndex>(eventValue);
         nftInfoIndex.ExternalInfoDictionary = eventValue.ExternalInfo.Value
+            .Where(entity =>
+                !entity.Key.Equals(
+                    EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.InscriptionImage)))
             .Select(entity => new ExternalInfoDictionary
             {
                 Key = entity.Key,
