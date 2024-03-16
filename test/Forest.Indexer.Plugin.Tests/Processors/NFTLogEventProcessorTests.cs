@@ -1425,8 +1425,9 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
     {
         await HandleOfferAddedLogEventAsync_Test();
 
-        var result = await Query.NftOffers(_nftOfferIndexRepository, _objectMapper, new GetNFTOffersDto()
-        {
+        var result = await Query.NftOffers(_nftOfferIndexRepository, _objectMapper, _nftInfoIndexRepository,
+            _seedSymbolIndexRepository, new GetNFTOffersDto()
+            {
             SkipCount = 0,
             MaxResultCount = 10,
             ChainId = "tDVW",
@@ -1549,8 +1550,7 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
 
         await HandleNFTIssueAsync_Test();
 
-        var result = await Query.NFTInfo(_nftInfoIndexRepository, _seedSymbolRepo,
-            _whitelistIndexRepository, _userBalanceIndexRepository, _objectMapper,
+        var result = await Query.NFTInfo(_nftInfoIndexRepository, _seedSymbolRepo, _userBalanceIndexRepository, _objectMapper,
             new GetNFTInfoDto()
             {
                 Id = IdGenerateHelper.GetNFTInfoId(chainId, symbol),
@@ -1561,8 +1561,7 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         result.Id.ShouldBe(IdGenerateHelper.GetNFTInfoId(chainId, symbol));
         result.OtherOwnerListingFlag.ShouldBeFalse();
 
-        var result2 = await Query.NFTInfo(_nftInfoIndexRepository, _seedSymbolRepo,
-            _whitelistIndexRepository, _userBalanceIndexRepository, _objectMapper,
+        var result2 = await Query.NFTInfo(_nftInfoIndexRepository, _seedSymbolRepo, _userBalanceIndexRepository, _objectMapper,
             new GetNFTInfoDto()
             {
                 Id = IdGenerateHelper.GetNFTInfoId(chainId, symbol),
@@ -1570,16 +1569,14 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
             });
         result2.ShouldNotBeNull();
         result2.Id.ShouldBe(IdGenerateHelper.GetNFTInfoId(chainId, symbol));
-        var result3 = await Query.NFTInfo(_nftInfoIndexRepository, _seedSymbolRepo,
-            _whitelistIndexRepository, _userBalanceIndexRepository, _objectMapper,
+        var result3 = await Query.NFTInfo(_nftInfoIndexRepository, _seedSymbolRepo, _userBalanceIndexRepository, _objectMapper,
             new GetNFTInfoDto()
             {
                 Id = "",
                 Address = ""
             });
         result3.ShouldBeNull();
-        var result4 = await Query.NFTInfo(_nftInfoIndexRepository, _seedSymbolRepo,
-            _whitelistIndexRepository, _userBalanceIndexRepository, _objectMapper,
+        var result4 = await Query.NFTInfo(_nftInfoIndexRepository, _seedSymbolRepo, _userBalanceIndexRepository, _objectMapper,
             new GetNFTInfoDto()
             {
                 Id = IdGenerateHelper.GetNFTInfoId(chainId, symbol),

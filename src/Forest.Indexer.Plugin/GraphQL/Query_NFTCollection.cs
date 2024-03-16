@@ -231,7 +231,8 @@ public partial class Query
         mustNotQuery.Add(q => q
             .Script(sc => sc
                 .Script(script =>
-                    script.Source($"{ForestIndexerConstants.BurnedAllNftScript} || {ForestIndexerConstants.CreateFailedANftScript}")
+                    script.Source(
+                        $"{ForestIndexerConstants.BurnedAllNftScript} || {ForestIndexerConstants.CreateFailedANftScript} || {ForestIndexerConstants.IssuedLessThenOneANftScript}")
                 )
             )
         );

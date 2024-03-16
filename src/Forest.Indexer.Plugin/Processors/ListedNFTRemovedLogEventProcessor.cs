@@ -58,6 +58,7 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
 
     protected override async Task HandleEventAsync(ListedNFTRemoved eventValue, LogEventContext context)
     {
+        
         var listedNftIndexId = IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, eventValue.Owner.ToBase58(),
             eventValue.Duration.StartTime.Seconds);
         _logger.Debug("[ListedNFTRemoved] START: ChainId={ChainId}, symbol={Symbol}, id={Id}",
@@ -65,6 +66,7 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
         
         try
         {
+            
             var nftListingInfoIndex = await _listedNFTIndexRepository.GetFromBlockStateSetAsync(listedNftIndexId, context.ChainId);
             if (nftListingInfoIndex == null)
                 throw new UserFriendlyException("listing info NOT FOUND");
@@ -91,12 +93,13 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
             // NFT activity
             var nftActivityIndexId =
                 IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, "DELIST", context.TransactionId, Guid.NewGuid());
+            var decimals = await _nftInfoProvider.QueryDecimal(context.ChainId, eventValue.Symbol);
             var activitySaved = await _nftInfoProvider.AddNFTActivityAsync(context, new NFTActivityIndex
             {
                 Id = nftActivityIndexId,
                 Type = NFTActivityType.DeList,
                 From = eventValue.Owner.ToBase58(),
-                Amount = nftListingInfoIndex.Quantity,
+                Amount = TokenHelper.GetIntegerDivision(nftListingInfoIndex.Quantity, decimals),
                 Price = nftListingInfoIndex.Prices,
                 PriceTokenInfo = tokenIndex,
                 TransactionHash = context.TransactionId,

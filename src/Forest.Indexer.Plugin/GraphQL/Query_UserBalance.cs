@@ -53,6 +53,25 @@ public partial class Query
             NftIds = nftIds
         };
     }
+    
+    [Name("queryUserNftIdsPage")]
+    public static async Task<UserMatchedNftIdsPage> QueryUserNftIdsPageAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepository,
+        [FromServices] ILogger<UserBalanceIndex> logger,
+        GetNFTInfosDto dto)
+    {
+        //query match nft
+        var script = dto.IsSeed
+            ? ForestIndexerConstants.UserBalanceScriptForSeed
+            : ForestIndexerConstants.UserBalanceScriptForNft;
+        var result = await GetMatchedNftIdsPageAsync(userBalanceRepository, logger, dto, script);
+
+        return new UserMatchedNftIdsPage
+        {
+            NftIds = result?.Item2,
+            Count = result.Item1
+        };
+    }
 
     [Name("queryOwnersByNftId")]
     public static async Task<NFTOwnersPageResultDto> QueryOwnersByNftIdAsync(

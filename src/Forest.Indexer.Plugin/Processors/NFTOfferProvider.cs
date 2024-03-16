@@ -97,6 +97,10 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
     public async Task UpdateOfferRealQualityAsync(string symbol, long balance, string offerFrom,
         LogEventContext context)
     {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
         if (!SymbolHelper.CheckSymbolIsELF(symbol))
         {
             return;
@@ -146,6 +150,14 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
                     {
                         offerInfoIndex.RealQuantity = realQuantity;
                         _objectMapper.Map(context, offerInfoIndex);
+                        var research = await _nftOfferIndexRepository.GetFromBlockStateSetAsync(offerInfoIndex.Id,context.ChainId);
+                        if (research == null)
+                        {
+                            _logger.LogInformation(
+                                "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
+                                offerInfoIndex.Id);
+                            continue;
+                        }
                         await _nftOfferIndexRepository.AddOrUpdateAsync(offerInfoIndex);
                     }
                 }

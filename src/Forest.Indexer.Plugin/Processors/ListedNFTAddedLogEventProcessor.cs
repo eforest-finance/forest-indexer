@@ -23,6 +23,8 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
     private readonly ICollectionProvider _collectionProvider;
     private readonly ICollectionChangeProvider _collectionChangeProvider;
     private readonly INFTListingChangeProvider _listingChangeProvider;
+    private readonly IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> _seedSymbolIndexRepository;
+    private readonly IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> _nftIndexRepository;
 
 
     public ListedNFTAddedLogEventProcessor(ILogger<AElfLogEventProcessorBase<ListedNFTAdded, LogEventInfo>> logger,
@@ -33,6 +35,8 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
         ICollectionProvider collectionProvider,
         ICollectionChangeProvider collectionChangeProvider,
         INFTListingChangeProvider listingChangeProvider,
+        IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolIndexRepository,
+        IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftIndexRepository,
         IObjectMapper objectMapper) : base(logger)
     {
         _logger = logger;
@@ -44,6 +48,8 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
         _collectionProvider = collectionProvider;
         _collectionChangeProvider = collectionChangeProvider;
         _listingChangeProvider = listingChangeProvider;
+        _seedSymbolIndexRepository = seedSymbolIndexRepository;
+        _nftIndexRepository = nftIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
@@ -106,12 +112,15 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
             // NFT activity
             var nftActivityIndexId =
                 IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, "LISTED", context.TransactionId);
+            
+            var decimals = await _nftInfoProvider.QueryDecimal(context.ChainId, eventValue.Symbol);
+            
             var activitySaved = await _nftInfoProvider.AddNFTActivityAsync(context, new NFTActivityIndex
             {
                 Id = nftActivityIndexId,
                 Type = NFTActivityType.ListWithFixedPrice,
                 From = eventValue.Owner.ToBase58(),
-                Amount = updateListedInfoResponse.ListingQuantity,
+                Amount = TokenHelper.GetIntegerDivision(updateListedInfoResponse.ListingQuantity, decimals),
                 Price = updateListedInfoResponse.ListingPrice,
                 PriceTokenInfo = tokenIndex,
                 TransactionHash = context.TransactionId,

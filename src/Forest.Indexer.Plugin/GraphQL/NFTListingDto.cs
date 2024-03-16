@@ -2,7 +2,7 @@ namespace Forest.Indexer.Plugin.GraphQL;
 
 public class NFTListingInfoDto
 {
-    
+    public string Id { get; set; }
     public long Quantity { get; set; }
     public string Symbol { get; set; }
     public string Owner { get; set; }

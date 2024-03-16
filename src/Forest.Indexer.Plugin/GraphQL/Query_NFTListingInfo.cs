@@ -18,9 +18,7 @@ public partial class Query
     public static async Task<NftListingPageResultDto> NFTListingInfo(
         [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
         [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> nftCollectionRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<WhiteListExtraInfoIndex, LogEventInfo> whiteListExtRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<TagInfoIndex, LogEventInfo> tagInfoRepo,
+        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolIndexRepo,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] ILogger<NFTListingInfoIndex> _logger,
         GetNFTListingDto input)
@@ -30,6 +28,30 @@ public partial class Query
 
         _logger.Debug($"[NFTListingInfo] INPUT: chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}");
         
+        var decimals = 0;
+        if (SymbolHelper.CheckSymbolIsNoMainChainNFT(input.Symbol, input.ChainId))
+        {
+            var nftInfoId = IdGenerateHelper.GetNFTInfoId(input.ChainId, input.Symbol);
+            var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(nftInfoId, input.ChainId);
+            if (nftInfo == null)
+            {
+                return new NftListingPageResultDto("nft not exists nftInfoId" + nftInfoId);
+            }
+
+            decimals = nftInfo.Decimals;
+        }
+        else if (SymbolHelper.CheckSymbolIsSeedSymbol(input.Symbol))
+        {
+            var nftInfoId = IdGenerateHelper.GetSeedSymbolId(input.ChainId, input.Symbol);
+            var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(nftInfoId, input.ChainId);
+            if (nftInfo == null)
+            {
+                return new NftListingPageResultDto("nft not exists nftInfoId(seed)" + nftInfoId);
+            }
+            decimals = nftInfo.Decimals;
+        }
+        
+
         // query listing info
         var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
         var listingNotQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
@@ -60,21 +82,18 @@ public partial class Query
         _logger.Debug(
             $"[NFTListingInfo] SETP: query Pager chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}, count={result.Item1}");
         
-        var whitelistPriceDict = await QueryWhitelistPrice(whiteListExtRepo, tagInfoRepo, objectMapper, _logger,
-            input.Address,
-            result.Item2.Select(i => i.WhitelistId).ToList());
-
         var dataList = result.Item2.Select(i =>
         {
+           
             var item = objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(i);
+            
+           
+            _logger.Debug("listing quantity={Quantity} after quantity {AQuantity} decimal {Decimals} ",item.Quantity,TokenHelper.GetIntegerDivision(item.Quantity, decimals),decimals);
+            _logger.Debug("listing quantity real={Quantity} after quantity {AQuantity} decimal {Decimals}",item.RealQuantity,TokenHelper.GetIntegerDivision(item.RealQuantity, decimals),decimals);
+            
             item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
-
-            var whitelistPrice = whitelistPriceDict.GetValueOrDefault(item.WhitelistId ?? "", null);
-            if (whitelistPrice != null)
-            {
-                item.WhitelistPrices = (decimal)(whitelistPrice.Amount / Math.Pow(10, i.PurchaseToken.Decimals));
-            }
-
+            item.Quantity = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
+            item.RealQuantity = TokenHelper.GetIntegerDivision(item.RealQuantity, decimals);
             return item;
         }).ToList();
 
@@ -91,87 +110,8 @@ public partial class Query
         sortDescriptor.Ascending(a => a.ExpireTime);
         IPromise<IList<ISort>> promise = sortDescriptor;
         return s => promise;
-    } 
-
-    private static async Task<Dictionary<string, PriceTag>> QueryWhitelistPrice(
-        IAElfIndexerClientEntityRepository<WhiteListExtraInfoIndex, LogEventInfo> whiteListExtRepo,
-        IAElfIndexerClientEntityRepository<TagInfoIndex, LogEventInfo> tagInfoRepo,
-        IObjectMapper objectMapper,
-        ILogger logger,
-        string address, List<string> whitelistIdList)
-    {
-        try
-        {
-            if (address.IsNullOrWhiteSpace() || whitelistIdList.IsNullOrEmpty())
-                return new Dictionary<string, PriceTag>();
-
-            // query extInfo of whitelistIdList
-            var extInfoQuery = new List<Func<QueryContainerDescriptor<WhiteListExtraInfoIndex>, QueryContainer>>();
-            extInfoQuery.Add(q => q.Terms(i => i.Field(f => f.WhitelistInfoId).Terms(whitelistIdList)));
-            extInfoQuery.Add(q => q.Term(i => i.Field(f => f.Address).Value(address)));
-
-            QueryContainer ExtInfoFilter(QueryContainerDescriptor<WhiteListExtraInfoIndex> f) =>
-                f.Bool(b => b.Must(extInfoQuery));
-
-            var extInfoTuple = await whiteListExtRepo.GetListAsync(ExtInfoFilter);
-            logger.Debug("[QueryWhitelistPrice] STEP: extInfoTuple={extTupleCount}-{extTupleItems}",
-                extInfoTuple.Item1, JsonConvert.SerializeObject(extInfoTuple));
-
-            var extInfoIndexList = new List<WhiteListExtraInfoIndex>();
-            extInfoIndexList = extInfoTuple.Item2.IsNullOrEmpty() ? extInfoIndexList : extInfoTuple.Item2;
-
-            // whitelistId -> List<ExtInfoIndex>
-            var extInfoDict = extInfoIndexList.GroupBy(i => i.WhitelistInfoId)
-                .ToDictionary(group => group.Key, group => group.ToList());
-            logger.Debug("[QueryWhitelistPrice] STEP: extInfoDict={extInfos}", string.Join(",", extInfoDict.Keys));
-            if (extInfoDict.IsNullOrEmpty()) return new Dictionary<string, PriceTag>();
-
-            // query TagInfo
-            var tagInfoQuery = new List<Func<QueryContainerDescriptor<TagInfoIndex>, QueryContainer>>();
-            tagInfoQuery.Add(q => q.Terms(i => i.Field(f => f.WhitelistInfoId).Terms(whitelistIdList)));
-
-            QueryContainer TagInfoFilter(QueryContainerDescriptor<TagInfoIndex> f) =>
-                f.Bool(b => b.Must(tagInfoQuery));
-
-            var tagInfoTuple = await tagInfoRepo.GetListAsync(TagInfoFilter);
-            logger.Debug("[QueryWhitelistPrice] STEP: tgaInfoTuple={tagInfoCount}-{tagInfoItem}",
-                tagInfoTuple.Item1, string.Join(",", tagInfoTuple.Item2.Select(i => i.Id).ToList()));
-
-            // decode PriceInfo
-            var priceDict = tagInfoTuple.Item1 == 0
-                ? new Dictionary<string, PriceTag>()
-                : tagInfoTuple.Item2?
-                    .GroupBy(tag => tag.TagHash)
-                    .ToDictionary(
-                        tag => tag.Key,
-                        tag => tag.OrderBy(t => t.DecodeInfo<PriceTag>().Amount).First().DecodeInfo<PriceTag>()
-                    );
-            logger.Debug("[QueryWhitelistPrice] STEP: priceDict={priceDict}", string.Join(",", priceDict.Keys));
-            if (priceDict.IsNullOrEmpty()) return new Dictionary<string, PriceTag>();
-
-            var resDict = new Dictionary<string, PriceTag>();
-            foreach (var whitelistId in whitelistIdList)
-            {
-                var extInfos = extInfoDict.GetValueOrDefault(whitelistId);
-                if (extInfos.IsNullOrEmpty()) continue;
-                var extInfoTagIds = extInfos.Select(ext => ext.TagInfoId).Distinct().ToList();
-                var priceTag = priceDict.Where(p => extInfoTagIds.Contains(p.Key))
-                    .Select(p => p.Value)
-                    .OrderBy(k => k.Amount)
-                    .FirstOrDefault(new PriceTag());
-                resDict[whitelistId] = priceTag;
-            }
-
-            return resDict;
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "[QueryWhitelistPrice] query whitelistPrice error, address={}, whitelistIds={}", address,
-                string.Join(",", whitelistIdList));
-            return new Dictionary<string, PriceTag>();
-        }
     }
-    
+
     [Name("getMinListingNft")]
     public static async Task<NFTListingInfoDto> GetMinListingNftAsync(
         [FromServices] INFTInfoProvider nftInfoProvider,
