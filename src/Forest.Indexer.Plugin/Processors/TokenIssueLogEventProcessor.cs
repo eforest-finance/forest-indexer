@@ -139,7 +139,7 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
         _logger.Debug("TokenIssueLogEventProcessor-32-HandleForNoMainChainSeedTokenAsync"+JsonConvert.SerializeObject(symbolMarketTokenIndex));
         await _symbolMarketTokenIndexRepository.AddOrUpdateAsync(symbolMarketTokenIndex);
         _logger.Debug("TokenIssueLogEventProcessor-33-HandleForNoMainChainSeedTokenAsync");
-        await SaveActivityAsync(eventValue, context, symbolMarketTokenIndex.Id);
+        await SaveActivityAsync(eventValue, context, symbolMarketTokenIndex.Id, symbolMarketTokenIndex.Decimals);
     }
 
     private async Task HandleForSeedSymbolIssueAsync(Issued eventValue, LogEventContext context)
@@ -162,7 +162,7 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
         _objectMapper.Map(context, seedSymbolIndex);
         await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbolIndex);
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
-        await SaveActivityAsync(eventValue, context, seedSymbolIndex.Id);
+        await SaveActivityAsync(eventValue, context, seedSymbolIndex.Id, seedSymbolIndex.Decimals);
     }
 
     private async Task HandleForNFTIssueAsync(Issued eventValue, LogEventContext context)
@@ -184,10 +184,10 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
         await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
 
-        await SaveActivityAsync(eventValue, context, nftInfoIndex.Id);
+        await SaveActivityAsync(eventValue, context, nftInfoIndex.Id, nftInfoIndex.Decimals);
     }
 
-    private async Task SaveActivityAsync(Issued eventValue, LogEventContext context, string bizId)
+    private async Task SaveActivityAsync(Issued eventValue, LogEventContext context, string bizId, int decimals)
     {
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, NFTActivityType.Issue.ToString(), context.TransactionId);
@@ -196,7 +196,7 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
             Id = nftActivityIndexId,
             Type = NFTActivityType.Issue,
             To = FullAddressHelper.ToFullAddress(eventValue.To.ToBase58(), context.ChainId),
-            Amount = eventValue.Amount,
+            Amount = TokenHelper.GetIntegerDivision(eventValue.Amount,decimals),
             TransactionHash = context.TransactionId,
             Timestamp = context.BlockTime,
             NftInfoId = bizId

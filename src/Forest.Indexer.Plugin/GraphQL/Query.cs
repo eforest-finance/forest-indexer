@@ -102,6 +102,8 @@ public partial class Query
     public static async Task<NftOfferPageResultDto> NftOffers(
         [FromServices] IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> repository,
         [FromServices] IObjectMapper objectMapper,
+        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepo,
+        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolIndexRepo,
         GetNFTOffersDto dto)
     {
         if (dto.ChainId.IsNullOrEmpty())
@@ -111,6 +113,39 @@ public partial class Query
                     TotalRecordCount = 0,
                     Data = new List<NFTOfferDto>()
                 };
+        
+        var decimals = 0;
+        var symbol = SymbolHelper.RemovePrefix(dto.NFTInfoId);
+        if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, dto.ChainId))
+        {
+            var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
+            if (nftInfo == null)
+            {
+                return
+                    new NftOfferPageResultDto
+                    {
+                        TotalRecordCount = 0,
+                        Data = new List<NFTOfferDto>()
+                    };
+            }
+        
+            decimals = nftInfo.Decimals;
+        }
+        else if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
+        {
+            var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
+            if (nftInfo == null)
+            {
+                return
+                    new NftOfferPageResultDto
+                    {
+                        TotalRecordCount = 0,
+                        Data = new List<NFTOfferDto>()
+                    };
+            }
+            decimals = nftInfo.Decimals;
+        }
+        
         // query offer list
         var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
         mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(dto.ChainId)));
@@ -140,13 +175,18 @@ public partial class Query
         if (result == null
             || result.Item2 == null)
             return new NftOfferPageResultDto
-            {
+            { 
                 TotalRecordCount = 0,
                 Data = new List<NFTOfferDto>()
             };
 
-        var dataList = objectMapper.Map<List<OfferInfoIndex>, List<NFTOfferDto>>(result.Item2);
-
+        var dataList = result.Item2.Select(i =>
+        {
+            var item = objectMapper.Map<OfferInfoIndex, NFTOfferDto>(i);
+            item.Quantity = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
+            item.RealQuantity = TokenHelper.GetIntegerDivision(item.RealQuantity, decimals);
+            return item;
+        }).ToList();
         return new NftOfferPageResultDto
         {
             TotalRecordCount = result.Item1,

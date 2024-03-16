@@ -5,6 +5,7 @@ using Forest.Indexer.Plugin.Entities;
 using GraphQL;
 using Microsoft.Extensions.Logging;
 using Nest;
+using Orleans.Runtime;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -189,6 +190,73 @@ public partial class Query
         return nftIds;
     }
     
+    private static async Task<Tuple<long, List<string>>> GetMatchedNftIdsPageAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceAppService,
+        [FromServices] ILogger<UserBalanceIndex> logger,
+        GetNFTInfosDto dto,
+        string script)
+    {
+        var nftIds = new List<string>();
+        var userBalanceMustQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
+        var userBalanceMustNotQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
+        userBalanceMustQuery.Add(q => q.Term(i => i.Field(f => f.Address).Value(dto.Address)));
+        userBalanceMustQuery.Add(q => q.Range(i => i.Field(f => f.Amount).GreaterThan(0)));
+        userBalanceMustNotQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(ForestIndexerConstants.MainChain)));
+        if (!script.IsNullOrEmpty())
+        {
+            userBalanceMustQuery.Add(q=>q.Script(scriptDescriptor => scriptDescriptor
+                .Script(s => s
+                    .Source(script)
+                    .Lang(ForestIndexerConstants.Painless))));
+        }
+
+        QueryContainer FilterForUserBalance(QueryContainerDescriptor<UserBalanceIndex> f)
+        {
+            return f.Bool(b => b.Must(userBalanceMustQuery).MustNot(userBalanceMustNotQuery));
+        }
+
+        var resultUserBalanceIndex =
+            await userBalanceAppService.GetListAsync(FilterForUserBalance, skip: dto.SkipCount,
+                limit: dto.MaxResultCount);
+        var userBalanceIndexList = resultUserBalanceIndex.Item2;
+        if (!userBalanceIndexList.IsNullOrEmpty())
+        {
+            nftIds.AddRange(userBalanceIndexList.Select(o => o.NFTInfoId).ToList());
+        }
+
+        var totalCount = resultUserBalanceIndex?.Item1;
+        if (resultUserBalanceIndex?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        {
+            totalCount =
+                await QueryRealCountAsync(userBalanceAppService, userBalanceMustQuery, userBalanceMustNotQuery);
+        }
+
+        logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
+        var count = (long)(totalCount == null ? 0 : totalCount);
+        return new Tuple<long, List<string>>(count, nftIds);
+    }
+    private static async Task<long> QueryRealCountAsync(IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceAppService,List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>> mustQuery,List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>> mustNotQuery)
+    {
+        var countRequest = new SearchRequest<UserBalanceIndex>
+        {
+            Query = new BoolQuery
+            {
+                Must = mustQuery
+                    .Select(func => func(new QueryContainerDescriptor<UserBalanceIndex>()))
+                    .ToList()
+                    .AsEnumerable(),
+                MustNot = mustNotQuery
+                    .Select(func => func(new QueryContainerDescriptor<UserBalanceIndex>()))
+                    .ToList()
+                    .AsEnumerable()
+            },
+            Size = 0
+        };
+        
+        Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer> queryFunc = q => countRequest.Query;
+        var realCount = await userBalanceAppService.CountAsync(queryFunc);
+        return realCount.Count;
+    }
     private static NFTInfoPageResultDto BuildInitNftInfoPageResultDto()
     {
         return new NFTInfoPageResultDto

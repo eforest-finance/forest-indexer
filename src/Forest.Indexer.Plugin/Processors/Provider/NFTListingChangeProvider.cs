@@ -29,7 +29,12 @@ public class NFTListingChangeProvider : INFTListingChangeProvider, ISingletonDep
 
     public async Task SaveNFTListingChangeIndexAsync(LogEventContext context, string symbol)
     {
-        if (!SymbolHelper.CheckSymbolIsNFT(symbol)&& !SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+
+        if (symbol.Equals(ForestIndexerConstants.TokenSimpleElf))
         {
             return;
         }

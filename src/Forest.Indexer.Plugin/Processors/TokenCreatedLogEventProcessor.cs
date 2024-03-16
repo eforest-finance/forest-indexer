@@ -6,6 +6,7 @@ using AElfIndexer.Grains.State.Client;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
+using Forest.Indexer.Plugin.Processors.Provider;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -31,6 +32,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
     private readonly IProxyAccountProvider _proxyAccountProvider;
     private readonly ILogger<AElfLogEventProcessorBase<TokenCreated, LogEventInfo>> _logger;
     private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
+    private readonly INFTListingChangeProvider _listingChangeProvider;
 
     public TokenCreatedLogEventProcessor(ILogger<AElfLogEventProcessorBase<TokenCreated, LogEventInfo>> logger
         , IObjectMapper objectMapper
@@ -44,6 +46,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         , IProxyAccountProvider proxyAccountProvider
         , IOptionsSnapshot<ContractInfoOptions> contractInfoOptions, 
         IAElfClientServiceProvider aElfClientServiceProvider,
+        INFTListingChangeProvider listingChangeProvider,
         IAElfIndexerClientEntityRepository<CollectionChangeIndex, LogEventInfo> collectionChangeIndexRepository) : base(logger)
     {
         _objectMapper = objectMapper;
@@ -58,6 +61,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         _collectionChangeIndexRepository = collectionChangeIndexRepository;
         _logger = logger;
         _aElfClientServiceProvider = aElfClientServiceProvider;
+        _listingChangeProvider = listingChangeProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -419,6 +423,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
             await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(tsmSeedSymbolIndexNoMainChain);
         }
         await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbolIndex);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
 
     private async Task HandleForNFTCreateAsync(TokenCreated eventValue, LogEventContext context)
@@ -426,7 +431,7 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
         var nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, eventValue.Symbol);
         var nftInfoIndex = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftInfoIndexId, context.ChainId);
         if (nftInfoIndex != null) return;
-
+        _logger.Debug("TokenCreatedLogEventProcessor-6 symbol:{A}", eventValue.Symbol);
         var collectionSymbol = SymbolHelper.GetNFTCollectionSymbol(eventValue.Symbol);
         if (collectionSymbol == null) return;
 
@@ -437,6 +442,9 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
 
         nftInfoIndex = _objectMapper.Map<TokenCreated, NFTInfoIndex>(eventValue);
         nftInfoIndex.ExternalInfoDictionary = eventValue.ExternalInfo.Value
+            .Where(entity =>
+                !entity.Key.Equals(
+                    EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.InscriptionImage)))
             .Select(entity => new ExternalInfoDictionary
             {
                 Key = entity.Key,
@@ -464,14 +472,21 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
             nftInfoIndex.ImageUrl = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
                 TokenCreatedExternalInfoEnum.NFTImageUrl);
         }else if (eventValue.ExternalInfo.Value.ContainsKey(
-                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.InscriptionImage)))
+                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.SpecialInscriptionImage)))
         {
             nftInfoIndex.ImageUrl = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
-                TokenCreatedExternalInfoEnum.InscriptionImage);
+                TokenCreatedExternalInfoEnum.SpecialInscriptionImage);
+        }else if (eventValue.ExternalInfo.Value.ContainsKey(
+                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.NFTImageUri)))
+        {
+            nftInfoIndex.ImageUrl = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
+                TokenCreatedExternalInfoEnum.NFTImageUri);
         }
 
         _objectMapper.Map(context, nftInfoIndex);
         await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
+        _logger.Debug("TokenCreatedLogEventProcessor-7 nftSave Id:{A} Symbol:{B}", nftInfoIndex.Id, nftInfoIndex.Symbol);
+        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
 
     private async Task HandleForNFTCollectionCreateAsync(TokenCreated eventValue, LogEventContext context)
@@ -504,13 +519,16 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
             nftCollectionIndex.LogoImage = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
                 TokenCreatedExternalInfoEnum.NFTLogoImageUrl);
         }else if (eventValue.ExternalInfo.Value.ContainsKey(
-                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.InscriptionImage)))
+                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.SpecialInscriptionImage)))
         {
             nftCollectionIndex.LogoImage = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
-                TokenCreatedExternalInfoEnum.InscriptionImage);
+                TokenCreatedExternalInfoEnum.SpecialInscriptionImage);
+        }else if (eventValue.ExternalInfo.Value.ContainsKey(
+                      EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.NFTImageUri)))
+        {
+            nftCollectionIndex.LogoImage = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
+                TokenCreatedExternalInfoEnum.NFTImageUri);
         }
-        
-        
         
         nftCollectionIndex.FeaturedImageLink = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
             TokenCreatedExternalInfoEnum.NFTFeaturedImageLink);

@@ -117,7 +117,7 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         _objectMapper.Map(context, seedSymbol);
         await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbol);
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
-        await SaveNftActivityIndexAsync(eventValue, context, seedSymbol.Id);
+        await SaveNftActivityIndexAsync(eventValue, context, seedSymbol.Id, seedSymbol.Decimals);
     }
 
     private async Task HandleForNFTTransferAsync(Transferred eventValue, LogEventContext context)
@@ -132,10 +132,11 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         _objectMapper.Map(context, nftInfoIndex);
         await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
-        await SaveNftActivityIndexAsync(eventValue, context, nftInfoIndex.Id);
+        await SaveNftActivityIndexAsync(eventValue, context, nftInfoIndex.Id, nftInfoIndex.Decimals);
     }
 
-    private async Task SaveNftActivityIndexAsync(Transferred eventValue, LogEventContext context, string bizId)
+    private async Task SaveNftActivityIndexAsync(Transferred eventValue, LogEventContext context, string bizId,
+        int decimals)
     {
         var nftActivityIndexId = IdGenerateHelper.GetNftActivityId(context.ChainId, eventValue.Symbol,
             eventValue.From.ToBase58(),
@@ -148,7 +149,7 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         {
             Id = nftActivityIndexId,
             Type = NFTActivityType.Transfer,
-            Amount = eventValue.Amount,
+            Amount = TokenHelper.GetIntegerDivision(eventValue.Amount,decimals),
             TransactionHash = context.TransactionId,
             Timestamp = context.BlockTime,
             NftInfoId = bizId
