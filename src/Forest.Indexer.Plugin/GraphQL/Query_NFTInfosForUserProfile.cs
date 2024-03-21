@@ -202,6 +202,19 @@ public partial class Query
         userBalanceMustQuery.Add(q => q.Term(i => i.Field(f => f.Address).Value(dto.Address)));
         userBalanceMustQuery.Add(q => q.Range(i => i.Field(f => f.Amount).GreaterThan(0)));
         userBalanceMustNotQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(ForestIndexerConstants.MainChain)));
+
+        userBalanceMustNotQuery.Add(q => q
+            .Bool(b => b
+                .Must(m => m
+                        .Script(sc => sc.Script(s => s.Source(ForestIndexerConstants.SymbolIsSGR))
+                        ),
+                    m => m
+                        .Script(sc => sc.Script(s => s.Source(ForestIndexerConstants.SymbolAmountLessThanOneSGR))
+                        )
+                )
+            )
+        );
+        
         if (!script.IsNullOrEmpty())
         {
             userBalanceMustQuery.Add(q=>q.Script(scriptDescriptor => scriptDescriptor
