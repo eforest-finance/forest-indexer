@@ -97,13 +97,20 @@ public partial class Query
         var result = await userBalanceRepo.GetSortListAsync(UserBalanceFilter, 
             sortFunc:GetSortForUserBalance(), skip: input.SkipCount, limit: input.MaxResultCount);
 
+        var totalCount = result?.Item1;
+        if (result?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        {
+            totalCount =
+                await QueryRealCountAsync(userBalanceRepo, userBalanceQuery, null);
+        }
+        
         return new NFTOwnersPageResultDto
         {
-            TotalCount = result.Item1,
+            TotalCount = (long)(totalCount == null ? 0 : totalCount),
             Data = objectMapper.Map<List<UserBalanceIndex>, List<NFTOwnerInfoDto>>(result.Item2)
         };
     }
-    
+
     private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalance()
     {
         SortDescriptor<UserBalanceIndex> sortDescriptor = new SortDescriptor<UserBalanceIndex>();
