@@ -14,7 +14,7 @@ public static class ForestIndexerConstants
     public const string  CreateFailedANftScript = "doc['supply'].value == 0 && doc['issued'].value == 0";
     public const string IssuedLessThenOneANftScript = "(doc['supply'].value / Math.pow(10, doc['decimals'].value)) < 1";
     
-    public const string IssuedLessThenOneForNftSGRScript = "doc['symbol'].value.startsWith('SGR-') && ((doc['amount'].value / Math.pow(10, 8)) < 1))";
+    public const string IssuedLessThenOneForNftSGRScript = "doc['symbol.keyword'].value.startsWith('SGR-') && ((doc['amount'].value / Math.pow(10, 8)) < 1))";
 
     public const char NFTSymbolSeparator = '-';
     
