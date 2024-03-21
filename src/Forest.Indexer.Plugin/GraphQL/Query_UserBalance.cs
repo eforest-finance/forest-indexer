@@ -29,10 +29,17 @@ public partial class Query
 
         var result = await userBalanceRepo.GetListAsync(UserBalanceFilter, limit: 1);
 
+        var totalCount = result?.Item1;
+        if (result?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        {
+            totalCount =
+                await QueryRealCountAsync(userBalanceRepo, userBalanceQuery, null);
+        }
+        
         return new NFTUserBalanceDto
         {
             Owner = result?.Item1 > 0 ? result.Item2[0].Address : string.Empty,
-            OwnerCount = result?.Item1 ?? 0
+            OwnerCount =  (long)(totalCount == null ? 0 : totalCount),
         };
     }
     
