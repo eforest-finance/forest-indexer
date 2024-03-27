@@ -118,7 +118,7 @@ public partial class Query
         var symbol = SymbolHelper.RemovePrefix(dto.NFTInfoId);
         if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, dto.ChainId))
         {
-            var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
+            var nftInfo = await nftInfoRepo.GetAsync(dto.NFTInfoId);
             if (nftInfo == null)
             {
                 return
@@ -133,7 +133,7 @@ public partial class Query
         }
         else if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
         {
-            var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
+            var nftInfo = await seedSymbolIndexRepo.GetAsync(dto.NFTInfoId);
             if (nftInfo == null)
             {
                 return

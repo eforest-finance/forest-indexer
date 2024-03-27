@@ -78,7 +78,7 @@ public partial class Query
         var issueChainId = ChainHelper.ConvertChainIdToBase58(dto.IssueChainId);
         var SymbolMarketTokenId = IdGenerateHelper.GetSymbolMarketTokenId(issueChainId, dto.TokenSymbol);
         var result =
-            await symbolMarketTokenIndexRepository.GetFromBlockStateSetAsync(SymbolMarketTokenId, issueChainId);
+            await symbolMarketTokenIndexRepository.GetAsync(SymbolMarketTokenId);
         return new SymbolMarketTokenIssuerDto()
         {
             SymbolMarketTokenIssuer = result == null ? "" : result.Issuer

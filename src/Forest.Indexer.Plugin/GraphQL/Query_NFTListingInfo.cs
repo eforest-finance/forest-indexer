@@ -32,7 +32,7 @@ public partial class Query
         if (SymbolHelper.CheckSymbolIsNoMainChainNFT(input.Symbol, input.ChainId))
         {
             var nftInfoId = IdGenerateHelper.GetNFTInfoId(input.ChainId, input.Symbol);
-            var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(nftInfoId, input.ChainId);
+            var nftInfo = await nftInfoRepo.GetAsync(nftInfoId);
             if (nftInfo == null)
             {
                 return new NftListingPageResultDto("nft not exists nftInfoId" + nftInfoId);
@@ -43,7 +43,7 @@ public partial class Query
         else if (SymbolHelper.CheckSymbolIsSeedSymbol(input.Symbol))
         {
             var nftInfoId = IdGenerateHelper.GetSeedSymbolId(input.ChainId, input.Symbol);
-            var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(nftInfoId, input.ChainId);
+            var nftInfo = await seedSymbolIndexRepo.GetAsync(nftInfoId);
             if (nftInfo == null)
             {
                 return new NftListingPageResultDto("nft not exists nftInfoId(seed)" + nftInfoId);
