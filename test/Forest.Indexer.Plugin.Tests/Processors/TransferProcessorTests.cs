@@ -82,7 +82,8 @@ public class TransferProcessorTests : ForestIndexerPluginTestBase
             Id = userBalanceFromId,
             Address = from,
             Amount = 10,
-            NFTInfoId = nftInfoId
+            NFTInfoId = nftInfoId,
+            Decimals = 0
         };
         await _userBalanceIndexRepository.AddOrUpdateAsync(userBalanceIndex);
         var fromId = IdGenerateHelper.GetUserBalanceId(from, chainId, nftInfoId);

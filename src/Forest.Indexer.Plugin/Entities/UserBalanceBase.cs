@@ -12,6 +12,8 @@ public class UserBalanceBase : AElfIndexerClientEntity<string>
     
     public long Amount { get; set; }
     
+    public int Decimals { get; set; }
+    
     [Keyword] public string NFTInfoId { get; set; }
 
     [Keyword] public string Symbol { get; set; }

@@ -1164,7 +1164,8 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
             Id = userBalanceFromId,
             Address = offerChanged.OfferFrom.ToBase58(),
             Amount = 3000,
-            NFTInfoId = nftInfoId
+            NFTInfoId = nftInfoId,
+            Decimals = 0
         };
         await _userBalanceIndexRepository.AddOrUpdateAsync(userBalanceIndex);
         //step3: handle event and write result to blockStateSet
@@ -1241,7 +1242,8 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
             Id = userBalanceFromId,
             Address = from,
             Amount = 100,
-            NFTInfoId = nftInfoId
+            NFTInfoId = nftInfoId,
+            Decimals = 0
         };
         await _userBalanceIndexRepository.AddOrUpdateAsync(userBalanceIndex);
         Transferred transferred = new Transferred()

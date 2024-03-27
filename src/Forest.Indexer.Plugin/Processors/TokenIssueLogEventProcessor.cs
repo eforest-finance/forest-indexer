@@ -19,9 +19,6 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
     private readonly IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> _nftInfoIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> _seedSymbolIndexRepository;
 
-    private readonly IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo>
-        _tsmSeedSymbolIndexRepository;
-
     private readonly IAElfIndexerClientEntityRepository<SeedSymbolMarketTokenIndex, LogEventInfo>
         _symbolMarketTokenIndexRepository;
 
@@ -59,7 +56,6 @@ public class TokenIssueLogEventProcessor : AElfLogEventProcessorBase<Issued, Log
         _nftInfoIndexRepository = nftInfoIndexRepository;
         _seedSymbolIndexRepository = seedSymbolIndexRepository;
         _symbolMarketTokenIndexRepository = symbolMarketTokenIndexRepository;
-        _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
         _userBalanceProvider = userBalanceProvider;
         _proxyAccountProvider = proxyAccountProvider;
         _nftInfoProvider = nftInfoProvider;

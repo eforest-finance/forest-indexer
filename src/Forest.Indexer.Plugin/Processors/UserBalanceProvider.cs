@@ -29,17 +29,20 @@ public interface IUserBalanceProvider
 public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
 {
     private readonly IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository;
+    private readonly IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> _tokenInfoIndexRepository;
     private readonly IObjectMapper _objectMapper;
     private readonly ILogger<IUserBalanceProvider> _logger;
     
     public UserBalanceProvider(
         IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceIndexRepository,
+        IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenInfoIndexRepository,
         IObjectMapper objectMapper,
         ILogger<UserBalanceProvider> logger)
     {
         _userBalanceIndexRepository = userBalanceIndexRepository;
         _objectMapper = objectMapper;
         _logger = logger;
+        _tokenInfoIndexRepository = tokenInfoIndexRepository;
     }
 
     public async Task UpdateUserBalanceAsync(UserBalanceIndex input)
@@ -56,6 +59,9 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
         var userBalanceId = IdGenerateHelper.GetUserBalanceId(address, context.ChainId, nftInfoIndexId);
         var userBalanceIndex =
             await _userBalanceIndexRepository.GetFromBlockStateSetAsync(userBalanceId, context.ChainId);
+        var tokenInfoId = IdGenerateHelper.GetTokenInfoId(context.ChainId, symbol);
+        var tokenInfo = await _tokenInfoIndexRepository.GetFromBlockStateSetAsync(tokenInfoId, context.ChainId);
+
         if (userBalanceIndex == null)
         {
             userBalanceIndex = new UserBalanceIndex()
@@ -66,7 +72,8 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
                 Address = address,
                 Amount = amount,
                 Symbol = symbol,
-                ChangeTime = context.BlockTime
+                ChangeTime = context.BlockTime,
+                Decimals = tokenInfo?.Decimals ?? ForestIndexerConstants.IntZero
             };
         }
         else
@@ -85,6 +92,9 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
         var userBalanceId = IdGenerateHelper.GetUserBalanceId(address, context.ChainId, nftInfoIndexId);
         var userBalanceIndex =
             await _userBalanceIndexRepository.GetFromBlockStateSetAsync(userBalanceId, context.ChainId);
+        var tokenInfoId = IdGenerateHelper.GetTokenInfoId(context.ChainId, symbol);
+        var tokenInfo = await _tokenInfoIndexRepository.GetFromBlockStateSetAsync(tokenInfoId, context.ChainId);
+        
         if (userBalanceIndex == null)
         {
             userBalanceIndex = new UserBalanceIndex()
@@ -95,7 +105,8 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
                 Address = address,
                 Amount = amount,
                 Symbol = symbol,
-                ChangeTime = context.BlockTime
+                ChangeTime = context.BlockTime,
+                Decimals = tokenInfo?.Decimals ?? ForestIndexerConstants.IntZero
             };
         }
         else
