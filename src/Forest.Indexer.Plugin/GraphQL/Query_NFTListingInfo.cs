@@ -114,7 +114,6 @@ public partial class Query
 
     [Name("getMinListingNft")]
     public static async Task<NFTListingInfoDto> GetMinListingNftAsync(
-        [FromServices] INFTInfoProvider nftInfoProvider,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository,
         GetMinListingNftDto dto)
@@ -127,9 +126,7 @@ public partial class Query
     [Name("getExpiredNftMinPrice")]
     public static async Task<List<ExpiredNftMinPriceDto>> GetNftMinPriceAsync(
         [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
-        [FromServices] INFTInfoProvider nftInfoProvider,
         [FromServices] ILogger<NFTListingInfoIndex> logger,
-        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository,
         GetExpiredNFTMinPriceDto input)
     {
         logger.Debug($"[getMinPriceNft] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
@@ -154,7 +151,7 @@ public partial class Query
         List<ExpiredNftMinPriceDto> data = new();
         foreach (var item in result.Item2)
         {
-            var listingInfo = await _listedNftIndexRepository.GetAsync(item.NftInfoId);
+            var listingInfo = await nftListingRepo.GetAsync(item.NftInfoId);
             if (listingInfo == null)
             {
                 ExpiredNftMinPriceDto priceDto = new ExpiredNftMinPriceDto()
