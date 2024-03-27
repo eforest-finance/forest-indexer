@@ -164,7 +164,7 @@ public partial class Query
         foreach (var info in nftListingInfos)
         {
             var userBalanceId = IdGenerateHelper.GetUserBalanceId(info.Owner, info.ChainId, nftInfoId);
-            var userBalance = await QueryUserBalanceByIdAsync(userBalanceId, info.ChainId, _userBalanceIndexRepository);
+            var userBalance = await QueryUserBalanceByIdAsync(userBalanceId, _userBalanceIndexRepository);
 
             if (userBalance?.Amount > 0 && await additionalConditionAsync(info))
             {
@@ -176,16 +176,15 @@ public partial class Query
         return minNftListing;
     }
 
-    private static async Task<UserBalanceIndex> QueryUserBalanceByIdAsync(string userBalanceId, string chainId,
+    private static async Task<UserBalanceIndex> QueryUserBalanceByIdAsync(string userBalanceId,
         IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository)
     {
-        if (userBalanceId.IsNullOrWhiteSpace() ||
-            chainId.IsNullOrWhiteSpace())
+        if (userBalanceId.IsNullOrWhiteSpace())
         {
             return null;
         }
 
-        return await _userBalanceIndexRepository.GetFromBlockStateSetAsync(userBalanceId, chainId);
+        return await _userBalanceIndexRepository.GetAsync(userBalanceId);
     }
     
     private static async Task<List<NFTListingInfoIndex>> GetEffectiveNftListingInfos(string nftInfoId, HashSet<string> excludeListingIds,IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository)
