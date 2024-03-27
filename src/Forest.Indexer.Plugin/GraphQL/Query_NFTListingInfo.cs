@@ -119,39 +119,23 @@ public partial class Query
         [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository,
         GetMinListingNftDto dto)
     {
-        var listingInfo = await GetMinListingNftAsync(dto.NftInfoId, null, null, async info =>
+        var listingInfo = await GetMinListingNftAsync(dto.NftInfoId, async info =>
         {
-            var listingInfo = await _listedNftIndexRepository.GetAsync(dto.NftInfoId);
+            var listingInfo = await _listedNftIndexRepository.GetAsync(info.Id);
             return listingInfo != null;
         }, _listedNftIndexRepository, _userBalanceIndexRepository);
         return objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(listingInfo);
     }
 
-    private static async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId, string excludeListingId,
-        NFTListingInfoIndex current,
+    private static async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId,
         Func<NFTListingInfoIndex, Task<bool>> additionalConditionAsync,
         IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository,
         IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository)
     {
-        var excludeListingIds = new HashSet<string>();
-        if (!excludeListingId.IsNullOrWhiteSpace())
-        {
-            excludeListingIds.Add(excludeListingId);
-        }
-
-        if (current != null && !current.Id.IsNullOrWhiteSpace())
-        {
-            excludeListingIds.Add(current.Id);
-        }
-
         //Get Effective NftListingInfos
         var nftListingInfos =
-            await GetEffectiveNftListingInfos(nftInfoId, excludeListingIds, _listedNftIndexRepository);
-        if (current != null && !current.Id.IsNullOrWhiteSpace())
-        {
-            nftListingInfos.Add(current);
-        }
-
+            await GetEffectiveNftListingInfos(nftInfoId, _listedNftIndexRepository);
+        
         //order by price asc, expireTime desc
         nftListingInfos = nftListingInfos.Where(index =>
                 DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >= DateTime.UtcNow.ToUtcMilliSeconds())
@@ -164,7 +148,8 @@ public partial class Query
         foreach (var info in nftListingInfos)
         {
             var userBalanceId = IdGenerateHelper.GetUserBalanceId(info.Owner, info.ChainId, nftInfoId);
-            var userBalance = await QueryUserBalanceByIdAsync(userBalanceId, _userBalanceIndexRepository);
+
+            var userBalance = await _userBalanceIndexRepository.GetAsync(userBalanceId);
 
             if (userBalance?.Amount > 0 && await additionalConditionAsync(info))
             {
@@ -176,18 +161,7 @@ public partial class Query
         return minNftListing;
     }
 
-    private static async Task<UserBalanceIndex> QueryUserBalanceByIdAsync(string userBalanceId,
-        IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository)
-    {
-        if (userBalanceId.IsNullOrWhiteSpace())
-        {
-            return null;
-        }
-
-        return await _userBalanceIndexRepository.GetAsync(userBalanceId);
-    }
-    
-    private static async Task<List<NFTListingInfoIndex>> GetEffectiveNftListingInfos(string nftInfoId, HashSet<string> excludeListingIds,IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository)
+    private static async Task<List<NFTListingInfoIndex>> GetEffectiveNftListingInfos(string nftInfoId, IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository)
     {
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
 
@@ -196,15 +170,7 @@ public partial class Query
                 .GreaterThan(DateTime.UtcNow.ToString("O"))));
         mustQuery.Add(q => q.Term(i => i.Field(index => index.NftInfoId).Value(nftInfoId)));
 
-        var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
-
-        if (!excludeListingIds.IsNullOrEmpty())
-        {
-            mustNotQuery.Add(q => q.Terms(i => i.Field(index => index.Id).Terms(excludeListingIds)));
-        }
-
-        QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f) => f.Bool(b => b.Must(mustQuery)
-            .MustNot(mustNotQuery));
+        QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f) => f.Bool(b => b.Must(mustQuery));
 
         var result = await _listedNftIndexRepository.GetListAsync(Filter, sortExp: k => k.Prices,
             sortType: SortOrder.Ascending, skip: 0);
