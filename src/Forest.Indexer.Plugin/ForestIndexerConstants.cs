@@ -12,6 +12,11 @@ public static class ForestIndexerConstants
         "painless";
     public const string  BurnedAllNftScript = "doc['supply'].value == 0 && doc['issued'].value == doc['totalSupply'].value";
     public const string  CreateFailedANftScript = "doc['supply'].value == 0 && doc['issued'].value == 0";
+    public const string IssuedLessThenOneANftScript = "(doc['supply'].value / Math.pow(10, doc['decimals'].value)) < 1";
+    
+    public const string SymbolIsSGR = "doc['symbol'].value.contains('SGR-')";
+    public const string SymbolAmountLessThanOneSGR = "((doc['amount'].value / Math.pow(10, 8)) < 1)";
+
 
     public const char NFTSymbolSeparator = '-';
     
@@ -46,4 +51,8 @@ public static class ForestIndexerConstants
     public const string BrifeInfoDescriptionOffer = "Offer";
     public const string BrifeInfoDescriptionTopBid = "Top Bid";
     public const string SeedImageType = ".svg";
+    public const long EsLimitTotalNumber = 10000;
+    public const int IntZero = 0;
+    public const int IntOne = 0;
+    public const int IntTen = 10;
 }

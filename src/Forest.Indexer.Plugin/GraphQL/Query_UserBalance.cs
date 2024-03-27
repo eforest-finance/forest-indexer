@@ -29,10 +29,17 @@ public partial class Query
 
         var result = await userBalanceRepo.GetListAsync(UserBalanceFilter, limit: 1);
 
+        var totalCount = result?.Item1;
+        if (result?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        {
+            totalCount =
+                await QueryRealCountAsync(userBalanceRepo, userBalanceQuery, null);
+        }
+        
         return new NFTUserBalanceDto
         {
             Owner = result?.Item1 > 0 ? result.Item2[0].Address : string.Empty,
-            OwnerCount = result?.Item1 ?? 0
+            OwnerCount =  (long)(totalCount == null ? 0 : totalCount),
         };
     }
     
@@ -51,6 +58,25 @@ public partial class Query
         return new UserMatchedNftIds
         {
             NftIds = nftIds
+        };
+    }
+    
+    [Name("queryUserNftIdsPage")]
+    public static async Task<UserMatchedNftIdsPage> QueryUserNftIdsPageAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepository,
+        [FromServices] ILogger<UserBalanceIndex> logger,
+        GetNFTInfosDto dto)
+    {
+        //query match nft
+        var script = dto.IsSeed
+            ? ForestIndexerConstants.UserBalanceScriptForSeed
+            : ForestIndexerConstants.UserBalanceScriptForNft;
+        var result = await GetMatchedNftIdsPageAsync(userBalanceRepository, logger, dto, script);
+
+        return new UserMatchedNftIdsPage
+        {
+            NftIds = result?.Item2,
+            Count = result.Item1
         };
     }
 
@@ -78,13 +104,20 @@ public partial class Query
         var result = await userBalanceRepo.GetSortListAsync(UserBalanceFilter, 
             sortFunc:GetSortForUserBalance(), skip: input.SkipCount, limit: input.MaxResultCount);
 
+        var totalCount = result?.Item1;
+        if (result?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        {
+            totalCount =
+                await QueryRealCountAsync(userBalanceRepo, userBalanceQuery, null);
+        }
+        
         return new NFTOwnersPageResultDto
         {
-            TotalCount = result.Item1,
+            TotalCount = (long)(totalCount == null ? 0 : totalCount),
             Data = objectMapper.Map<List<UserBalanceIndex>, List<NFTOwnerInfoDto>>(result.Item2)
         };
     }
-    
+
     private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalance()
     {
         SortDescriptor<UserBalanceIndex> sortDescriptor = new SortDescriptor<UserBalanceIndex>();

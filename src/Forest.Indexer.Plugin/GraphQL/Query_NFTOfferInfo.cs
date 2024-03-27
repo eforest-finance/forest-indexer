@@ -32,6 +32,7 @@ public partial class Query
         logger.Debug($"[getNftMaxOffer] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
         
         var offerQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
+
         offerQuery.Add(q => q.Term(i => i.Field(index => index.ChainId).Value(input.ChainId)));
         
         var expiredTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime.ToString("o");
@@ -98,7 +99,10 @@ public partial class Query
             q => q.Term(i 
                 => i.Field(f => f.ChainId).Value(dto.ChainId))
         };
-        QueryContainer Filter(QueryContainerDescriptor<NFTOfferChangeIndex> f) => f.Bool(b => b.Must(mustQuery));
+        var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTOfferChangeIndex>, QueryContainer>>();
+        mustNotQuery.Add(q => q.Term(i => i.Field(index => index.NftId).Value(IdGenerateHelper.GetNFTInfoId(dto.ChainId, ForestIndexerConstants.TokenSimpleElf))));
+        
+        QueryContainer Filter(QueryContainerDescriptor<NFTOfferChangeIndex> f) => f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
         var result = await repository.GetListAsync(Filter, sortExp: o => o.BlockHeight);
         
         return objectMapper.Map<List<NFTOfferChangeIndex>, List<NFTOfferChangeDto>>(result.Item2);

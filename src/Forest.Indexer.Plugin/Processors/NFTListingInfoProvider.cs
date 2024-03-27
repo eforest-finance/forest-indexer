@@ -179,6 +179,10 @@ public class NFTListingInfoProvider : INFTListingInfoProvider, ISingletonDepende
     
     public async Task UpdateListingInfoRealQualityAsync(string symbol, long balance, string ownerAddress, LogEventContext context)
     {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
         if (SymbolHelper.CheckSymbolIsELF(symbol))
         {
             return;

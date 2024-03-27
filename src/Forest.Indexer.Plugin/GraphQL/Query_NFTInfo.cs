@@ -17,7 +17,6 @@ public partial class Query
     public static async Task<NFTInfoDto> NFTInfo(
         [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepo,
         [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<WhitelistIndex, LogEventInfo> whiteListRepo,
         [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepo,
         [FromServices] IObjectMapper objectMapper,
         GetNFTInfoDto dto)
@@ -50,23 +49,6 @@ public partial class Query
         res.Owner = userBalanceIndexList?.Item1 > 0 ? userBalanceIndexList.Item2[0].Address : string.Empty;
         res.OwnerCount = userBalanceIndexList?.Item1 == null ? 0 : userBalanceIndexList.Item1;
         if (dto.Address.IsNullOrEmpty()) return res;
-
-        // generate projectId with same logic of contract
-        var projectId = HashHelper.ComputeFrom(res.Symbol + Address.FromBase58(dto.Address));
-        
-        // query user Whitelist
-        var whitelistQuery = new List<Func<QueryContainerDescriptor<WhitelistIndex>, QueryContainer>>
-        {
-            q => q.Term(i => i.Field(index => index.ChainId).Value(res.ChainId)),
-            q => q.Term(i => i.Field(index => index.ProjectId).Value(projectId.ToHex()))
-        };
-
-        QueryContainer WhitelistFilter(QueryContainerDescriptor<WhitelistIndex> f) =>
-            f.Bool(b => b.Must(whitelistQuery));
-
-        var whitelistIndex = await whiteListRepo.GetAsync(WhitelistFilter);
-        if (whitelistIndex != null) res.WhitelistId = whitelistIndex.Id;
-
 
         return res;
     }
@@ -122,6 +104,23 @@ public partial class Query
         var result = await repository.GetListAsync(Filter, 
             sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
         return objectMapper.Map<List<NFTInfoIndex>, List<NFTInfoSyncDto>>(result.Item2);
+    }
+
+    [Name("getSyncNFTInfoRecord")]
+    public static async Task<NFTInfoSyncDto> GetSyncNFTInfoRecordAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> repository,
+        [FromServices] IObjectMapper objectMapper,
+        GetSyncNFTInfoRecordDto dto)
+    {
+        if (dto == null || dto.Id.IsNullOrEmpty() || dto.ChainId.IsNullOrEmpty()) return null;
+
+        var result = await repository.GetFromBlockStateSetAsync(dto.Id, dto.ChainId);
+        if (result == null)
+        {
+            return null;
+        }
+
+        return objectMapper.Map<NFTInfoIndex, NFTInfoSyncDto>(result);
     }
 
     private static Tuple<SortOrder, Expression<Func<NFTInfoIndex, object>>> GetSorting(string sorting)

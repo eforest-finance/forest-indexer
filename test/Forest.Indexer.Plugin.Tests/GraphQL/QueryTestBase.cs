@@ -109,7 +109,6 @@ public class QueryTestBase : ForestIndexerPluginTestBase
         var data = await Query.NFTInfo(
             GetRequiredService<IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo>>(),
             GetRequiredService<IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo>>(),
-            GetRequiredService<IAElfIndexerClientEntityRepository<WhitelistIndex, LogEventInfo>>(),
             GetRequiredService<IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo>>(),
             GetRequiredService<IObjectMapper>(),
             new GetNFTInfoDto()

@@ -97,6 +97,10 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
     public async Task UpdateOfferRealQualityAsync(string symbol, long balance, string offerFrom,
         LogEventContext context)
     {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
         if (!SymbolHelper.CheckSymbolIsELF(symbol))
         {
             return;
@@ -133,19 +137,34 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
             {
                 if (symbol.Equals(offerInfoIndex!.PurchaseToken.Symbol))
                 {
+                    var symbolTokenIndexId = IdGenerateHelper.GetId(context.ChainId, offerInfoIndex.BizSymbol);
+                    var symbolTokenInfo =
+                        await _tokenIndexRepository.GetFromBlockStateSetAsync(symbolTokenIndexId,
+                            offerInfoIndex.ChainId);
+                    
                     var canBuyNum = Convert.ToInt64(Math.Floor(Convert.ToDecimal(balance) /
                                                                (offerInfoIndex.Price *
                                                                 (decimal)Math.Pow(10,
                                                                     tokenIndex.Decimals))));
+                    canBuyNum = (long)(canBuyNum * (decimal)Math.Pow(10, symbolTokenInfo.Decimals));
                     _logger.LogInformation(
                         "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
                         offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
+                    
                     var realQuantity = Math.Min(offerInfoIndex.Quantity,
                         canBuyNum);
                     if (realQuantity != offerInfoIndex.RealQuantity)
                     {
                         offerInfoIndex.RealQuantity = realQuantity;
                         _objectMapper.Map(context, offerInfoIndex);
+                        var research = await _nftOfferIndexRepository.GetFromBlockStateSetAsync(offerInfoIndex.Id,context.ChainId);
+                        if (research == null)
+                        {
+                            _logger.LogInformation(
+                                "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
+                                offerInfoIndex.Id);
+                            continue;
+                        }
                         await _nftOfferIndexRepository.AddOrUpdateAsync(offerInfoIndex);
                     }
                 }

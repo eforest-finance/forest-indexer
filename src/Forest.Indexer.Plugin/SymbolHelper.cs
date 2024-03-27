@@ -40,7 +40,7 @@ public static class SymbolHelper
                Regex.IsMatch(symbol, ForestIndexerConstants.NFTSymbolPattern);
     }
 
-    public static bool CheckSymbolIsSeedCollection(String symbol)
+    public static bool CheckSymbolIsSeedCollection(string symbol)
     {
         return symbol.Length != 0 && Regex.IsMatch(symbol, ForestIndexerConstants.SeedCollectionSymbolPattern);
     }
@@ -84,5 +84,23 @@ public static class SymbolHelper
     public static string FullAddress(string chainId, string originAddress)
     {
         return ForestIndexerConstants.TokenSimpleElf+ForestIndexerConstants.UNDERLINE + originAddress + ForestIndexerConstants.UNDERLINE + chainId;
+    }
+    
+    public static string RemovePrefix(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input;
+        }
+
+        int index = input.IndexOf(ForestIndexerConstants.NFTSymbolSeparator);
+        if (index >= ForestIndexerConstants.IntZero)
+        {
+            return input.Substring(index + ForestIndexerConstants.IntOne);
+        }
+        else
+        {
+            return input;
+        }
     }
 }

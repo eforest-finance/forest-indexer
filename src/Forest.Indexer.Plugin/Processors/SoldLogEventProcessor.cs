@@ -96,8 +96,16 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
                 soldIndexId, purchaseTokenIndexId);
             return;
         }
+        
+        
+        
+        var nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, eventValue.NftSymbol);
+        var nftInfo = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftInfoIndexId, context.ChainId);
+        
         var totalPrice = ToPrice(eventValue.PurchaseAmount, purchaseTokenIndex.Decimals);
-        var singlePrice = CalSinglePrice(totalPrice, (int)eventValue.NftQuantity);
+        var totalCount = (int)TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftInfo.Decimals);
+        var singlePrice = CalSinglePrice(totalPrice,
+            totalCount);
         
         nftTokenIndex.Prices = singlePrice;
 
@@ -131,8 +139,6 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
         await _nftMarketIndexRepository.AddOrUpdateAsync(nftMarketIndex);
 
         // NFTInfo
-        var nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, eventValue.NftSymbol);
-        var nftInfo = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftInfoIndexId, context.ChainId);
         if (nftInfo != null)
         {
             var tokenInfoId = IdGenerateHelper.GetTokenInfoId(context.ChainId, eventValue.NftSymbol);
@@ -158,7 +164,7 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
                 Type = NFTActivityType.Sale,
                 From = eventValue.NftFrom.ToBase58(),
                 To = eventValue.NftTo.ToBase58(),
-                Amount = eventValue.NftQuantity,
+                Amount = TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftInfo.Decimals),
                 Price = singlePrice,
                 PriceTokenInfo = purchaseTokenIndex,
                 TransactionHash = context.TransactionId,
@@ -171,7 +177,7 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
             return;
         }
         
-        await CalculateMarketData(nftMarketIndex.NFTInfoId, (int)eventValue.NftQuantity, totalPrice, context);
+        await CalculateMarketData(nftMarketIndex.NFTInfoId, totalCount, totalPrice, context);
     }
 
     private async Task CalculateMarketData(string nftInfoId, int quantity, decimal totalPrice, LogEventContext context)
