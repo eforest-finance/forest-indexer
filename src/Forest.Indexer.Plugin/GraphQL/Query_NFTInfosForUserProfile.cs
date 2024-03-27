@@ -204,13 +204,9 @@ public partial class Query
         userBalanceMustNotQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(ForestIndexerConstants.MainChain)));
 
         userBalanceMustNotQuery.Add(q => q
-            .Bool(b => b
-                .Must(m => m
-                        .Script(sc => sc.Script(s => s.Source(ForestIndexerConstants.SymbolIsSGR))
-                        ),
-                    m => m
-                        .Script(sc => sc.Script(s => s.Source(ForestIndexerConstants.SymbolAmountLessThanOneSGR))
-                        )
+            .Script(sc => sc
+                .Script(script =>
+                    script.Source($"{ForestIndexerConstants.IssuedLessThenOneGetThenZeroANftScript}")
                 )
             )
         );
