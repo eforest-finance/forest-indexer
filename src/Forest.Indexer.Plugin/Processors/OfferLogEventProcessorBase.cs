@@ -19,7 +19,6 @@ public abstract class OfferLogEventProcessorBase<TEvent>: AElfLogEventProcessorB
     private readonly IAElfIndexerClientEntityRepository<ProxyAccountIndex, LogEventInfo> _proxyAccountIndexRepository;
     protected readonly INFTInfoProvider _infoProvider;
     protected readonly INFTOfferProvider _offerProvider;
-    protected readonly ICollectionProvider _collectionProvider;
     protected readonly ICollectionChangeProvider _collectionChangeProvider;
     protected readonly INFTOfferChangeProvider _nftOfferChangeProvider;
 
@@ -30,7 +29,6 @@ public abstract class OfferLogEventProcessorBase<TEvent>: AElfLogEventProcessorB
         IAElfIndexerClientEntityRepository<ProxyAccountIndex, LogEventInfo> proxyAccountIndexRepository,
         INFTInfoProvider infoProvider,
         INFTOfferProvider offerProvider,
-        ICollectionProvider collectionProvider,
         ICollectionChangeProvider collectionChangeProvider,
         IOptionsSnapshot<ContractInfoOptions> contractInfoOptions,
         INFTOfferChangeProvider nftOfferChangeProvider) : base(logger)
@@ -42,7 +40,6 @@ public abstract class OfferLogEventProcessorBase<TEvent>: AElfLogEventProcessorB
         _proxyAccountIndexRepository = proxyAccountIndexRepository;
         _offerProvider = offerProvider;
         _infoProvider = infoProvider;
-        _collectionProvider = collectionProvider;
         _collectionChangeProvider = collectionChangeProvider;
         _nftOfferChangeProvider = nftOfferChangeProvider;
     }

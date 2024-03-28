@@ -1354,6 +1354,11 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
     }
 
     [Fact]
+    public async Task TestA()
+    {
+        
+    }
+    [Fact]
     public async Task HandleOfferRemovedLogEventAsync_Test()
     {
         await HandleOfferAddedLogEventAsync_Test();
@@ -1382,7 +1387,12 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
             Symbol = "SYB-1",
             ExpireTime = new DateTime(2099, 11, 10).AddDays(1).ToUniversalTime().ToTimestamp(),
             OfferFrom = Address.FromPublicKey("AAA".HexToByteArray()),
-            OfferTo = Address.FromPublicKey("BBB".HexToByteArray())
+            OfferTo = Address.FromPublicKey("BBB".HexToByteArray()),
+            Price = new Price()
+            {
+                Amount = 500,
+                Symbol = "SYB"
+            }
         };
         var logEventInfo = LogEventHelper.ConvertAElfLogEventToLogEventInfo(offerRemoved.ToLogEvent());
         logEventInfo.BlockHeight = blockHeight;
@@ -1406,7 +1416,7 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
 
         //step4: save blockStateSet into es
         await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
-        await Task.Delay(1000);
+        await Task.Delay(10000);
 
         //step5: check result
         var offerIndexData = await _nftOfferIndexRepository.GetAsync(IdGenerateHelper.GetId(chainId,

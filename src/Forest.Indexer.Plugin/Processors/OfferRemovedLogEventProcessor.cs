@@ -23,11 +23,10 @@ public class OfferRemovedLogEventProcessor : OfferLogEventProcessorBase<OfferRem
         IAElfIndexerClientEntityRepository<ProxyAccountIndex, LogEventInfo> proxyAccountIndexRepository,
         INFTInfoProvider infoProvider,
         INFTOfferProvider offerProvider,
-        ICollectionProvider collectionProvider,
         ICollectionChangeProvider collectionChangeProvider,
         IOptionsSnapshot<ContractInfoOptions> contractInfoOptions,
         INFTOfferChangeProvider nftOfferChangeProvider) : base(logger, objectMapper,
-        nftActivityIndexRepository, nftInfoIndexRepository, proxyAccountIndexRepository, infoProvider, offerProvider,collectionProvider,
+        nftActivityIndexRepository, nftInfoIndexRepository, proxyAccountIndexRepository, infoProvider, offerProvider,
         collectionChangeProvider,
         contractInfoOptions,
         nftOfferChangeProvider)
