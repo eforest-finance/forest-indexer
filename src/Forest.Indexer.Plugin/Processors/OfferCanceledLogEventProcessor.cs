@@ -65,6 +65,7 @@ public class OfferCanceledLogEventProcessor : OfferLogEventProcessorBase<OfferCa
                 await AddNFTActivityRecordAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
                     null, cancelOfferIndex.Quantity, cancelOfferIndex.Price,
                     NFTActivityType.CancelOffer, context, cancelOfferIndex.PurchaseToken);
+                _objectMapper.Map(context, cancelOfferIndex);
                 await _nftOfferIndexRepository.DeleteAsync(cancelOfferIndex);
                 var latestNFTOfferDic =
                     await _offerProvider.QueryLatestNFTOfferByNFTIdsAsync(new List<string> { cancelOfferIndex.BizInfoId },
