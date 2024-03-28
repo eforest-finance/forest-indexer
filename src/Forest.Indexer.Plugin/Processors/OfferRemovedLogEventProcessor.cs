@@ -45,6 +45,15 @@ public class OfferRemovedLogEventProcessor : OfferLogEventProcessorBase<OfferRem
         _logger.Debug("OfferRemovedLogEventProcessor-1 {context}",JsonConvert.SerializeObject(context));
         _logger.Debug("OfferRemovedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
 
+
+        if (eventValue.Price == null)
+        {
+            _logger.LogInformation(
+                "OfferRemovedLogEventProcessor-3 old offer remove chainId={A} symbol={B} offerFrom={C} offerTo={D} ExpireTimeSecond={E}",
+                context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(), eventValue.OfferTo.ToBase58(),
+                eventValue.ExpireTime.Seconds);
+            return;
+        }
         var offerIndexId = IdGenerateHelper.GetOfferId(context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
             eventValue.OfferTo.ToBase58(), eventValue.ExpireTime.Seconds,eventValue.Price.Amount);
         var offerIndex = await _nftOfferIndexRepository.GetFromBlockStateSetAsync(offerIndexId, context.ChainId);
