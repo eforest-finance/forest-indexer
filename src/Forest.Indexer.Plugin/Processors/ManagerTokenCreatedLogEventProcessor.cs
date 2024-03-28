@@ -89,14 +89,20 @@ public class ManagerTokenCreatedLogEventProcessor :
                 context.ChainId);
         if (symbolMarketTokenIndex != null) return;
 
+        var realOwner = eventValue.RealOwner != null
+            ? eventValue.RealOwner.ToBase58()
+            : eventValue.OwnerManagerList == null ? "" : eventValue.OwnerManagerList.ToBase58();
+        var realIssuer = eventValue.RealIssuer != null
+            ? eventValue.RealIssuer.ToBase58()
+            : eventValue.IssuerManagerList == null ? "" : eventValue.IssuerManagerList.ToBase58();
         symbolMarketTokenIndex = new SeedSymbolMarketTokenIndex()
         {
             Id = symbolMarketTokenIndexId,
             TokenName = eventValue.TokenName,
-            OwnerManagerSet = new HashSet<string> { eventValue.RealOwner.ToBase58() },
-            RandomOwnerManager = eventValue.RealOwner.ToBase58(),
-            IssueManagerSet = new HashSet<string> { eventValue.RealIssuer.ToBase58() },
-            RandomIssueManager = eventValue.RealIssuer.ToBase58(),
+            OwnerManagerSet = new HashSet<string> { realOwner },
+            RandomOwnerManager = realOwner,
+            IssueManagerSet = new HashSet<string> { realIssuer },
+            RandomIssueManager = realIssuer,
             Decimals = eventValue.Decimals,
             TotalSupply = eventValue.TotalSupply,
             Supply = eventValue.Amount,
