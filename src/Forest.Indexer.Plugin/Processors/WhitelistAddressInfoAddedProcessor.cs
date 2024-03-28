@@ -40,10 +40,19 @@ public class WhitelistAddressInfoAddedProcessor : AElfLogEventProcessorBase<Whit
         try
         {
             if (eventValue.ExtraInfoIdList == null || eventValue.ExtraInfoIdList.Value.Count <= 0)
-                throw new UserFriendlyException("extraInfo empty");
+            {
+                _logger.LogInformation("extraInfo empty");
+                return;
+            }
             
             _logger.Debug("[WhitelistAddressInfoAdded] SAVE: Id={Id}", whitelistId);
 
+            if (eventValue.ExtraInfoIdList == null || eventValue.ExtraInfoIdList.Value?.Count <= 0)
+            {
+                _logger.LogInformation("extraInfo empty");
+                return;
+            }
+            
             await _whitelistProvider.AddWhiteListExtraInfoAsync(
                 context,
                 eventValue.ExtraInfoIdList.Value.ToList(), context.ChainId,

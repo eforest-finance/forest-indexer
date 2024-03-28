@@ -58,9 +58,12 @@ public class WhitelistResetLogEventProcessor : AElfLogEventProcessorBase<Whiteli
         try
         {
             var whitelist = await _whitelistIndexRepository.GetFromBlockStateSetAsync(whitelistId, context.ChainId);
-            if (whitelist == null) throw new UserFriendlyException("whitelist NOT FOUND");
-
-
+            if (whitelist == null)
+            {
+                _logger.LogInformation("whitelist NOT FOUND");
+                return;
+            }
+            
             whitelist.ProjectId = eventValue.ProjectId.ToHex();
 
             _objectMapper.Map(context, whitelist);

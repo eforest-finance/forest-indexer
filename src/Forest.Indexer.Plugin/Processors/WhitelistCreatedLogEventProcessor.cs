@@ -47,7 +47,12 @@ public class WhitelistCreatedLogEventProcessor : AElfLogEventProcessorBase<White
                 whitelistId, eventValue.Remark, JsonConvert.SerializeObject(eventValue.ExtraInfoIdList));
 
             var whitelist = await _whitelistIndexRepository.GetFromBlockStateSetAsync(whitelistId, context.ChainId);
-            if (whitelist != null) throw new UserFriendlyException("WhiteList exists");
+            if (whitelist != null)
+            {
+                _logger.LogInformation("WhiteList exists");
+                return;
+            }
+            
 
             whitelist = _objectMapper.Map<WhitelistCreated, WhitelistIndex>(eventValue);
             whitelist.Id = whitelistId;
@@ -67,7 +72,10 @@ public class WhitelistCreatedLogEventProcessor : AElfLogEventProcessorBase<White
                 eventValue.Manager?.Value?.Select(o => o.ToBase58()).ToList());
 
             if (eventValue.ExtraInfoIdList == null || eventValue.ExtraInfoIdList.Value?.Count <= 0)
-                throw new UserFriendlyException("ExtraInfoIdList empty");
+            {
+                _logger.LogInformation("ExtraInfoIdList empty");
+                return;
+            }
 
             _logger.Debug("[WhitelistCreated] ExtraInfoIdList SAVE Id={Id}", whitelistId);
 
@@ -80,7 +88,6 @@ public class WhitelistCreatedLogEventProcessor : AElfLogEventProcessorBase<White
         catch (Exception e)
         {
             _logger.LogError(e, "[WhitelistCreated] ExtraInfoIdList empty Id={Id}", whitelistId);
-            throw;
         }
     }
 }

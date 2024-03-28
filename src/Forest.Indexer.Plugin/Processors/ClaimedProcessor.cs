@@ -90,9 +90,12 @@ public class ClaimedProcessor : AElfLogEventProcessorBase<Claimed, LogEventInfo>
         var purchaseTokenId = IdGenerateHelper.GetId(context.ChainId, symbolAuctionInfoIndex.FinishPrice.Symbol);
         
         var tokenIndex = await _tokenIndexRepository.GetFromBlockStateSetAsync(purchaseTokenId, context.ChainId);
-        if (tokenIndex == null) 
-            throw new UserFriendlyException("ClaimedProcessor purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND",context.ChainId,purchaseTokenId);
-        
+        if (tokenIndex == null)
+        {
+            _logger.LogInformation("ClaimedProcessor purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND",context.ChainId,purchaseTokenId);
+            return;
+        }
+            
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, seedSymbolIndex.Symbol, NFTActivityType.PlaceBid.ToString(), context.TransactionId);
         var activitySaved = await _nftInfoProvider.AddNFTActivityAsync(context, new NFTActivityIndex

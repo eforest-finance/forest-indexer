@@ -71,13 +71,19 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
         {
             var listingNftInfoIndex =
                 await _listedNFTIndexRepository.GetFromBlockStateSetAsync(listedNftIndexId, context.ChainId);
-            if (listingNftInfoIndex != null) 
-                throw new UserFriendlyException("listingInfo EXISTS");
-            
-            var tokenIndex = await _tokenIndexRepository.GetFromBlockStateSetAsync(purchaseTokenId, context.ChainId);
-            if (tokenIndex == null) 
-                throw new UserFriendlyException($"purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND");
+            if (listingNftInfoIndex != null)
+            {
+                _logger.LogInformation("listingInfo EXISTS");
+                return;
+            }
 
+            var tokenIndex = await _tokenIndexRepository.GetFromBlockStateSetAsync(purchaseTokenId, context.ChainId);
+            if (tokenIndex == null)
+            {
+                _logger.LogInformation("purchase token {A}-{B} NOT FOUND",context.ChainId,purchaseTokenId);
+                return;
+            }
+            
             listingNftInfoIndex = _objectMapper.Map<ListedNFTAdded, NFTListingInfoIndex>(eventValue);
             listingNftInfoIndex.Id = listedNftIndexId;
             listingNftInfoIndex.Prices = eventValue.Price.Amount / (decimal)Math.Pow(10, tokenIndex.Decimals);
@@ -127,12 +133,11 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
                 Timestamp = context.BlockTime,
                 NftInfoId = updateListedInfoResponse.NftInfoId
             });
-            if (!activitySaved) throw new UserFriendlyException("Activity SAVE FAILED");
+            
         }
         catch (Exception e)
         {
             _logger.LogError(e, "[ListedNFTAdded] ERROR: listedNFTIndexId={Id}", listedNftIndexId);
-            throw;
         }
     }
 }

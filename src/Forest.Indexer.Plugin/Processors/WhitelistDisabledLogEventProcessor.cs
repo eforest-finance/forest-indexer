@@ -46,7 +46,11 @@ public class WhitelistDisabledLogEventProcessor : AElfLogEventProcessorBase<Whit
         try
         {
             var whitelist = await _whitelistIndexRepository.GetFromBlockStateSetAsync(whitelistId, context.ChainId);
-            if (whitelist == null) throw new UserFriendlyException("whitelist NOT FOUND");
+            if (whitelist == null)
+            {
+                _logger.LogInformation("whitelist NOT FOUND");
+                return;
+            }
             
             whitelist.IsAvailable = eventValue.IsAvailable;
             _objectMapper.Map(context, whitelist);
@@ -62,7 +66,6 @@ public class WhitelistDisabledLogEventProcessor : AElfLogEventProcessorBase<Whit
         catch (Exception e)
         {
             _logger.LogError(e, "[WhitelistDisabled] FINISH: Id={Id}, , IsAvailable={IsAvailable}", whitelistId, eventValue.IsAvailable);
-            throw;
         }
     }
 }

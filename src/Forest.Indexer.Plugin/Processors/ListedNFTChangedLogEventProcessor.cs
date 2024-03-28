@@ -65,13 +65,18 @@ public class ListedNFTChangedLogEventProcessor : AElfLogEventProcessorBase<Liste
             var listedNFTIndex =
                 await _listedNFTIndexRepository.GetFromBlockStateSetAsync(listedNftIndexId, context.ChainId);
             if (listedNFTIndex == null)
-                throw new UserFriendlyException("nftInfo NOT FOUND");
-            
-            
+            {
+                _logger.LogInformation("nftInfo NOT FOUND");
+                return;
+            }
+
             var purchaseTokenId = IdGenerateHelper.GetId(context.ChainId, eventValue.Price.Symbol);
             var tokenIndex = await _tokenIndexRepository.GetFromBlockStateSetAsync(purchaseTokenId, context.ChainId);
             if (tokenIndex == null)
-                throw new UserFriendlyException($"Purchase token {context.ChainId}-{eventValue.Price.Symbol} NOT FOUND");
+            {
+                _logger.LogInformation("Purchase token {A}-{B} NOT FOUND",context.ChainId,eventValue.Price?.Symbol);
+                return;
+            }
                                 
             listedNFTIndex.Prices = eventValue.Price.Amount / (decimal)Math.Pow(10, tokenIndex.Decimals);
             listedNFTIndex.PurchaseToken = tokenIndex;
@@ -95,7 +100,6 @@ public class ListedNFTChangedLogEventProcessor : AElfLogEventProcessorBase<Liste
         catch (Exception e)
         {
             _logger.LogError(e, "ListedNFTChanged error, listedNFTIndexId={Id}", listedNftIndexId);
-            throw;
         }
     }
 }

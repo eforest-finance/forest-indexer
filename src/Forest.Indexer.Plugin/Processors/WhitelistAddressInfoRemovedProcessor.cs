@@ -48,11 +48,18 @@ public class WhitelistAddressInfoRemovedProcessor : AElfLogEventProcessorBase<Wh
         try
         {
             var whitelist = await _whitelistIndexRepository.GetFromBlockStateSetAsync(whitelistId, context.ChainId);
-            if (whitelist == null) throw new UserFriendlyException("whitelist NOT EXISTS");
+            if (whitelist == null)
+            {
+                _logger.LogInformation("whitelist NOT EXISTS");
+                return;
+            }
 
             if (eventValue.ExtraInfoIdList == null || eventValue.ExtraInfoIdList.Value?.Count <= 0)
-                throw new UserFriendlyException("extraInfo empty");
-
+            {
+                _logger.LogInformation("extraInfo empty");
+                return;
+            }
+            
             _logger.Debug("[WhitelistAddressInfoRemoved] SAVE: Id={Id}", whitelistId);
 
         await _whitelistProvider.RemoveWhiteListExtraInfoAsync(context, eventValue.ExtraInfoIdList.Value?.ToList(), context.ChainId,
@@ -62,7 +69,6 @@ public class WhitelistAddressInfoRemovedProcessor : AElfLogEventProcessorBase<Wh
         catch (Exception e)
         {
             _logger.LogError(e, "[WhitelistAddressInfoRemoved] FAIL: Whitelist not found, Id={Id}", whitelistId);
-            throw;
         }
     }
 }

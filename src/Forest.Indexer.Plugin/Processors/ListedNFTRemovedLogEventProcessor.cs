@@ -69,12 +69,18 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
             
             var nftListingInfoIndex = await _listedNFTIndexRepository.GetFromBlockStateSetAsync(listedNftIndexId, context.ChainId);
             if (nftListingInfoIndex == null)
-                throw new UserFriendlyException("listing info NOT FOUND");
+            {
+                _logger.LogInformation("listing info NOT FOUND");
+                return;
+            }
 
             var purchaseTokenId = IdGenerateHelper.GetId(context.ChainId, eventValue.Price.Symbol);
             var tokenIndex = await _tokenIndexRepository.GetFromBlockStateSetAsync(purchaseTokenId, context.ChainId);
             if (tokenIndex == null)
-                throw new UserFriendlyException($"purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND");
+            {
+                _logger.LogInformation("purchase token {A}-{B} NOT FOUND", context.ChainId, purchaseTokenId);
+                return;
+            }
 
             _objectMapper.Map(context, nftListingInfoIndex);
             await _listedNFTIndexRepository.DeleteAsync(nftListingInfoIndex);
@@ -106,7 +112,11 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
                 Timestamp = context.BlockTime,
                 NftInfoId = nffInfoId
             });
-            if (!activitySaved) throw new UserFriendlyException("Activity SAVE FAILED");
+            if (!activitySaved)
+            {
+                _logger.LogInformation("Activity SAVE FAILED");
+                return;
+            }
             await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
             await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         }
