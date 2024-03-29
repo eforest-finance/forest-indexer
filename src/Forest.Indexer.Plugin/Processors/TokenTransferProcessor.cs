@@ -225,7 +225,7 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         }
 
         _objectMapper.Map(context, userBalanceTo);
-        await _userBalanceProvider.UpdateUserBalanceAsync(userBalanceTo);
+        await _userBalanceProvider.UpdateUserBalanceAsync(userBalanceTo, context);
         await _nftOfferProvider.UpdateOfferRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount,
             eventValue.To.ToBase58(), context);
         await _listingInfoProvider.UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount, eventValue.To.ToBase58(), context);

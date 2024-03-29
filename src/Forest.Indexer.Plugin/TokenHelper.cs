@@ -33,12 +33,18 @@ public class TokenHelper
         return number / divisor;
     }
 
+    public static bool CheckSymbolIsELF(string symbol)
+    {
+        return symbol.Length != ForestIndexerConstants.IntZero &&
+               symbol.Equals(ForestIndexerConstants.TokenSimpleElf);
+    }
+    
     public static bool CheckSymbolIsNFT(string symbol)
     {
         return symbol.Length != ForestIndexerConstants.IntZero &&
                Regex.IsMatch(symbol, ForestIndexerConstants.NFTSymbolPattern);
     }
-
+    
     public static string GetCollectionSymbol(string nftSymbol)
     {
         if (!CheckSymbolIsNFT(nftSymbol))
