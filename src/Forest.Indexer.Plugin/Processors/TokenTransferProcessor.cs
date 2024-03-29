@@ -144,7 +144,8 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
         var checkNftActivityIndex =
             await _nftActivityIndexRepository.GetFromBlockStateSetAsync(nftActivityIndexId, context.ChainId);
         if (checkNftActivityIndex != null) return;
-        
+        var collectionSymbol = TokenHelper.GetCollectionSymbol(eventValue.Symbol);
+            
         NFTActivityIndex nftActivityIndex = new NFTActivityIndex
         {
             Id = nftActivityIndexId,
@@ -152,7 +153,10 @@ public class TokenTransferProcessor : AElfLogEventProcessorBase<Transferred, Log
             Amount = TokenHelper.GetIntegerDivision(eventValue.Amount,decimals),
             TransactionHash = context.TransactionId,
             Timestamp = context.BlockTime,
-            NftInfoId = bizId
+            NftInfoId = bizId,
+            Symbol = eventValue.Symbol,
+            CollectionSymbol = collectionSymbol,
+            CollectionId = IdGenerateHelper.GetNFTCollectionId(context.ChainId, collectionSymbol)
         };
         _objectMapper.Map(context, nftActivityIndex);
         nftActivityIndex.From =

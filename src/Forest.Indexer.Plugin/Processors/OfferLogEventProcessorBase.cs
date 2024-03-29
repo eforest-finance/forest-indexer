@@ -57,14 +57,18 @@ public abstract class OfferLogEventProcessorBase<TEvent>: AElfLogEventProcessorB
         var nftInfoIndexId = IdGenerateHelper.GetId(context.ChainId, symbol);
         
         var decimals = await _infoProvider.QueryDecimal(context.ChainId, symbol);
-        
+        var collectionSymbol = TokenHelper.GetCollectionSymbol(symbol);
+            
         nftActivityIndex = new NFTActivityIndex
         {
             Id = nftActivityIndexId,
             Type = activityType,
             TransactionHash = context.TransactionId,
             Timestamp = context.BlockTime,
-            NftInfoId = nftInfoIndexId
+            NftInfoId = nftInfoIndexId,
+            Symbol = symbol,
+            CollectionSymbol = collectionSymbol,
+            CollectionId = IdGenerateHelper.GetNFTCollectionId(context.ChainId, collectionSymbol)
         };
         _objectMapper.Map(context, nftActivityIndex);
         nftActivityIndex.From = offerFrom;

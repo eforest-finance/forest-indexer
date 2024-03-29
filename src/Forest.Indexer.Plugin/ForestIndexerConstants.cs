@@ -53,4 +53,5 @@ public static class ForestIndexerConstants
     public const int IntZero = 0;
     public const int IntOne = 0;
     public const int IntTen = 10;
+    public const int NegativeIntOne = -1;
 }

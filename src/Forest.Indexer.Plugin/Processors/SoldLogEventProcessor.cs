@@ -158,6 +158,8 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
         // NFT activity
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, eventValue.NftSymbol, "SOLD", soldIndexId);
+        var collectionSymbol = TokenHelper.GetCollectionSymbol(eventValue.NftSymbol);
+            
         var activitySaved = await _nftInfoProvider.AddNFTActivityAsync(context, new NFTActivityIndex
             {
                 Id = nftActivityIndexId,
@@ -169,7 +171,10 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
                 PriceTokenInfo = purchaseTokenIndex,
                 TransactionHash = context.TransactionId,
                 Timestamp = context.BlockTime,
-                NftInfoId = nftInfo.Id
+                NftInfoId = nftInfo.Id,
+                Symbol = eventValue.NftSymbol,
+                CollectionSymbol = collectionSymbol,
+                CollectionId = IdGenerateHelper.GetNFTCollectionId(context.ChainId, collectionSymbol)
             });
         if (!activitySaved)
         {

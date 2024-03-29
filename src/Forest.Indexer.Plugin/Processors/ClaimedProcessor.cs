@@ -98,6 +98,8 @@ public class ClaimedProcessor : AElfLogEventProcessorBase<Claimed, LogEventInfo>
             
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, seedSymbolIndex.Symbol, NFTActivityType.PlaceBid.ToString(), context.TransactionId);
+
+        var collectionSymbol = TokenHelper.GetCollectionSymbol(seedSymbolIndex.Symbol);
         var activitySaved = await _nftInfoProvider.AddNFTActivityAsync(context, new NFTActivityIndex
         {
             Id = nftActivityIndexId,
@@ -109,7 +111,10 @@ public class ClaimedProcessor : AElfLogEventProcessorBase<Claimed, LogEventInfo>
             PriceTokenInfo = tokenIndex,
             TransactionHash = context.TransactionId,
             Timestamp = context.BlockTime,
-            NftInfoId = seedSymbolIndex.Id
+            NftInfoId = seedSymbolIndex.Id,
+            Symbol = seedSymbolIndex.Symbol,
+            CollectionSymbol = collectionSymbol,
+            CollectionId = IdGenerateHelper.GetNFTCollectionId(context.ChainId, collectionSymbol)
         });
        
     }
