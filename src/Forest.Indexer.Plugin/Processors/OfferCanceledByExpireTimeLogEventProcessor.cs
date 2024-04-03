@@ -48,6 +48,11 @@ public class OfferCanceledByExpireTimeLogEventProcessor : OfferLogEventProcessor
         _logger.Debug("OfferCanceledByExpireTimeLogEventProcessor-2 {eventValue}",
             JsonConvert.SerializeObject(eventValue));
 
+        if (eventValue == null || eventValue.OfferFrom == null || eventValue.OfferTo == null || eventValue.ExpireTime == null)
+        {
+            _logger.LogInformation("param is null,return");
+            return;
+        }
         var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
         mustQuery.Add(q => q.Term(i =>
             i.Field(f => f.ChainId).Value(context.ChainId)));
