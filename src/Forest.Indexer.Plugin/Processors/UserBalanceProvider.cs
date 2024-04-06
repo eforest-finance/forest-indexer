@@ -180,7 +180,6 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
 
     private async Task AddUserNFTBalanceChangeIndexAsync(UserBalanceIndex input,LogEventContext context)
     {
-        return;
         if(input == null || context == null) return;
         var userNFTBalanceChangeIndex = new UserNFTBalanceChangeIndex
         {
