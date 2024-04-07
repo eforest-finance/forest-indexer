@@ -17,8 +17,7 @@ public partial class Query
     [Name("nftListingInfo")]
     public static async Task<NftListingPageResultDto> NFTListingInfo(
         [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolIndexRepo,
+        [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] ILogger<NFTListingInfoIndex> _logger,
         GetNFTListingDto input)
@@ -29,29 +28,13 @@ public partial class Query
         _logger.Debug($"[NFTListingInfo] INPUT: chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}");
         
         var decimals = 0;
-        if (SymbolHelper.CheckSymbolIsNoMainChainNFT(input.Symbol, input.ChainId))
+        var tokenId = IdGenerateHelper.GetTokenInfoId(input.ChainId, input.Symbol);
+        var tokenInfoIndex = await tokenIndexRepository.GetAsync(tokenId);
+        if (tokenInfoIndex != null)
         {
-            var nftInfoId = IdGenerateHelper.GetNFTInfoId(input.ChainId, input.Symbol);
-            var nftInfo = await nftInfoRepo.GetAsync(nftInfoId);
-            if (nftInfo == null)
-            {
-                return new NftListingPageResultDto("nft not exists nftInfoId" + nftInfoId);
-            }
-
-            decimals = nftInfo.Decimals;
-        }
-        else if (SymbolHelper.CheckSymbolIsSeedSymbol(input.Symbol))
-        {
-            var nftInfoId = IdGenerateHelper.GetSeedSymbolId(input.ChainId, input.Symbol);
-            var nftInfo = await seedSymbolIndexRepo.GetAsync(nftInfoId);
-            if (nftInfo == null)
-            {
-                return new NftListingPageResultDto("nft not exists nftInfoId(seed)" + nftInfoId);
-            }
-            decimals = nftInfo.Decimals;
+            decimals = tokenInfoIndex.Decimals;
         }
         
-
         // query listing info
         var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
         var listingNotQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();

@@ -34,6 +34,7 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
     private readonly IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> _nftOfferIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo> _nftActivityIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> _seedSymbolIndexRepository;
+    private readonly IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> _tokenInfoIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<ProxyAccountIndex, LogEventInfo> _proxyAccountIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> _seedSymbolRepo;
     private readonly IAElfIndexerClientEntityRepository<CollectionChangeIndex, LogEventInfo> _nftCollectionChangeIndexRepository;
@@ -52,6 +53,8 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
             GetRequiredService<IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo>>();
         _seedSymbolIndexRepository =
             GetRequiredService<IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo>>();
+        
+        _tokenInfoIndexRepository = GetRequiredService<IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo>>();
         _whitelistIndexRepository =
             GetRequiredService<IAElfIndexerClientEntityRepository<WhitelistIndex, LogEventInfo>>();
         _userBalanceIndexRepository =
@@ -1437,8 +1440,8 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
     {
         await HandleOfferAddedLogEventAsync_Test();
 
-        var result = await Query.NftOffers(_nftOfferIndexRepository, _objectMapper, _nftInfoIndexRepository,
-            _seedSymbolIndexRepository, new GetNFTOffersDto()
+        var result = await Query.NftOffers(_nftOfferIndexRepository, _objectMapper,
+            _tokenInfoIndexRepository, new GetNFTOffersDto()
             {
             SkipCount = 0,
             MaxResultCount = 10,
