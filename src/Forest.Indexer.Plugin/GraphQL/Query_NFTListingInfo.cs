@@ -17,8 +17,7 @@ public partial class Query
     [Name("nftListingInfo")]
     public static async Task<NftListingPageResultDto> NFTListingInfo(
         [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolIndexRepo,
+        [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] ILogger<NFTListingInfoIndex> _logger,
         GetNFTListingDto input)
@@ -29,29 +28,13 @@ public partial class Query
         _logger.Debug($"[NFTListingInfo] INPUT: chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}");
         
         var decimals = 0;
-        if (SymbolHelper.CheckSymbolIsNoMainChainNFT(input.Symbol, input.ChainId))
+        var tokenId = IdGenerateHelper.GetTokenInfoId(input.ChainId, input.Symbol);
+        var tokenInfoIndex = await tokenIndexRepository.GetAsync(tokenId);
+        if (tokenInfoIndex != null)
         {
-            var nftInfoId = IdGenerateHelper.GetNFTInfoId(input.ChainId, input.Symbol);
-            var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(nftInfoId, input.ChainId);
-            if (nftInfo == null)
-            {
-                return new NftListingPageResultDto("nft not exists nftInfoId" + nftInfoId);
-            }
-
-            decimals = nftInfo.Decimals;
-        }
-        else if (SymbolHelper.CheckSymbolIsSeedSymbol(input.Symbol))
-        {
-            var nftInfoId = IdGenerateHelper.GetSeedSymbolId(input.ChainId, input.Symbol);
-            var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(nftInfoId, input.ChainId);
-            if (nftInfo == null)
-            {
-                return new NftListingPageResultDto("nft not exists nftInfoId(seed)" + nftInfoId);
-            }
-            decimals = nftInfo.Decimals;
+            decimals = tokenInfoIndex.Decimals;
         }
         
-
         // query listing info
         var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
         var listingNotQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
@@ -114,19 +97,72 @@ public partial class Query
 
     [Name("getMinListingNft")]
     public static async Task<NFTListingInfoDto> GetMinListingNftAsync(
-        [FromServices] INFTInfoProvider nftInfoProvider,
         [FromServices] IObjectMapper objectMapper,
+        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository,
+        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository,
         GetMinListingNftDto dto)
     {
-        var listingInfo = await nftInfoProvider.GetMinListingNftAsync(dto.NftInfoId);
+        var listingInfo = await GetMinListingNftAsync(dto.NftInfoId, async info =>
+        {
+            var listingInfo = await _listedNftIndexRepository.GetAsync(info.Id);
+            return listingInfo != null;
+        }, _listedNftIndexRepository, _userBalanceIndexRepository);
         return objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(listingInfo);
     }
-    
+
+    private static async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId,
+        Func<NFTListingInfoIndex, Task<bool>> additionalConditionAsync,
+        IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository,
+        IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository)
+    {
+        //Get Effective NftListingInfos
+        var nftListingInfos =
+            await GetEffectiveNftListingInfos(nftInfoId, _listedNftIndexRepository);
+        
+        //order by price asc, expireTime desc
+        nftListingInfos = nftListingInfos.Where(index =>
+                DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >= DateTime.UtcNow.ToUtcMilliSeconds())
+            .OrderBy(info => info.Prices)
+            .ThenByDescending(info => DateTimeHelper.ToUnixTimeMilliseconds(info.ExpireTime))
+            .ToList();
+
+        NFTListingInfoIndex minNftListing = null;
+        //find first listingInfo match: userBalance > 0 and additionalCondition
+        foreach (var info in nftListingInfos)
+        {
+            var userBalanceId = IdGenerateHelper.GetUserBalanceId(info.Owner, info.ChainId, nftInfoId);
+
+            var userBalance = await _userBalanceIndexRepository.GetAsync(userBalanceId);
+
+            if (userBalance?.Amount > 0 && await additionalConditionAsync(info))
+            {
+                minNftListing = info;
+                break;
+            }
+        }
+
+        return minNftListing;
+    }
+
+    private static async Task<List<NFTListingInfoIndex>> GetEffectiveNftListingInfos(string nftInfoId, IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
+
+        mustQuery.Add(q => q.TermRange(i
+            => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime))
+                .GreaterThan(DateTime.UtcNow.ToString("O"))));
+        mustQuery.Add(q => q.Term(i => i.Field(index => index.NftInfoId).Value(nftInfoId)));
+
+        QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f) => f.Bool(b => b.Must(mustQuery));
+
+        var result = await _listedNftIndexRepository.GetListAsync(Filter, sortExp: k => k.Prices,
+            sortType: SortOrder.Ascending, skip: 0);
+        return result.Item2??new List<NFTListingInfoIndex>();
+    }
     
     [Name("getExpiredNftMinPrice")]
     public static async Task<List<ExpiredNftMinPriceDto>> GetNftMinPriceAsync(
         [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
-        [FromServices] INFTInfoProvider nftInfoProvider,
         [FromServices] ILogger<NFTListingInfoIndex> logger,
         GetExpiredNFTMinPriceDto input)
     {
@@ -152,7 +188,7 @@ public partial class Query
         List<ExpiredNftMinPriceDto> data = new();
         foreach (var item in result.Item2)
         {
-            var listingInfo = await nftInfoProvider.GetMinListingNftAsync(item.NftInfoId);
+            var listingInfo = await nftListingRepo.GetAsync(item.NftInfoId);
             if (listingInfo == null)
             {
                 ExpiredNftMinPriceDto priceDto = new ExpiredNftMinPriceDto()
