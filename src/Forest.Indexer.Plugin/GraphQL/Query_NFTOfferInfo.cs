@@ -87,7 +87,7 @@ public partial class Query
     }
 
     [Name("getNftOfferChange")]
-    public static async Task<List<NFTOfferChangeDto>> GetNFTOfferChangeAsync(
+    public static async Task<List<NFTOfferChangeDto>> GetNFTOfferChangfofferseAsync(
         [FromServices] IAElfIndexerClientEntityRepository<NFTOfferChangeIndex, LogEventInfo> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNFTOfferChangeDto dto)
