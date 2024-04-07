@@ -102,8 +102,7 @@ public partial class Query
     public static async Task<NftOfferPageResultDto> NftOffers(
         [FromServices] IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> repository,
         [FromServices] IObjectMapper objectMapper,
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolIndexRepo,
+        [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
         GetNFTOffersDto dto)
     {
         if (dto.ChainId.IsNullOrEmpty())
@@ -115,35 +114,15 @@ public partial class Query
                 };
         
         var decimals = 0;
-        var symbol = SymbolHelper.RemovePrefix(dto.NFTInfoId);
-        if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, dto.ChainId))
+        if (!dto.NFTInfoId.IsNullOrEmpty())
         {
-            var nftInfo = await nftInfoRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
-            if (nftInfo == null)
+            var symbol = SymbolHelper.RemovePrefix(dto.NFTInfoId);
+            var tokenId = IdGenerateHelper.GetTokenInfoId(dto.ChainId, symbol);
+            var tokenInfoIndex = await tokenIndexRepository.GetAsync(tokenId);
+            if (tokenInfoIndex != null)
             {
-                return
-                    new NftOfferPageResultDto
-                    {
-                        TotalRecordCount = 0,
-                        Data = new List<NFTOfferDto>()
-                    };
+                decimals = tokenInfoIndex.Decimals;
             }
-        
-            decimals = nftInfo.Decimals;
-        }
-        else if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
-        {
-            var nftInfo = await seedSymbolIndexRepo.GetFromBlockStateSetAsync(dto.NFTInfoId, dto.ChainId);
-            if (nftInfo == null)
-            {
-                return
-                    new NftOfferPageResultDto
-                    {
-                        TotalRecordCount = 0,
-                        Data = new List<NFTOfferDto>()
-                    };
-            }
-            decimals = nftInfo.Decimals;
         }
         
         // query offer list

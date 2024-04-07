@@ -114,7 +114,7 @@ public partial class Query
     {
         if (dto == null || dto.Id.IsNullOrEmpty() || dto.ChainId.IsNullOrEmpty()) return null;
 
-        var result = await repository.GetFromBlockStateSetAsync(dto.Id, dto.ChainId);
+        var result = await repository.GetAsync(dto.Id);
         if (result == null)
         {
             return null;
