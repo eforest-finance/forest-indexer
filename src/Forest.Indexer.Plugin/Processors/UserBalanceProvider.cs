@@ -152,29 +152,6 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
         return await _userBalanceIndexRepository.GetFromBlockStateSetAsync(userBalanceId,chainId);
     }
 
-    public async Task UpdateUserBanlanceBynftInfoIdAsync(NFTInfoIndex nftInfoIndex, LogEventContext context,
-        long beginBlockHeight)
-    {
-        if (nftInfoIndex == null || context == null || nftInfoIndex.Id.IsNullOrWhiteSpace() || beginBlockHeight < 0) return;
-
-        var result = await QueryAndUpdateUserBanlanceBynftInfoId(nftInfoIndex, beginBlockHeight, context.BlockHeight);
-        if (result != null && result.Item1 > 0 && result.Item2 != null)
-        {
-            beginBlockHeight = result.Item2.Last().BlockHeight;
-            foreach (var userBalanceIndex in result.Item2)
-            {
-                userBalanceIndex.ListingPrice = nftInfoIndex.ListingPrice;
-                userBalanceIndex.ListingTime = nftInfoIndex.LatestListingTime;
-                _objectMapper.Map(context, userBalanceIndex);
-                BuildBalanceType(userBalanceIndex);
-                await _userBalanceIndexRepository.AddOrUpdateAsync(userBalanceIndex);
-                await AddUserNFTBalanceChangeIndexAsync(userBalanceIndex, context);
-            }
-
-            await UpdateUserBanlanceBynftInfoIdAsync(nftInfoIndex, context, beginBlockHeight);
-        }
-    }
-
     private async Task AddUserNFTBalanceChangeIndexAsync(UserBalanceIndex input,LogEventContext context)
     {
         return;
