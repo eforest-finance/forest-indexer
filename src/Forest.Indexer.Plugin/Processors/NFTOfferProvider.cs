@@ -107,7 +107,7 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
         }
         int skip = 0;
         int queryCount;
-        int limit = 10;
+        int limit = 1000;
         do
         {
             var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();

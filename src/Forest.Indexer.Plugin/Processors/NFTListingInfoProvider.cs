@@ -201,7 +201,7 @@ public class NFTListingInfoProvider : INFTListingInfoProvider, ISingletonDepende
         int queryCount = 0;
         while (queryCount < MaxQueryCount)
         {
-            var result = await _listedNFTIndexRepository.GetListAsync(Filter, skip: skip, limit: 10);
+            var result = await _listedNFTIndexRepository.GetListAsync(Filter, skip: skip, limit: MaxQuerySize);
             if (result.Item2.IsNullOrEmpty())
             {
                 break;
