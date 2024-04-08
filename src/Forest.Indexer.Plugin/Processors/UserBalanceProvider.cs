@@ -16,9 +16,6 @@ public interface IUserBalanceProvider
     public Task UpdateUserBalanceAsync(UserBalanceIndex input,LogEventContext context);
     public Task<UserBalanceIndex> QueryUserBalanceByIdAsync(string userBalanceId, string chainId);
 
-    public Task UpdateUserBanlanceBynftInfoIdAsync(NFTInfoIndex nftInfoIndex, LogEventContext context,
-        long beginBlockHeight);
-
     public Task<long> SaveUserBalanceAsync(String symbol, String address, long amount, LogEventContext context);
     
     public Task<long> ReCoverUserBalanceAsync(String symbol, String address, long amount, LogEventContext context);

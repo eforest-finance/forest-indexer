@@ -256,8 +256,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         
         _objectMapper.Map(context, nftInfo);
         await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfo);
-
-        await _userBalanceProvider.UpdateUserBanlanceBynftInfoIdAsync(nftInfo, context, 0L);
+        
         return nftInfo;
     }
 
