@@ -23,7 +23,6 @@ public class ForestIndexerClientAutoMapperProfile : Profile
         CreateMap<LogEventContext, SeedMainChainChangeIndex>();
         CreateMap<LogEventContext, NFTListingChangeIndex>();
         CreateMap<LogEventContext, UserBalanceIndex>();
-        CreateMap<LogEventContext, UserNFTBalanceChangeIndex>();
         CreateMap<LogEventContext, NFTMarketDayIndex>();
         CreateMap<LogEventContext, NFTMarketWeekIndex>();
 

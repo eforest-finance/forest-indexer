@@ -26,20 +26,17 @@ public interface IUserBalanceProvider
 public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
 {
     private readonly IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository;
-    private readonly IAElfIndexerClientEntityRepository<UserNFTBalanceChangeIndex, LogEventInfo> _userBalanceChangeIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> _tokenInfoIndexRepository;
     private readonly IObjectMapper _objectMapper;
     private readonly ILogger<IUserBalanceProvider> _logger;
     
     public UserBalanceProvider(
         IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceIndexRepository,
-        IAElfIndexerClientEntityRepository<UserNFTBalanceChangeIndex, LogEventInfo> userBalanceChangeIndexRepository,
         IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenInfoIndexRepository,
         IObjectMapper objectMapper,
         ILogger<UserBalanceProvider> logger)
     {
         _userBalanceIndexRepository = userBalanceIndexRepository;
-        _userBalanceChangeIndexRepository = userBalanceChangeIndexRepository;
         _objectMapper = objectMapper;
         _logger = logger;
         _tokenInfoIndexRepository = tokenInfoIndexRepository;
@@ -51,7 +48,6 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
         {
             BuildBalanceType(input);
             await _userBalanceIndexRepository.AddOrUpdateAsync(input);
-            await AddUserNFTBalanceChangeIndexAsync(input, context);
         }
     }
 
@@ -87,7 +83,6 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
         _objectMapper.Map(context, userBalanceIndex);
         BuildBalanceType(userBalanceIndex);
         await _userBalanceIndexRepository.AddOrUpdateAsync(userBalanceIndex);
-        await AddUserNFTBalanceChangeIndexAsync(userBalanceIndex, context);
         return userBalanceIndex.Amount;
     }
     public async Task<long> SaveUserBalanceAsync(String symbol, String address, long amount, LogEventContext context)
@@ -124,7 +119,6 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
             symbol, userBalanceIndex.Amount);
         BuildBalanceType(userBalanceIndex);
         await _userBalanceIndexRepository.AddOrUpdateAsync(userBalanceIndex);
-        await AddUserNFTBalanceChangeIndexAsync(userBalanceIndex, context);
         return userBalanceIndex.Amount;
     }
 
@@ -150,23 +144,6 @@ public class UserBalanceProvider : IUserBalanceProvider, ISingletonDependency
             return null;
         }
         return await _userBalanceIndexRepository.GetFromBlockStateSetAsync(userBalanceId,chainId);
-    }
-
-    private async Task AddUserNFTBalanceChangeIndexAsync(UserBalanceIndex input,LogEventContext context)
-    {
-        return;
-        if(input == null || context == null) return;
-        var userNFTBalanceChangeIndex = new UserNFTBalanceChangeIndex
-        {
-            Id = IdGenerateHelper.GetId(context.ChainId, input.Symbol, Guid.NewGuid()),
-            Symbol = input.Symbol,
-            Address = input.Address,
-            BalanceType = input.BalanceType,
-            UserBalanceId = input.Id,
-            UpdateTime = context.BlockTime
-        };
-        _objectMapper.Map(context, userNFTBalanceChangeIndex);
-        await _userBalanceChangeIndexRepository.AddOrUpdateAsync(userNFTBalanceChangeIndex);
     }
 
     private static void BuildBalanceType(UserBalanceIndex userBalanceIndex)
