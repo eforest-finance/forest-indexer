@@ -117,6 +117,36 @@ public partial class Query
             Data = objectMapper.Map<List<UserBalanceIndex>, List<NFTOwnerInfoDto>>(result.Item2)
         };
     }
+    
+    [Name("getSyncUserBalanceRecords")]
+    public static async Task<List<UserBalanceSyncDto>> GetSyncUserBalanceRecordsAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> repository,
+        [FromServices] IObjectMapper objectMapper,
+        GetChainBlockHeightDto dto)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
+        mustQuery.Add(q => q.Term(i
+            => i.Field(f => f.ChainId).Value(dto.ChainId)));
+
+        if (dto.StartBlockHeight > 0)
+        {
+            mustQuery.Add(q => q.Range(i
+                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.StartBlockHeight)));
+        }
+
+        if (dto.EndBlockHeight > 0)
+        {
+            mustQuery.Add(q => q.Range(i
+                => i.Field(f => f.BlockHeight).LessThanOrEquals(dto.EndBlockHeight)));
+        }
+
+        QueryContainer Filter(QueryContainerDescriptor<UserBalanceIndex> f) =>
+            f.Bool(b => b.Must(mustQuery));
+
+        var result = await repository.GetListAsync(Filter, 
+            sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
+        return objectMapper.Map<List<UserBalanceIndex>, List<UserBalanceSyncDto>>(result.Item2);
+    }
 
     private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalance()
     {
