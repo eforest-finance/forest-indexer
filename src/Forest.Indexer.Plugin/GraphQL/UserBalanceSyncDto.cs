@@ -24,4 +24,8 @@ public class UserBalanceSyncDto
     public DateTime? ListingTime { get; set; }
 
     public BalanceType BalanceType { get; set; } = BalanceType.Other;
+    
+    public string BlockHash { get; set; }
+
+    public long BlockHeight { get; set; }
 }
