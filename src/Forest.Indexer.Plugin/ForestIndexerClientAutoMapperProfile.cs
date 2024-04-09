@@ -18,7 +18,7 @@ public class ForestIndexerClientAutoMapperProfile : Profile
         CreateMap<TokenInfo, TokenInfoIndex>();
         CreateMap<SymbolMarketActivityIndex,SymbolMarkerActivityDto>();
         CreateMap<NFTListingChangeIndex,NFTListingChangeDto>();
-        CreateMap<UserBalanceIndex,UserBalanceSyncDto>();
+        CreateMap<UserBalanceIndex, UserBalanceSyncDto>();
         CreateMap<SeedSymbolIndex, SeedSymbolIndex>();
         CreateMap<LogEventContext, OfferInfoIndex>();
         CreateMap<LogEventContext, SeedMainChainChangeIndex>();

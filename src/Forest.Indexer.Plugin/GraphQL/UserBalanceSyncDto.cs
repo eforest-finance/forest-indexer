@@ -1,4 +1,6 @@
 
+using Forest.Indexer.Plugin.Entities;
+
 namespace Forest.Indexer.Plugin.GraphQL;
 
 public class UserBalanceSyncDto
@@ -22,11 +24,4 @@ public class UserBalanceSyncDto
     public DateTime? ListingTime { get; set; }
 
     public BalanceType BalanceType { get; set; } = BalanceType.Other;
-}
-
-public enum BalanceType
-{
-    Elf,
-    Nft,
-    Other
 }
