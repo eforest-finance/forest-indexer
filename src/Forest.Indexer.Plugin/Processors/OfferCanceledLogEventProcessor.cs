@@ -59,6 +59,11 @@ public class OfferCanceledLogEventProcessor : OfferLogEventProcessorBase<OfferCa
         {
             try
             {
+                if (index >= offerIndex.Item2.Count)
+                {
+                    _logger.LogError("event index should less then offer list count .symbol:{A} OfferFrom:{B} offerListCount:{C} index:{D}",eventValue.Symbol,eventValue.OfferFrom.ToBase58(),offerIndex.Item2.Count,index);
+                    continue;
+                }
                 var cancelOfferIndex = offerIndex.Item2[index];
                 if (cancelOfferIndex == null) return;
                 var nftInfoId = cancelOfferIndex.BizInfoId;
