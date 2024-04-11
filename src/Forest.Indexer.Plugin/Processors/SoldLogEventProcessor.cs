@@ -118,7 +118,7 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
         }
 
         var totalPrice = ToPrice(eventValue.PurchaseAmount, purchaseTokenIndex.Decimals);
-        var totalCount = (int)TokenHelper.GetIntegerDivision(eventValue.NftQuantity, purchaseTokenIndex.Decimals);
+        var totalCount = (int)TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftTokenIndex.Decimals);
         var singlePrice = CalSinglePrice(totalPrice,
             totalCount);
         
@@ -163,7 +163,7 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
                 Type = NFTActivityType.Sale,
                 From = eventValue.NftFrom.ToBase58(),
                 To = eventValue.NftTo.ToBase58(),
-                Amount = TokenHelper.GetIntegerDivision(eventValue.NftQuantity, purchaseTokenIndex.Decimals),
+                Amount = TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftTokenIndex.Decimals),
                 Price = singlePrice,
                 PriceTokenInfo = purchaseTokenIndex,
                 TransactionHash = context.TransactionId,

@@ -2,7 +2,10 @@ using AElfIndexer.Client;
 using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 using Nest;
+using Newtonsoft.Json;
+using Orleans.Runtime;
 using Volo.Abp.DependencyInjection;
 
 namespace Forest.Indexer.Plugin.Processors.Provider;
@@ -21,9 +24,6 @@ public interface ICollectionProvider
 
 public class CollectionProvider : ICollectionProvider, ISingletonDependency
 {
-    private readonly IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo>
-        _collectionIndexRepository;
-
     private readonly IAElfIndexerClientEntityRepository<SymbolAuctionInfoIndex, LogEventInfo>
         _symbolAuctionInfoIndexRepository;
     
@@ -32,26 +32,22 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
 
     private readonly IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo>
         _nftListingInfoIndexRepository;
-
-    private readonly IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo>
-        _nftOfferIndexRepository;
+    
+    private readonly ILogger<ICollectionProvider> _logger;
 
     public CollectionProvider(
-        IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> collectionIndexRepository,
         IAElfIndexerClientEntityRepository<SymbolAuctionInfoIndex, LogEventInfo>
             symbolAuctionInfoIndexRepository,
         IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo>
             nftListingInfoIndexRepository,
-        IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo>
-            nftOfferIndexRepository,
         IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo>
-            nftActivityIndexRepository)
+            nftActivityIndexRepository,
+        ILogger<ICollectionProvider> logger)
     {
-        _collectionIndexRepository = collectionIndexRepository;
         _symbolAuctionInfoIndexRepository = symbolAuctionInfoIndexRepository;
         _nftListingInfoIndexRepository = nftListingInfoIndexRepository;
-        _nftOfferIndexRepository = nftOfferIndexRepository;
         _nftActivityIndexRepository = nftActivityIndexRepository;
+        _logger = logger;
     }
     
     public async Task<decimal> CalcCollectionFloorPriceAsync(string chainId, string symbol, decimal oriFloorPrice)
