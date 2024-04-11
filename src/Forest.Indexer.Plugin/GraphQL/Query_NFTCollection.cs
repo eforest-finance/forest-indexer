@@ -213,10 +213,10 @@ public partial class Query
         CalNFTCollectionTradeDto dto)
     {
         var floorPrice =
-            await collectionProvider.CalcCollectionFloorPriceWithTimestampAsync(dto.ChainId, dto.Symbol,
+            await collectionProvider.CalcCollectionFloorPriceWithTimestampAsync(dto.ChainId, dto.CollectionSymbol,
                 dto.BeginUtcStamp, dto.EndUtcStamp);
         var tradeInfoDic =
-            await collectionProvider.CalcNFTCollectionTradeAsync(dto.ChainId, dto.Symbol, dto.BeginUtcStamp,
+            await collectionProvider.CalcNFTCollectionTradeAsync(dto.ChainId, dto.CollectionId, dto.BeginUtcStamp,
                 dto.EndUtcStamp);
 
         if (tradeInfoDic.IsNullOrEmpty())
