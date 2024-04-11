@@ -190,19 +190,23 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         long beginStampSecond, long endStampSecond)
     {
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
+        var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
+        
         mustQuery.Add(q => q.Term(i => i.Field(f => f.CollectionSymbol).Value(symbol)));
         mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(chainId)));
         //Add conditions within effective time
-        mustQuery.Add(q => q.TermRange(i 
-            => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).GreaterThan(DateTimeOffset.FromUnixTimeSeconds(beginStampSecond).ToLocalTime().DateTime.ToString("O"))));
-        mustQuery.Add(q => q.TermRange(i 
-            => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).LessThan(DateTimeOffset.FromUnixTimeSeconds(endStampSecond).ToLocalTime().DateTime.ToString("O"))));
+        
         //add RealQuantity > 0
         mustQuery.Add(q => q.TermRange(i
             => i.Field(index => index.RealQuantity).GreaterThan(0.ToString())));
         QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f)
-            => f.Bool(b => b.Must(mustQuery));
+            => f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
 
+        mustNotQuery.Add(q => q.TermRange(i 
+            => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).LessThan(DateTimeOffset.FromUnixTimeSeconds(beginStampSecond).ToLocalTime().DateTime.ToString("O"))));
+        mustNotQuery.Add(q => q.TermRange(i 
+            => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.StartTime)).GreaterThan(DateTimeOffset.FromUnixTimeSeconds(endStampSecond).ToLocalTime().DateTime.ToString("O"))));
+        
         var result = await _nftListingInfoIndexRepository.GetListAsync(Filter, sortExp: k => k.Prices,
             sortType: SortOrder.Ascending, limit: 1);
 
