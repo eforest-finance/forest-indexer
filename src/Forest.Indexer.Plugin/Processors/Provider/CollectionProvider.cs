@@ -124,14 +124,23 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         int skipCount,
         long beginUtcStampSecond, long endUtcStampSecond)
     {
+        
+       
         var collectionSymbolPre = TokenHelper.GetCollectionIdPre(collectionId);
+
+        _logger.Debug(
+            "CalcNFTCollectionTradeSingleAsync chainId={A} collectionId={B} skipCount={C} beginUtcStampSecond={D} endUtcStampSecond={E} beginTime={F} endTime={G}",
+            chainId, collectionId, skipCount, beginUtcStampSecond, endUtcStampSecond, DateTimeOffset
+                .FromUnixTimeSeconds(beginUtcStampSecond).ToLocalTime().DateTime.ToString("O"), DateTimeOffset
+                .FromUnixTimeSeconds(endUtcStampSecond).ToLocalTime().DateTime.ToString("O"));
+        
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>>();
         mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(chainId)));
         mustQuery.Add(q => q.Term(i => i.Field(f => f.Type).Value(NFTActivityType.Sale)));
-        mustQuery.Add(q => q.TermRange(i
+        mustQuery.Add(q => q.DateRange(i
             => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.Timestamp)).GreaterThan(DateTimeOffset
                 .FromUnixTimeSeconds(beginUtcStampSecond).ToLocalTime().DateTime.ToString("O"))));
-        mustQuery.Add(q => q.TermRange(i
+        mustQuery.Add(q => q.DateRange(i
             => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.Timestamp)).LessThan(DateTimeOffset
                 .FromUnixTimeSeconds(endUtcStampSecond).ToLocalTime().DateTime.ToString("O"))));
         mustQuery.Add(q => q
@@ -198,9 +207,9 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f)
             => f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
 
-        mustNotQuery.Add(q => q.TermRange(i 
+        mustNotQuery.Add(q => q.DateRange(i 
             => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).LessThan(DateTimeOffset.FromUnixTimeSeconds(beginStampSecond).ToLocalTime().DateTime.ToString("O"))));
-        mustNotQuery.Add(q => q.TermRange(i 
+        mustNotQuery.Add(q => q.DateRange(i 
             => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.StartTime)).GreaterThan(DateTimeOffset.FromUnixTimeSeconds(endStampSecond).ToLocalTime().DateTime.ToString("O"))));
         
         var result = await _nftListingInfoIndexRepository.GetListAsync(Filter, sortExp: k => k.Prices,
