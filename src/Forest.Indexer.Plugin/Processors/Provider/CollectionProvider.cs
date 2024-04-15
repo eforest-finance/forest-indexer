@@ -136,7 +136,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>>();
         mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(chainId)));
-        mustQuery.Add(q => q.Term(i => i.Field(f => f.Type).Value(NFTActivityType.Sale)));
+        mustQuery.Add(q => q.Terms(i => i.Field(f => f.Type).Terms(NFTActivityType.Sale, NFTActivityType.PlaceBid)));
         mustQuery.Add(q => q.DateRange(i
             => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.Timestamp)).GreaterThan(DateTimeOffset
                 .FromUnixTimeSeconds(beginUtcStampSecond).ToLocalTime().DateTime.ToString("O"))));
