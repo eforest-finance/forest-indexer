@@ -19,6 +19,7 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
     private readonly IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo> _nftActivityIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> _tokenIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> _nftInfoIndexRepository;
+    private readonly IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> _seedSymbolIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<NFTMarketInfoIndex, LogEventInfo> _nftMarketIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<NFTMarketDayIndex, LogEventInfo> _nftMarketDayIndexRepository;
     private readonly IAElfIndexerClientEntityRepository<NFTMarketWeekIndex, LogEventInfo> _nftMarketWeekIndexRepository;
@@ -37,6 +38,7 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
         IAElfIndexerClientEntityRepository<NFTMarketInfoIndex, LogEventInfo> nftMarketIndexRepository,
         IAElfIndexerClientEntityRepository<NFTMarketDayIndex, LogEventInfo> nftMarketDayIndexRepository,
         IAElfIndexerClientEntityRepository<NFTMarketWeekIndex, LogEventInfo> nftMarketWeekIndexRepository, 
+        IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolIndexRepository,
         INFTInfoProvider nftInfoProvider) :
         base(logger)
     {
@@ -51,6 +53,7 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
         _nftMarketDayIndexRepository = nftMarketDayIndexRepository;
         _nftMarketWeekIndexRepository = nftMarketWeekIndexRepository;
         _nftInfoProvider = nftInfoProvider;
+        _seedSymbolIndexRepository = seedSymbolIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
@@ -69,6 +72,23 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
         var soldIndexId = IdGenerateHelper.GetId(context.ChainId, eventValue.NftSymbol, context.TransactionId, Guid.NewGuid());
         _logger.Debug("[Sold] START: soldIndexId={soldIndexId}, Event={Event}", soldIndexId,
             JsonConvert.SerializeObject(eventValue));
+
+        var nftInfoIndexId = "";
+
+        if (SymbolHelper.CheckSymbolIsSeedSymbol(eventValue.NftSymbol))
+        {
+            nftInfoIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.NftSymbol);
+        }
+        else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(eventValue.NftSymbol, context.ChainId))
+        {
+            nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, eventValue.NftSymbol);
+        }
+
+        if (nftInfoIndexId.IsNullOrEmpty())
+        {
+            _logger.LogError("eventValue.NftSymbol is not nft return,symbol={A}", eventValue.NftSymbol);
+            return;
+        }
 
 
         // NFT token Index
@@ -96,14 +116,9 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
                 soldIndexId, purchaseTokenIndexId);
             return;
         }
-        
-        
-        
-        var nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, eventValue.NftSymbol);
-        var nftInfo = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftInfoIndexId, context.ChainId);
-        
+
         var totalPrice = ToPrice(eventValue.PurchaseAmount, purchaseTokenIndex.Decimals);
-        var totalCount = (int)TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftInfo.Decimals);
+        var totalCount = (int)TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftTokenIndex.Decimals);
         var singlePrice = CalSinglePrice(totalPrice,
             totalCount);
         
@@ -138,22 +153,6 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
             nftTokenIndexId, JsonConvert.SerializeObject(nftMarketIndex));
         await _nftMarketIndexRepository.AddOrUpdateAsync(nftMarketIndex);
 
-        // NFTInfo
-        if (nftInfo != null)
-        {
-            var tokenInfoId = IdGenerateHelper.GetTokenInfoId(context.ChainId, eventValue.NftSymbol);
-            var tokenInfo =
-                await _tokenIndexRepository.GetFromBlockStateSetAsync(tokenInfoId, context.ChainId);
-            nftInfo.LatestDealPrice = singlePrice;
-            nftInfo.LatestDealTime = soldIndex.DealTime;
-            nftInfo.LatestDealToken = tokenInfo;
-
-            _logger.Debug(
-                "[Sold] STEP: update fntInfo, tokenIndexId={Id}, LatestDealPrice={LatestDealPrice}, LatestDealTime={LatestDealTime}",
-                nftTokenIndexId, nftInfo.LatestDealPrice, nftInfo.LatestDealTime);
-            _objectMapper.Map(context, nftInfo);
-            await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfo);
-        }
 
         // NFT activity
         var nftActivityIndexId =
@@ -164,12 +163,12 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
                 Type = NFTActivityType.Sale,
                 From = eventValue.NftFrom.ToBase58(),
                 To = eventValue.NftTo.ToBase58(),
-                Amount = TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftInfo.Decimals),
+                Amount = TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftTokenIndex.Decimals),
                 Price = singlePrice,
                 PriceTokenInfo = purchaseTokenIndex,
                 TransactionHash = context.TransactionId,
                 Timestamp = context.BlockTime,
-                NftInfoId = nftInfo.Id
+                NftInfoId = nftInfoIndexId
             });
         if (!activitySaved)
         {
@@ -177,7 +176,37 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
             return;
         }
         
-        await CalculateMarketData(nftMarketIndex.NFTInfoId, totalCount, totalPrice, context);
+        await CalculateMarketData(nftInfoIndexId, totalCount, totalPrice, context);
+        
+        if (SymbolHelper.CheckSymbolIsSeedSymbol(eventValue.NftSymbol))
+        {
+            var nftInfo = await _seedSymbolIndexRepository.GetFromBlockStateSetAsync(nftInfoIndexId, context.ChainId);
+            if (nftInfo != null)
+            {
+                nftInfo.LatestDealToken = purchaseTokenIndex;
+
+                _logger.Debug(
+                    "[Sold] STEP: update nftInfo (seed), tokenIndexId={Id}, LatestDealPrice={LatestDealPrice}, LatestDealTime={LatestDealTime}",
+                    nftTokenIndexId, singlePrice, soldIndex.DealTime);
+                _objectMapper.Map(context, nftInfo);
+                await _seedSymbolIndexRepository.AddOrUpdateAsync(nftInfo);
+            }
+        }else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(eventValue.NftSymbol, context.ChainId))
+        {
+            var nftInfo = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftInfoIndexId, context.ChainId);
+            if (nftInfo != null)
+            {
+                nftInfo.LatestDealPrice = singlePrice;
+                nftInfo.LatestDealTime = soldIndex.DealTime;
+                nftInfo.LatestDealToken = purchaseTokenIndex;
+
+                _logger.Debug(
+                    "[Sold] STEP: update nftInfo, tokenIndexId={Id}, LatestDealPrice={LatestDealPrice}, LatestDealTime={LatestDealTime}",
+                    nftTokenIndexId, nftInfo.LatestDealPrice, nftInfo.LatestDealTime);
+                _objectMapper.Map(context, nftInfo);
+                await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfo);
+            }
+        }
     }
 
     private async Task CalculateMarketData(string nftInfoId, int quantity, decimal totalPrice, LogEventContext context)

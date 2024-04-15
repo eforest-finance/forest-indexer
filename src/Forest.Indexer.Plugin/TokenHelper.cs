@@ -21,6 +21,11 @@ public class TokenHelper
         return nftSymbol.Replace("-" + ForestIndexerConstants.NftSubfix, "");
     }
 
+    public static string GetCollectionIdPre(string collectionId)
+    {
+        return collectionId.Replace(ForestIndexerConstants.NftSubfix, "");
+    }
+    
     public static long GetIntegerDivision(long number, int decimals)
     {
         if (decimals == ForestIndexerConstants.IntZero || number == ForestIndexerConstants.IntZero)
