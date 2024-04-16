@@ -2,7 +2,7 @@ namespace Forest.Indexer.Plugin.Processors;
 
 public class DecimalUntil
 {
-    private static decimal ConvertToOtherToken(decimal amount, int decimals)
+    public static decimal ConvertToOtherToken(decimal amount, int decimals)
     {
         if (amount > 0)
         {
