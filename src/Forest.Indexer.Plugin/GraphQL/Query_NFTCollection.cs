@@ -204,7 +204,37 @@ public partial class Query
             FloorPrice = floorPrice
         };
     }
-    
+
+    [Name("calcNFTCollectionTrade")]
+    public static async Task<NFTCollectionTradeResultDto> CalcNFTCollectionTradeAsync(
+        [FromServices] ICollectionProvider collectionProvider,
+        [FromServices] IObjectMapper objectMapper,
+        [FromServices] ILogger<CollectionIndex> _logger,
+        CalNFTCollectionTradeDto dto)
+    {
+        var floorPrice =
+            await collectionProvider.CalcCollectionFloorPriceWithTimestampAsync(dto.ChainId, dto.CollectionSymbol,
+                dto.BeginUtcStamp, dto.EndUtcStamp);
+        var tradeInfoDic =
+            await collectionProvider.CalcNFTCollectionTradeAsync(dto.ChainId, dto.CollectionId, dto.BeginUtcStamp,
+                dto.EndUtcStamp);
+
+        if (tradeInfoDic.IsNullOrEmpty())
+        {
+            return new NFTCollectionTradeResultDto
+            {
+                FloorPrice = floorPrice
+            };
+        }
+
+        return new NFTCollectionTradeResultDto
+        {
+            FloorPrice = floorPrice,
+            VolumeTotal = tradeInfoDic.FirstOrDefault().Value,
+            SalesTotal = tradeInfoDic.FirstOrDefault().Key
+        };
+    }
+
     [Name("generateNFTCollectionExtensionById")]
     public static async Task<NFTCollectionExtensionResultDto> GenerateNFTCollectionExtensionById(
         [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolRepository,

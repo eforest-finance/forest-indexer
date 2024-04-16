@@ -7,12 +7,15 @@ using AElfIndexer.Grains.State.Client;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
+using Forest.Indexer.Plugin.Processors;
+using Google.Type;
 using GraphQL;
 using Microsoft.Extensions.Logging;
 using Nest;
 using NFTMarketServer.NFT;
 using Orleans;
 using Volo.Abp.ObjectMapping;
+using DateTime = System.DateTime;
 
 namespace Forest.Indexer.Plugin.GraphQL;
 
@@ -116,8 +119,7 @@ public partial class Query
         var decimals = 0;
         if (!dto.NFTInfoId.IsNullOrEmpty())
         {
-            var symbol = SymbolHelper.RemovePrefix(dto.NFTInfoId);
-            var tokenId = IdGenerateHelper.GetTokenInfoId(dto.ChainId, symbol);
+            var tokenId = dto.NFTInfoId;
             var tokenInfoIndex = await tokenIndexRepository.GetAsync(tokenId);
             if (tokenInfoIndex != null)
             {
@@ -159,11 +161,16 @@ public partial class Query
                 Data = new List<NFTOfferDto>()
             };
 
+        ;
         var dataList = result.Item2.Select(i =>
         {
             var item = objectMapper.Map<OfferInfoIndex, NFTOfferDto>(i);
-            item.Quantity = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
-            item.RealQuantity = TokenHelper.GetIntegerDivision(item.RealQuantity, decimals);
+            var quantityNoDecimals = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
+            item.RealQuantity = (quantityNoDecimals == item.RealQuantity)
+                ? item.RealQuantity
+                : Math.Min(item.RealQuantity, quantityNoDecimals);
+            item.Quantity = item.RealQuantity;
+            
             return item;
         }).ToList();
         return new NftOfferPageResultDto
