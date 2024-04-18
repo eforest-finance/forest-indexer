@@ -119,7 +119,7 @@ public class ListedNFTAddedLogEventProcessor : AElfLogEventProcessorBase<ListedN
             {
                 Id = nftActivityIndexId,
                 Type = NFTActivityType.ListWithFixedPrice,
-                From = eventValue.Owner.ToBase58(),
+                From = FullAddressHelper.ToFullAddress(eventValue.Owner.ToBase58(), context.ChainId),
                 Amount = TokenHelper.GetIntegerDivision(updateListedInfoResponse.ListingQuantity, decimals),
                 Price = updateListedInfoResponse.ListingPrice,
                 PriceTokenInfo = tokenIndex,

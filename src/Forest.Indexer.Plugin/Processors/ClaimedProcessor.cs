@@ -99,8 +99,8 @@ public class ClaimedProcessor : AElfLogEventProcessorBase<Claimed, LogEventInfo>
         {
             Id = nftActivityIndexId,
             Type = NFTActivityType.PlaceBid,
-            From = fromOwner,
-            To = toOwner,
+            From = FullAddressHelper.ToFullAddress(fromOwner, context.ChainId),
+            To = FullAddressHelper.ToFullAddress(toOwner, context.ChainId),
             Amount = 1,
             Price = DecimalUntil.ConvertToElf(symbolAuctionInfoIndex.FinishPrice.Amount),
             PriceTokenInfo = tokenIndex,

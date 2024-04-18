@@ -235,7 +235,7 @@ public class TokenBurnedLogEventProcessor : AElfLogEventProcessorBase<Burned, Lo
         {
             Id = nftActivityIndexId,
             Type = NFTActivityType.Burn,
-            From = eventValue.Burner.ToBase58(),
+            From = FullAddressHelper.ToFullAddress(eventValue.Burner.ToBase58(), context.ChainId),
             Amount = TokenHelper.GetIntegerDivision(eventValue.Amount,decimals),
             TransactionHash = context.TransactionId,
             Timestamp = context.BlockTime,

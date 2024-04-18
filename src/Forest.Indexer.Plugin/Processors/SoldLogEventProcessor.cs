@@ -161,8 +161,8 @@ public class SoldLogEventProcessor : AElfLogEventProcessorBase<Sold, LogEventInf
             {
                 Id = nftActivityIndexId,
                 Type = NFTActivityType.Sale,
-                From = eventValue.NftFrom.ToBase58(),
-                To = eventValue.NftTo.ToBase58(),
+                From = FullAddressHelper.ToFullAddress(eventValue.NftFrom.ToBase58(), context.ChainId),
+                To = FullAddressHelper.ToFullAddress(eventValue.NftTo.ToBase58(), context.ChainId),
                 Amount = TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftTokenIndex.Decimals),
                 Price = singlePrice,
                 PriceTokenInfo = purchaseTokenIndex,
