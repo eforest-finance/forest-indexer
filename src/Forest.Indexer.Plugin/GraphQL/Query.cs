@@ -235,7 +235,7 @@ public partial class Query
             mustQuery.Add(q => q.Terms(i => i.Field(f => f.Type).Terms(input.Types)));
         }
         
-        var collectionSymbolPre = TokenHelper.GetCollectionIdPre(input.collectionId);
+        var collectionSymbolPre = TokenHelper.GetCollectionIdPre(input.CollectionId);
         mustQuery.Add(q => q
             .Script(sc => sc
                 .Script(script =>
