@@ -218,6 +218,79 @@ public partial class Query
         };
     }
     
+    
+    [Name("collectionActivityList")]
+    public static async Task<NFTActivityPageResultDto> CollectionActivityListAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo> _nftActivityIndexRepository,
+        GetCollectionActivitiesDto input, [FromServices] IObjectMapper objectMapper)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>>();
+
+        if (!input.BizIdList.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Terms(i => i.Field(f => f.NftInfoId).Terms(input.BizIdList)));
+        }
+        if (input.Types?.Count > 0)
+        {
+            mustQuery.Add(q => q.Terms(i => i.Field(f => f.Type).Terms(input.Types)));
+        }
+        
+        var collectionSymbolPre = TokenHelper.GetCollectionIdPre(input.CollectionId);
+        mustQuery.Add(q => q
+            .Script(sc => sc
+                .Script(script =>
+                    script.Source($"{"doc['nftInfoId'].value.contains('"+collectionSymbolPre+"')"}")
+                )
+            )
+        );
+
+        QueryContainer Filter(QueryContainerDescriptor<NFTActivityIndex> f) => f.Bool(b => b.Must(mustQuery));
+
+        var list = await _nftActivityIndexRepository.GetSortListAsync(Filter, limit: input.MaxResultCount,
+            skip: input.SkipCount, sortFunc: GetSortForNFTActivityIndexs());
+        var dataList = objectMapper.Map<List<NFTActivityIndex>, List<NFTActivityDto>>(list.Item2);
+        
+        var totalCount = list?.Item1;
+        if (list?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        {
+            totalCount =
+                await QueryRealCountAsync(_nftActivityIndexRepository, mustQuery, null);
+        }
+        
+        return new NFTActivityPageResultDto
+        {
+            Data = dataList,
+            TotalRecordCount = (long)(totalCount == null ? 0 : totalCount),
+        };
+    }
+
+    private static async Task<long> QueryRealCountAsync(IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo> repo,List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>> mustQuery,List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>> mustNotQuery)
+    {
+        var countRequest = new SearchRequest<NFTActivityIndex>
+        {
+            Query = new BoolQuery
+            {
+                Must = mustQuery != null && mustQuery.Any()
+                    ? mustQuery
+                        .Select(func => func(new QueryContainerDescriptor<NFTActivityIndex>()))
+                        .ToList()
+                        .AsEnumerable()
+                    : Enumerable.Empty<QueryContainer>(),
+                MustNot = mustNotQuery != null && mustNotQuery.Any()
+                    ? mustNotQuery
+                        .Select(func => func(new QueryContainerDescriptor<NFTActivityIndex>()))
+                        .ToList()
+                        .AsEnumerable()
+                    : Enumerable.Empty<QueryContainer>()
+            },
+            Size = 0
+        };
+        
+        Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer> queryFunc = q => countRequest.Query;
+        var realCount = await repo.CountAsync(queryFunc);
+        return realCount.Count;
+    }
+    
     private static Func<SortDescriptor<NFTActivityIndex>, IPromise<IList<ISort>>> GetSortForNFTActivityIndexs()
     {
         SortDescriptor<NFTActivityIndex> sortDescriptor = new SortDescriptor<NFTActivityIndex>();

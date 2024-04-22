@@ -345,4 +345,19 @@ public partial class Query
             sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
         return objectMapper.Map<List<SeedSymbolIndex>, List<SeedSymbolSyncDto>>(result.Item2);
     }
+    
+    [Name("getSyncSeedSymbolRecord")]
+    public static async Task<SeedSymbolSyncDto> GetSyncSeedSymbolRecordAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> repository,
+        [FromServices] IObjectMapper objectMapper,
+        GetSyncSeedSymbolRecordDto dto)
+    {
+        if (dto == null || dto.Id.IsNullOrEmpty() || dto.ChainId.IsNullOrEmpty()) return null;
+        var result = await repository.GetAsync(dto.Id);
+        if (result == null)
+        {
+            return null;
+        }
+        return objectMapper.Map<SeedSymbolIndex, SeedSymbolSyncDto>(result);
+    }
 }

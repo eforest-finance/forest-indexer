@@ -98,7 +98,7 @@ public class ListedNFTRemovedLogEventProcessor : AElfLogEventProcessorBase<Liste
             {
                 Id = nftActivityIndexId,
                 Type = NFTActivityType.DeList,
-                From = eventValue.Owner.ToBase58(),
+                From = FullAddressHelper.ToFullAddress(eventValue.Owner.ToBase58(), context.ChainId),
                 Amount = TokenHelper.GetIntegerDivision(nftListingInfoIndex.Quantity, decimals),
                 Price = nftListingInfoIndex.Prices,
                 PriceTokenInfo = tokenIndex,

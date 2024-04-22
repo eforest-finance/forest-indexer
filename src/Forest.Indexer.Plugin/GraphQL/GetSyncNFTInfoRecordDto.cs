@@ -8,3 +8,10 @@ public class GetSyncNFTInfoRecordDto
     
     public string ChainId { get; set; }
 }
+
+public class GetSyncSeedSymbolRecordDto
+{
+    public string Id { get; set; }
+    
+    public string ChainId { get; set; }
+}

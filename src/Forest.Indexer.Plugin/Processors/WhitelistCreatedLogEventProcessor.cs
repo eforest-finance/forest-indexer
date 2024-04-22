@@ -51,8 +51,8 @@ public class WhitelistCreatedLogEventProcessor : AElfLogEventProcessorBase<White
 
             whitelist = _objectMapper.Map<WhitelistCreated, WhitelistIndex>(eventValue);
             whitelist.Id = whitelistId;
-            whitelist.CloneFrom = eventValue.CloneFrom?.ToHex();
-            whitelist.Creator = eventValue.Creator?.ToBase58();
+            whitelist.CloneFrom = FullAddressHelper.ToFullAddress(eventValue.CloneFrom?.ToHex(), context.ChainId);
+            whitelist.Creator = FullAddressHelper.ToFullAddress(eventValue.Creator?.ToBase58(), context.ChainId);
             whitelist.ManagerInfoDictory = eventValue.Manager?.Value?.Select(x => x?.ToBase58()).ToList();
             whitelist.LastModifyTime = DateTimeHelper.GetTimeStampInMilliseconds();
 
