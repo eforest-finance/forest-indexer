@@ -320,8 +320,8 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         var from = nftActivityIndex.From;
         var to = nftActivityIndex.To;
         _objectMapper.Map(context, nftActivityIndex);
-        nftActivityIndex.From = from;
-        nftActivityIndex.To = to;
+        nftActivityIndex.From = FullAddressHelper.ToFullAddress(from, context.ChainId);
+        nftActivityIndex.To = FullAddressHelper.ToFullAddress(to, context.ChainId);
 
         _logger.Debug("[AddNFTActivityAsync] SAVE: activity SAVE, nftActivityIndexId={Id}", nftActivityIndex.Id);
         await _nftActivityIndexRepository.AddOrUpdateAsync(nftActivityIndex);

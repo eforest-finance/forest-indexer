@@ -10,3 +10,10 @@ public class GetActivitiesDto: PagedResultRequestDto
     public long? TimestampMin { get; set; }
     public long? TimestampMax { get; set; }
 }
+
+public class GetCollectionActivitiesDto: PagedResultRequestDto
+{
+    public string CollectionId { get; set; }
+    [CanBeNull] public List<string> BizIdList { get; set; }
+    [CanBeNull] public List<int> Types { get; set; }
+}

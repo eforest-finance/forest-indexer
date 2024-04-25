@@ -70,8 +70,8 @@ public abstract class OfferLogEventProcessorBase<TEvent>: AElfLogEventProcessorB
             NftInfoId = nftInfoIndexId
         };
         _objectMapper.Map(context, nftActivityIndex);
-        nftActivityIndex.From = offerFrom;
-        nftActivityIndex.To = await TransferAddress(offerTo);
+        nftActivityIndex.From = FullAddressHelper.ToFullAddress(offerFrom, context.ChainId);
+        nftActivityIndex.To = FullAddressHelper.ToFullAddress(await TransferAddress(offerTo), context.ChainId);
 
         nftActivityIndex.Amount = TokenHelper.GetIntegerDivision(quantity, decimals);
         nftActivityIndex.Price = price;
