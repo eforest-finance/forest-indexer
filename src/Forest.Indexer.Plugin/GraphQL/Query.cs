@@ -300,6 +300,21 @@ public partial class Query
         return s => promise;
     } 
     
+    private static Func<SortDescriptor<NFTActivityIndex>, IPromise<IList<ISort>>> GetSortForNFTActivityIndexs(string sortType)
+    {
+        SortDescriptor<NFTActivityIndex> sortDescriptor = new SortDescriptor<NFTActivityIndex>();
+        if (sortType.IsNullOrEmpty() || sortType.Equals("DESC"))
+        {
+            sortDescriptor.Descending(a=>a.Timestamp);
+        }else
+        {
+            sortDescriptor.Ascending(a=>a.Timestamp);
+        }
+
+        IPromise<IList<ISort>> promise = sortDescriptor;
+        return s => promise;
+    } 
+    
     private static Func<SortDescriptor<OfferInfoIndex>, IPromise<IList<ISort>>> GetSortForNFTOfferIndexs()
     {
         SortDescriptor<OfferInfoIndex> sortDescriptor = new SortDescriptor<OfferInfoIndex>();
@@ -1059,6 +1074,49 @@ public partial class Query
             TotalTransAmount = totalTransAmount,
             TotalNftAmount = totalNFTAmount,
             TotalAddressCount = addressSet.Count
+        };
+    }
+    [Name("nftActivityListByCondition")]
+    public static async Task<NFTActivityPageResultDto> NFTActivityListByConditionAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo> _nftActivityIndexRepository,
+        GetActivitiesConditionDto input, [FromServices] IObjectMapper objectMapper)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>>();
+        mustQuery.Add(q => q.Term(i => i.Field(f => f.NftInfoId).Value(input.NFTInfoId)));
+        if (input.Types?.Count > 0)
+        {
+            mustQuery.Add(q => q.Terms(i => i.Field(f => f.Type).Terms(input.Types)));
+        }
+
+        if (input.TimestampMin is > 0)
+        {
+            mustQuery.Add(q => q.DateRange(i =>
+                i.Field(f => f.Timestamp)
+                    .GreaterThanOrEquals(DateTime.UnixEpoch.AddMilliseconds((double)input.TimestampMin))));
+        }
+
+        if (input.TimestampMax is > 0)
+        {
+            mustQuery.Add(q => q.DateRange(i =>
+                i.Field(f => f.Timestamp)
+                    .LessThanOrEquals(DateTime.UnixEpoch.AddMilliseconds((double)input.TimestampMax))));
+        }
+
+        if (!input.FilterSymbol.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Regexp(i => i.Field(f => f.NftInfoId).Value(".*"+input.FilterSymbol+".*")));
+        }
+
+        QueryContainer Filter(QueryContainerDescriptor<NFTActivityIndex> f) => f.Bool(b => b.Must(mustQuery));
+
+        var list = await _nftActivityIndexRepository.GetSortListAsync(Filter, limit: input.MaxResultCount,
+            skip: input.SkipCount, sortFunc: GetSortForNFTActivityIndexs(input.SortType));
+        var dataList = objectMapper.Map<List<NFTActivityIndex>, List<NFTActivityDto>>(list.Item2);
+        dataList = dataList.Where(o => (double)(o.Amount * o.Price) > input.AbovePrice).ToList();
+        return new NFTActivityPageResultDto
+        {
+            Data = dataList,
+            TotalRecordCount = list.Item1
         };
     }
 
