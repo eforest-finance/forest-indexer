@@ -537,9 +537,33 @@ public class TokenCreatedLogEventProcessor : AElfLogEventProcessorBase<TokenCrea
 
         _objectMapper.Map(context, nftCollectionIndex);
 
-        nftCollectionIndex = await _proxyAccountProvider.FillProxyAccountInfoForNFTCollectionIndexAsync
-            (nftCollectionIndex, context.ChainId);
+        var ownerContractAddress = _contractInfoOptions.ContractInfos
+            .First(c => c.ChainId == context.ChainId)
+            .ProxyAccountContractAddress;
+        
+        var proxyAccountForOwner =
+            await _aElfClientServiceProvider.GetProxyAccountByProxyAccountAddressAsync(context.ChainId,
+                ownerContractAddress, eventValue.Owner);
+        var ownerManegerList =
+            proxyAccountForOwner?.ManagementAddresses?
+                .Where(item => item != null)
+                .Select(item => item.Address?.ToBase58())
+                .Where(address => address != null)
+                .ToList() ?? new List<string>();
 
+        if (ownerManegerList.IsNullOrEmpty())
+        {
+            if (nftCollectionIndex.Owner.IsNullOrEmpty())
+                nftCollectionIndex.Owner = nftCollectionIndex.Issuer;
+            nftCollectionIndex.OwnerManagerSet = new HashSet<string>(new List<string>{nftCollectionIndex.Owner});
+            nftCollectionIndex.RandomOwnerManager = nftCollectionIndex.Owner;
+        }
+        else
+        {
+            nftCollectionIndex.OwnerManagerSet = new HashSet<string>(ownerManegerList);
+            nftCollectionIndex.RandomOwnerManager = ownerManegerList?.FirstOrDefault();
+        }
+        
         await _collectionIndexRepository.AddOrUpdateAsync(nftCollectionIndex);
         
         var collectionChangeIndex = new CollectionChangeIndex();
