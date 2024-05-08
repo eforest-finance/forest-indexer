@@ -70,6 +70,63 @@ public partial class Query
         };
         return pageResult;
     }
+    
+    [Name("nftCollectionsByAddressList")]
+    public static async Task<NFTCollectionPageResultDto> NFTCollectionsByAddressList(
+        [FromServices] IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> repository,
+        [FromServices] IObjectMapper objectMapper,
+        GetNFTCollectionsByAddressListDto dto)
+    {
+        var mustQuery1 = new List<Func<QueryContainerDescriptor<CollectionIndex>, QueryContainer>>();
+        var mustQuery2 = new List<Func<QueryContainerDescriptor<CollectionIndex>, QueryContainer>>();
+        if (dto == null)
+            return new NFTCollectionPageResultDto
+            {
+                TotalRecordCount = 0,
+                Data = new List<NFTCollectionDto>()
+            };
+
+        if (!dto.AddressList.IsNullOrEmpty())
+        {
+            mustQuery1.Add(q => q.Terms(i =>
+                i.Field(f => f.OwnerManagerSet).Terms(dto.AddressList)));
+            mustQuery2.Add(q => q.Terms(i =>
+                i.Field(f => f.OwnerManagerSet).Terms(dto.AddressList)));
+        }
+        
+        if (!dto.CollectionType.IsNullOrEmpty())
+        {
+            mustQuery1.Add(q => q.Terms(i =>
+                i.Field(f => f.CollectionType).Terms(dto.CollectionType)));
+            mustQuery2.Add(q => q.Terms(i =>
+                i.Field(f => f.CollectionType).Terms(dto.CollectionType)));
+        }
+
+        if (!dto.Param.IsNullOrEmpty())
+        {
+            mustQuery1.Add(q => q.Term(i =>
+                i.Field(f => f.Symbol).Value(dto.Param)));
+            mustQuery2.Add(q => q.Term(i =>
+                i.Field(f => f.TokenName).Value(dto.Param)));
+        }
+
+        QueryContainer Filter(QueryContainerDescriptor<CollectionIndex> f)
+            => f.Bool(b =>
+                b.MinimumShouldMatch(1)
+                    .Should(mustQuery1)
+                    .Should(mustQuery2)
+            );
+
+        var result = await repository.GetListAsync(Filter, sortExp: k => k.CreateTime,
+            sortType: SortOrder.Descending, skip: dto.SkipCount, limit: dto.MaxResultCount);
+        var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result.Item2);
+        var pageResult = new NFTCollectionPageResultDto
+        {
+            TotalRecordCount = result.Item1,
+            Data = dataList
+        };
+        return pageResult;
+    }
 
     [Name("nftCollectionByIds")]
     public static async Task<NFTCollectionPageResultDto> NFTCollectionByIds(
