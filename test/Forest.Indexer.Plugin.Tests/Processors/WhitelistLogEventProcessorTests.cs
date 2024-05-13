@@ -102,8 +102,8 @@ public sealed class WhitelistLogEventProcessorTests : ForestIndexerPluginTestBas
         whitelistInfoIndexData.BlockHash.ShouldBe(logEventContext.BlockHash);
         whitelistInfoIndexData.Id.ShouldBe(whitelistId.ToHex());
         whitelistInfoIndexData.ChainId.ShouldBe(logEventContext.ChainId);
-        whitelistInfoIndexData.CloneFrom.ShouldBe(cloneFrom.ToHex());
-        whitelistInfoIndexData.Creator.ShouldBe(creator.ToBase58());
+        whitelistInfoIndexData.CloneFrom.ShouldBe(FullAddressHelper.ToFullAddress(cloneFrom.ToHex(),logEventContext.ChainId));
+        whitelistInfoIndexData.Creator.ShouldBe(FullAddressHelper.ToFullAddress(creator.ToBase58(),logEventContext.ChainId));
         
         // whitelist exists
         logEventInfo = MockLogEventInfo(whitelistCreated.ToLogEvent());

@@ -236,7 +236,7 @@ public abstract class ForestIndexerPluginTestBase : ForestIndexerOrleansTestBase
 
     }
     
-    protected async Task SymbolSeedCrossChain(string chainId, string symbol, string seedOwnedSymbol)
+    protected async Task SymbolSeedCrossChain(string chainId, string newChainId, string symbol, string seedOwnedSymbol)
     {
         const string tokenName = "READ Token";
         const long totalSupply = 1000;
@@ -253,9 +253,10 @@ public abstract class ForestIndexerPluginTestBase : ForestIndexerOrleansTestBase
         
             //crosschain-seed burned
         await SeedBurnedAsync_Test(chainId,symbol);
-        
+        await HandleSeedTokenCreate(newChainId, symbol, seedOwnedSymbol);
+
         //crosschain-CrossChainReceivedProcessor
-        await MockCrossChain(1, symbol, 100, "AELF", "tDVV", "READ Token", "AAA", "BBB");
+        await MockCrossChain(1, symbol, 100, "AELF", "tDVW", "READ Token", "AAA", "BBB");
 
     }
     

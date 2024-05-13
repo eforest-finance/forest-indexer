@@ -1,5 +1,6 @@
 using AElf;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.ProxyAccountContract;
 using AElf.CSharp.Core.Extension;
 using AElf.Types;
 using AElfIndexer.Client;
@@ -7,9 +8,11 @@ using AElfIndexer.Client.Handlers;
 using AElfIndexer.Client.Providers;
 using AElfIndexer.Grains;
 using AElfIndexer.Grains.State.Client;
+using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors;
 using Forest.Indexer.Plugin.Tests.Helper;
+using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -50,28 +53,78 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
     protected override void AfterAddApplication(IServiceCollection services)
     {
         services.AddSingleton(BuildUserBalanceProvider());
+        services.AddSingleton(BuildAElfClientServiceProvider());
     }
 
     private static IUserBalanceProvider BuildUserBalanceProvider()
     {
         var mockUserBalance = new Mock<IUserBalanceProvider>();
         
-        mockUserBalance.Setup(service => service.QueryUserBalanceByIdAsync(IdGenerateHelper.GetUserBalanceId(
-                "2YcGvyn7QPmhvrZ7aaymmb2MDYWhmAks356nV3kUwL8FkGSYeZ", ChainId,
-                IdGenerateHelper.GetNFTInfoId(ChainId, "SYB-1")), ChainId))
+        mockUserBalance.Setup(service => service.QueryUserBalanceByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UserBalanceIndex
             {
                 Amount = 999
             });
-        mockUserBalance.Setup(service => service.QueryUserBalanceByIdAsync(IdGenerateHelper.GetUserBalanceId(
-                "aLyxCJvWMQH6UEykTyeWAcYss9baPyXkrMQ37BHnUicxD2LL3", ChainId,
-                IdGenerateHelper.GetNFTInfoId(ChainId, "SYB-1")), ChainId))
-            .ReturnsAsync(new UserBalanceIndex
-            {
-                Amount = 100
-            });
 
         return mockUserBalance.Object;
+    }
+
+    private static IAElfClientServiceProvider BuildAElfClientServiceProvider()
+    {
+        var mockAElfClientServiceProvider = new Mock<IAElfClientServiceProvider>();
+
+        mockAElfClientServiceProvider.Setup(service => service.GetSpecialSeedAsync(It.IsAny<string>()
+                , It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new SpecialSeed
+            {
+                SeedType = SeedType.Unique,
+                Symbol = "AAA",
+                AuctionType = AuctionType.None,
+                IssueChain = "tDVV",
+                PriceSymbol = "ELF",
+                PriceAmount = 11
+            });
+        mockAElfClientServiceProvider.Setup(service => service.GetSeedImageUrlPrefixAsync(It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new StringValue());
+
+        mockAElfClientServiceProvider.Setup(service => service.GetSeedsPriceAsync(It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new GetSeedsPriceOutput
+            {
+                FtPriceList = new PriceList()
+                {
+
+                },
+                NftPriceList = new PriceList()
+                {
+
+                }
+            });
+
+        var managementAddresses = new RepeatedField<ManagementAddress>();
+        managementAddresses.Add(new ManagementAddress
+        {
+            Address = Address.FromBase58("2YcGvyn7QPmhvrZ7aaymmb2MDYWhmAks356nV3kUwL8FkGSYeZ")
+        });
+        managementAddresses.Add(new ManagementAddress
+        {
+            Address = Address.FromBase58("2gbvSJdUxUQTBarhfhAC7QyXwz4dKJjUNuaBD1FYRcM6iGv2nK")
+        });
+
+        var proxyAccount = new ProxyAccount()
+        {
+            CreateChainId = ChainHelper.ConvertBase58ToChainId("AELF"),
+            ProxyAccountHash = HashHelper.ComputeFrom("aLyxCJvWMQH6UEykTyeWAcYss9baPyXkrMQ37BHnUicxD2LL3"),
+        };
+        proxyAccount.ManagementAddresses.AddRange(managementAddresses);
+        
+        mockAElfClientServiceProvider.Setup(service => service.GetProxyAccountByProxyAccountAddressAsync(It.IsAny<string>()
+                , It.IsAny<string>(), It.IsAny<Address>()))
+            .ReturnsAsync(proxyAccount);
+
+        return mockAElfClientServiceProvider.Object;
     }
     
 
@@ -706,7 +759,7 @@ public sealed class ListedNFTLogEventProcessorTests : ForestIndexerPluginTestBas
             {
                 DurationHours = durationHours,
                 StartTime = Timestamp.FromDateTime(dateTime),
-                PublicTime = Timestamp.FromDateTime(DateTime.UtcNow),
+                PublicTime = Timestamp.FromDateTime(dateTime),
             },
             Price = new Price()
             {
