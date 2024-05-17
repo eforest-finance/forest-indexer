@@ -148,7 +148,8 @@ public partial class Query
 
 
         IPromise<IList<ISort>> Sort(SortDescriptor<SeedSymbolIndex> s) =>
-            s.Script(script => script.Type(SortTypeNumber)
+            s.Ascending(a => a.ChainId)
+                .Script(script => script.Type(SortTypeNumber)
                     .Script(scriptDescriptor => scriptDescriptor.Source(SortScriptSourceValueLength))
                     .Order(SortOrder.Ascending))
                 .Ascending(a => a.SeedOwnedSymbol)
