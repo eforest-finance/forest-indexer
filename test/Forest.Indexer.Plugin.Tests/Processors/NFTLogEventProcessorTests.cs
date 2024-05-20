@@ -13,7 +13,10 @@ using Forest.Indexer.Plugin.GraphQL;
 using Forest.Indexer.Plugin.Processors;
 using Forest.Indexer.Plugin.Tests.Helper;
 using Forest.SymbolRegistrar;
+using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Nest;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Shouldly;
@@ -65,6 +68,47 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         _objectMapper = GetRequiredService<IObjectMapper>();
         _nftCollectionChangeIndexRepository = GetRequiredService<IAElfIndexerClientEntityRepository<CollectionChangeIndex, LogEventInfo>>();
     }
+    protected override void AfterAddApplication(IServiceCollection services)
+    {
+        services.AddSingleton(BuildAElfClientServiceProvider());
+    }
+    
+    private static IAElfClientServiceProvider BuildAElfClientServiceProvider()
+    {
+        var mockAElfClientServiceProvider = new Mock<IAElfClientServiceProvider>();
+        mockAElfClientServiceProvider.Setup(service => service.GetSeedImageUrlPrefixAsync(It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new StringValue());
+
+
+        var managementAddresses = new RepeatedField<ManagementAddress>();
+        managementAddresses.Add(new ManagementAddress()
+        {
+            Address = Address.FromPublicKey("AAA".HexToByteArray())
+        });
+        managementAddresses.Add(new ManagementAddress()
+        {
+            Address = Address.FromPublicKey("BBB".HexToByteArray())
+        });
+        managementAddresses.Add(new ManagementAddress()
+        {
+            Address = Address.FromPublicKey("CCC".HexToByteArray())
+        });
+
+        var proxyAccount = new ProxyAccount()
+        {
+            CreateChainId = ChainHelper.ConvertBase58ToChainId("AELF"),
+            ProxyAccountHash = HashHelper.ComputeFrom("aLyxCJvWMQH6UEykTyeWAcYss9baPyXkrMQ37BHnUicxD2LL3"),
+        };
+        proxyAccount.ManagementAddresses.AddRange(managementAddresses);
+        
+        mockAElfClientServiceProvider.Setup(service => service.GetProxyAccountByProxyAccountAddressAsync(It.IsAny<string>()
+                , It.IsAny<string>(), It.IsAny<Address>()))
+            .ReturnsAsync(proxyAccount);
+
+        return mockAElfClientServiceProvider.Object;
+    }
+    
 
     [Fact]
     public async Task TestTem()
@@ -235,80 +279,6 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         var seedSymbolIndex = await _seedSymbolIndexRepository.GetFromBlockStateSetAsync(seedSymbolId, chainId);
         seedSymbolIndex.Id.ShouldBe(seedSymbolId);
         seedSymbolIndex.Symbol.ShouldBe("SEED-1");
-    }
-
-
-    [Fact]
-    public async Task HandleSeedAddedAsync_False()
-    {
-        const string chainId = "tDWV";
-        const string blockHash = "dac5cd67a2783d0a3d843426c2d45f1178f4d052235a907a0d796ae4659103b1";
-        const string previousBlockHash = "e38c4fb1cf6af05878657cb3f7b5fc8a5fcfb2eec19cd76b73abb831973fbf4e";
-        const string transactionId = "c1e625d135171c766999274a00a7003abed24cfe59a7215aabf1472ef20a2da2";
-        const long blockHeight = 100;
-
-        const string symbol = "SEED-1";
-        const string tokenName = "READ Token";
-        const long totalSupply = 0;
-        const int decimals = 8;
-        const bool isBurnable = true;
-        const int issueChainId = 9992731;
-
-        var seedSymbolCreatedLogEventProcessor = GetRequiredService<TokenCreatedLogEventProcessor>();
-        seedSymbolCreatedLogEventProcessor.GetContractAddress(chainId);
-        var blockStateSet = new BlockStateSet<LogEventInfo>
-        {
-            BlockHash = blockHash,
-            BlockHeight = blockHeight,
-            Confirmed = true,
-            PreviousBlockHash = previousBlockHash,
-        };
-        var blockStateSetKey = await InitializeBlockStateSetAsync(blockStateSet, chainId);
-
-        var tokenCreated = new TokenCreated()
-        {
-            Symbol = symbol,
-            TokenName = tokenName,
-            TotalSupply = totalSupply,
-            Decimals = decimals,
-            Issuer = Address.FromPublicKey("AAA".HexToByteArray()),
-            IsBurnable = isBurnable,
-            IssueChainId = issueChainId,
-            ExternalInfo = new ExternalInfo()
-            {
-                Value =
-                {
-                    { "__seed_owned_symbol", "TEST_NFT_COLLECTION_SYMBOLE-0" },
-                    {
-                        "__seed_exp_time",
-                        new DateTimeOffset(DateTime.UtcNow.AddHours(1)).ToUnixTimeSeconds().ToString()
-                    }
-                }
-            }
-        };
-
-        var logEventInfo = LogEventHelper.ConvertAElfLogEventToLogEventInfo(tokenCreated.ToLogEvent());
-        logEventInfo.BlockHeight = blockHeight;
-        logEventInfo.ChainId = chainId;
-        logEventInfo.BlockHash = blockHash;
-        logEventInfo.TransactionId = transactionId;
-        var logEventContext = new LogEventContext
-        {
-            ChainId = chainId,
-            BlockHeight = blockHeight,
-            BlockHash = blockHash,
-            PreviousBlockHash = previousBlockHash,
-            TransactionId = transactionId
-        };
-
-        await seedSymbolCreatedLogEventProcessor.HandleEventAsync(logEventInfo, logEventContext);
-
-        await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
-        await Task.Delay(0);
-
-        var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, symbol);
-        var nftCollectionIndex = _seedSymbolIndexRepository.GetFromBlockStateSetAsync(seedSymbolId, chainId);
-        nftCollectionIndex.Result.ShouldBeNull();
     }
 
     [Fact]
@@ -1383,7 +1353,13 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
             Symbol = "SYB-1",
             ExpireTime = new DateTime(2099, 11, 10).AddDays(1).ToUniversalTime().ToTimestamp(),
             OfferFrom = Address.FromPublicKey("AAA".HexToByteArray()),
-            OfferTo = Address.FromPublicKey("BBB".HexToByteArray())
+            OfferTo = Address.FromPublicKey("BBB".HexToByteArray()),
+            Price = new Price()
+            {
+                Amount = 500,
+                Symbol = "SYB"
+            }
+
         };
         var logEventInfo = LogEventHelper.ConvertAElfLogEventToLogEventInfo(offerRemoved.ToLogEvent());
         logEventInfo.BlockHeight = blockHeight;

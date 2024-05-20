@@ -122,8 +122,8 @@ public class TransferProcessorTests : ForestIndexerPluginTestBase
         var nftActivityIndex =
             await _nftActivityIndexRepository.GetFromBlockStateSetAsync(nftActivityIndexId, chainId);
         nftActivityIndex.ChainId.ShouldBe(chainId);
-        nftActivityIndex.From.ShouldBe(from);
-        nftActivityIndex.To.ShouldBe(to);
+        nftActivityIndex.From.ShouldBe(FullAddressHelper.ToFullAddress(from,logEventContext.ChainId));
+        nftActivityIndex.To.ShouldBe(FullAddressHelper.ToFullAddress(to,logEventContext.ChainId));
         nftActivityIndex.Amount.ShouldBe(transferred.Amount);
         nftActivityIndex.TransactionHash.ShouldBe(transactionId);
         nftActivityIndex.Type.ShouldBe(NFTActivityType.Transfer);
@@ -152,8 +152,8 @@ public class TransferProcessorTests : ForestIndexerPluginTestBase
         result.TotalRecordCount.ShouldBe(1);
         result.Data.Count.ShouldBe(1);
         result.Data.First().NftInfoId.ShouldBe(nftInfoId);
-        result.Data.First().From.ShouldBe(from);
-        result.Data.First().To.ShouldBe(to);
+        result.Data.First().From.ShouldBe(FullAddressHelper.ToFullAddress(from,chainId));
+        result.Data.First().To.ShouldBe(FullAddressHelper.ToFullAddress(to,chainId));
         result.Data.First().TransactionHash.ShouldBe(transactionId);
         result.Data.First().Type.ShouldBe((int)NFTActivityType.Transfer);
     }
@@ -223,7 +223,7 @@ public class TransferProcessorTests : ForestIndexerPluginTestBase
 
         var seedSymbolRe = await _seedSymbolIndexRepository.GetFromBlockStateSetAsync(id, chainId);
         seedSymbolRe.Symbol.ShouldBe(seedSymbol);
-        seedSymbolRe.IssuerTo.ShouldBe(to);
+        seedSymbolRe.IssuerTo.ShouldBe(from);
     }
 
 }

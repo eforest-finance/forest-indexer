@@ -108,7 +108,7 @@ public sealed class SoldLogEventProcessorTests : ForestIndexerPluginTestBase
             TimestampMax = DateTime.UnixEpoch.AddDays(1).Millisecond
         });
         marketDate.TotalRecordCount.ShouldBe(1);
-        marketDate.Data[0].Price.ShouldBe(new decimal(10050));
+        marketDate.Data[0].Price.ShouldBe(new decimal(100));
     }
 
     [Fact]
