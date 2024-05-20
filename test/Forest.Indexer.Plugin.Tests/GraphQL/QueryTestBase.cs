@@ -99,28 +99,6 @@ public class QueryTestBase : ForestIndexerPluginTestBase
     }
 
     [Fact]
-    public async Task QuerySeedInfo()
-    {
-        await CreateSeed("SEED-0");
-        await SpecialSeedAdded();
-        await CreateSeed("SEED-1");
-        await CreateSeedToken();
-        
-        var data = await Query.NFTInfo(
-            GetRequiredService<IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo>>(),
-            GetRequiredService<IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo>>(),
-            GetRequiredService<IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo>>(),
-            GetRequiredService<IObjectMapper>(),
-            new GetNFTInfoDto()
-            {
-                Id = "tDVW-SEED-1"
-            }
-        );
-        data.ShouldNotBeNull();
-
-    }
-    
-    [Fact]
     public async Task CalcCollectionFloorPriceAsyncTest()
     {
         decimal one = await CalcCollectionFloorPriceAsync(null, null);

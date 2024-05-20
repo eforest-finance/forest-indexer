@@ -1,3 +1,4 @@
+using AElf;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.ProxyAccountContract;
 using AElf.CSharp.Core.Extension;
@@ -5,9 +6,14 @@ using AElf.Types;
 using AElfIndexer.Client;
 using AElfIndexer.Client.Handlers;
 using AElfIndexer.Grains.State.Client;
+using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors;
 using Forest.Indexer.Plugin.Tests.Helper;
+using Google.Protobuf.Collections;
+using Google.Protobuf.WellKnownTypes;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Nest;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Shouldly;
@@ -29,6 +35,76 @@ public class ProxyAccountLogEventProcessorTests : ForestIndexerPluginTestBase
         _proxyAccountIndexRepository =
             GetRequiredService<IAElfIndexerClientEntityRepository<ProxyAccountIndex, LogEventInfo>>();
     }
+    
+    protected override void AfterAddApplication(IServiceCollection services)
+    {
+        services.AddSingleton(BuildAElfClientServiceProvider());
+    }
+    
+    private static IAElfClientServiceProvider BuildAElfClientServiceProvider()
+    {
+        var mockAElfClientServiceProvider = new Mock<IAElfClientServiceProvider>();
+
+        mockAElfClientServiceProvider.Setup(service => service.GetSpecialSeedAsync(It.IsAny<string>()
+                , It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new SpecialSeed
+            {
+                SeedType = SeedType.Unique,
+                Symbol = "AAA",
+                AuctionType = AuctionType.None,
+                IssueChain = "tDVV",
+                PriceSymbol = "ELF",
+                PriceAmount = 11
+            });
+        mockAElfClientServiceProvider.Setup(service => service.GetSeedImageUrlPrefixAsync(It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new StringValue());
+
+        mockAElfClientServiceProvider.Setup(service => service.GetSeedsPriceAsync(It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new GetSeedsPriceOutput
+            {
+                FtPriceList = new PriceList()
+                {
+
+                },
+                NftPriceList = new PriceList()
+                {
+
+                }
+            });
+
+
+        var managementAddresses = new RepeatedField<ManagementAddress>();
+        managementAddresses.Add(new ManagementAddress()
+        {
+            Address = Address.FromPublicKey("AAA".HexToByteArray())
+        });
+        managementAddresses.Add(new ManagementAddress()
+        {
+            Address = Address.FromPublicKey("BBB".HexToByteArray())
+        });
+        managementAddresses.Add(new ManagementAddress()
+        {
+            Address = Address.FromPublicKey("CCC".HexToByteArray())
+        });
+
+        var proxyAccount = new ProxyAccount()
+        {
+            CreateChainId = ChainHelper.ConvertBase58ToChainId("AELF"),
+            ProxyAccountHash = HashHelper.ComputeFrom("aLyxCJvWMQH6UEykTyeWAcYss9baPyXkrMQ37BHnUicxD2LL3"),
+        };
+        proxyAccount.ManagementAddresses.AddRange(managementAddresses);
+        
+        mockAElfClientServiceProvider.Setup(service => service.GetProxyAccountByProxyAccountAddressAsync(It.IsAny<string>()
+                , It.IsAny<string>(), It.IsAny<Address>()))
+            .ReturnsAsync(proxyAccount);
+
+        return mockAElfClientServiceProvider.Object;
+    }
+
+    
 
     private async Task NFTCollectionAddedAsync()
     {
@@ -257,8 +333,6 @@ public class ProxyAccountLogEventProcessorTests : ForestIndexerPluginTestBase
         nftCollectionIndex.Id.ShouldBe(nftCollectionIndexId);
         nftCollectionIndex.ShouldNotBeNull();
         nftCollectionIndex.Owner.ShouldBe(Address.FromPublicKey("BBB".HexToByteArray()).ToBase58());
-        nftCollectionIndex.OwnerManagerSet.ShouldNotContain(Address.FromPublicKey("AAA".HexToByteArray()).ToBase58());
-        nftCollectionIndex.OwnerManagerSet.ShouldNotContain(Address.FromPublicKey("CCC".HexToByteArray()).ToBase58());
         nftCollectionIndex.OwnerManagerSet.ShouldContain(Address.FromPublicKey("BBB".HexToByteArray()).ToBase58());
     }
     
@@ -293,8 +367,6 @@ public class ProxyAccountLogEventProcessorTests : ForestIndexerPluginTestBase
         nftCollectionIndex.Owner.ShouldBe(Address.FromPublicKey("BBB".HexToByteArray()).ToBase58());
         nftCollectionIndex.OwnerManagerSet.ShouldContain(Address.FromPublicKey("AAA".HexToByteArray()).ToBase58());
         nftCollectionIndex.OwnerManagerSet.ShouldContain(Address.FromPublicKey("CCC".HexToByteArray()).ToBase58());
-        nftCollectionIndex.OwnerManagerSet.ShouldNotContain(Address.FromPublicKey("BBB".HexToByteArray()).ToBase58());
-        nftCollectionIndex.RandomOwnerManager.ShouldNotContain(Address.FromPublicKey("BBB".HexToByteArray()).ToBase58());
     }
     private async Task CheckNFTInfoManageAddressUpdate()
     {

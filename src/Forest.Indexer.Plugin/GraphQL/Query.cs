@@ -100,6 +100,70 @@ public partial class Query
         };
         return pageResult;
     }
+    
+    [Name("allSeedSymbols")]
+    public static async Task<SeedSymbolPageResultDto> AllSeedSymbolsAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> repository,
+        [FromServices] IObjectMapper objectMapper,
+        GetAllSeedSymbolsDto dto)
+    {
+        var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>();
+        if (dto == null || dto.AddressList.IsNullOrEmpty())
+        {
+            return new SeedSymbolPageResultDto
+            {
+                TotalRecordCount = 0,
+                Data = new List<SeedSymbolDto>()
+            };
+        }
+
+        mustQuery.Add(q => q.Terms(i =>
+            i.Field(f => f.IssuerTo).Terms(dto.AddressList)));
+
+        mustQuery.Add(q => q.Term(i =>
+            i.Field(f => f.IsDeleteFlag).Value(false)));
+        
+        mustQuery.Add(q => q.Term(i =>
+            i.Field(f => f.TokenType).Value(TokenType.NFT)));
+
+        if (!dto.ChainList.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Terms(i =>
+                i.Field(f => f.ChainId).Terms(dto.ChainList)));
+        }
+
+        mustQuery.Add(q=>
+                q.DateRange(i =>
+                    i.Field(f => f.SeedExpTime)
+                        .GreaterThan(DateTime.Now))
+            );
+
+        if (!dto.SeedOwnedSymbol.IsNullOrWhiteSpace())
+        {
+            mustQuery.Add(q => q.Wildcard(i =>
+                i.Field(f => f.SeedOwnedSymbol).Value("*" + dto.SeedOwnedSymbol + "*")));
+        }
+
+        QueryContainer Filter(QueryContainerDescriptor<SeedSymbolIndex> f) => f.Bool(b => b.Must(mustQuery));
+
+
+        IPromise<IList<ISort>> Sort(SortDescriptor<SeedSymbolIndex> s) =>
+            s.Ascending(a => a.ChainId)
+                .Script(script => script.Type(SortTypeNumber)
+                    .Script(scriptDescriptor => scriptDescriptor.Source(SortScriptSourceValueLength))
+                    .Order(SortOrder.Ascending))
+                .Ascending(a => a.SeedOwnedSymbol)
+                .Ascending(a => a.Id);
+
+        var result = await repository.GetSortListAsync(Filter, sortFunc: Sort, limit: dto.MaxResultCount);
+        var dataList = objectMapper.Map<List<SeedSymbolIndex>, List<SeedSymbolDto>>(result.Item2);
+        var pageResult = new SeedSymbolPageResultDto
+        {
+            TotalRecordCount = result.Item1,
+            Data = dataList
+        };
+        return pageResult;
+    }
 
     [Name("nftOffers")]
     public static async Task<NftOfferPageResultDto> NftOffers(

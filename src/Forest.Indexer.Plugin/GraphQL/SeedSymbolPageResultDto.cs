@@ -38,4 +38,6 @@ public class SeedSymbolDto
     public long SeedExpTimeSecond { get; set; }
 
     public DateTime SeedExpTime { get; set; }
+    
+    public string ChainId { get; set; }
 }

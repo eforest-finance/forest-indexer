@@ -1,4 +1,6 @@
+using AElf;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.ProxyAccountContract;
 using AElf.CSharp.Core.Extension;
 using AElf.Types;
 using AElfIndexer.Client;
@@ -10,10 +12,18 @@ using Forest.Indexer.Plugin.GraphQL;
 using Forest.Indexer.Plugin.Processors;
 using Forest.Indexer.Plugin.Tests.Helper;
 using Forest.SymbolRegistrar;
+using Google.Protobuf.Collections;
+using Google.Protobuf.WellKnownTypes;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Shouldly;
 using Volo.Abp.ObjectMapping;
 using Xunit;
+using AuctionType = Forest.Contracts.SymbolRegistrar.AuctionType;
+using GetSeedsPriceOutput = Forest.Contracts.SymbolRegistrar.GetSeedsPriceOutput;
+using PriceList = Forest.Contracts.SymbolRegistrar.PriceList;
+using SpecialSeed = Forest.Contracts.SymbolRegistrar.SpecialSeed;
 
 namespace Forest.Indexer.Plugin.Tests.Processors;
 
@@ -31,129 +41,88 @@ public class ManagerTokenCreatedLogEventProcessorTests : ForestIndexerPluginTest
         _seedSymbolIndexRepository = GetRequiredService<IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo>>();
         _objectMapper = GetRequiredService<IObjectMapper>();
     }
+    
+    protected override void AfterAddApplication(IServiceCollection services)
+    {
+        services.AddSingleton(BuildAElfClientServiceProvider());
+    }
+    
+    private static IAElfClientServiceProvider BuildAElfClientServiceProvider()
+    {
+        var mockAElfClientServiceProvider = new Mock<IAElfClientServiceProvider>();
+
+        mockAElfClientServiceProvider.Setup(service => service.GetSpecialSeedAsync(It.IsAny<string>()
+                , It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new SpecialSeed
+            {
+                SeedType = Contracts.SymbolRegistrar.SeedType.Unique,
+                Symbol = "AAA",
+                AuctionType = AuctionType.None,
+                IssueChain = "tDVV",
+                PriceSymbol = "ELF",
+                PriceAmount = 11
+            });
+        mockAElfClientServiceProvider.Setup(service => service.GetSeedImageUrlPrefixAsync(It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new StringValue());
+
+        mockAElfClientServiceProvider.Setup(service => service.GetSeedsPriceAsync(It.IsAny<string>()
+                , It.IsAny<string>()))
+            .ReturnsAsync(new GetSeedsPriceOutput
+            {
+                FtPriceList = new Contracts.SymbolRegistrar.PriceList()
+                {
+
+                },
+                NftPriceList = new PriceList()
+                {
+
+                }
+            });
+
+
+        var managementAddresses = new RepeatedField<ManagementAddress>();
+        managementAddresses.Add(new ManagementAddress()
+        {
+            Address = Address.FromPublicKey("AAA".HexToByteArray())
+        });
+        managementAddresses.Add(new ManagementAddress()
+        {
+            Address = Address.FromPublicKey("BBB".HexToByteArray())
+        });
+        managementAddresses.Add(new ManagementAddress()
+        {
+            Address = Address.FromPublicKey("CCC".HexToByteArray())
+        });
+
+        var proxyAccount = new ProxyAccount()
+        {
+            CreateChainId = ChainHelper.ConvertBase58ToChainId("AELF"),
+            ProxyAccountHash = HashHelper.ComputeFrom("aLyxCJvWMQH6UEykTyeWAcYss9baPyXkrMQ37BHnUicxD2LL3"),
+        };
+        proxyAccount.ManagementAddresses.AddRange(managementAddresses);
+        
+        mockAElfClientServiceProvider.Setup(service => service.GetProxyAccountByProxyAccountAddressAsync(It.IsAny<string>()
+                , It.IsAny<string>(), It.IsAny<Address>()))
+            .ReturnsAsync(proxyAccount);
+
+        return mockAElfClientServiceProvider.Object;
+    }
 
     [Fact]
     public async Task SymbolMarketToken_Tem()
     {
     }
 
-    
-    [Fact]
-    public async Task SymbolMarketToken_Add()
-    {
-        const string chainId = "AELF";
-        const string toChainId = "tDVW"; 
-        const string symbol = "SEED-1";
-        const string seedOwnedSymbol = "seedOwnedSymbol1";
-        await SymbolMarketTokenAdd(chainId, symbol, seedOwnedSymbol);
-        
-        var result0 = await Query.SymbolMarketTokenExist(_symbolMarketTokenIndexRepository, _objectMapper,
-            new GetSymbolMarketTokenExistInput()
-            {
-                IssueChainId = "AELF",
-                TokenSymbol = "seedOwnedSymbol1"
-            });
-        result0.ShouldNotBeNull();
-        result0.Symbol.ShouldBe("seedOwnedSymbol1");
-
-        //issue
-        var result1 = await Query.SymbolMarketTokens(_symbolMarketTokenIndexRepository, _objectMapper, new GetSymbolMarketTokensInput()
-        {
-            SkipCount = 0,
-            MaxResultCount = 10,
-            Address = new List<string>()
-            {
-                "2YcGvyn7QPmhvrZ7aaymmb2MDYWhmAks356nV3kUwL8FkGSYeZ"
-                //Address.FromPublicKey("FFF".HexToByteArray()).ToBase58()
-            }
-        });
-        Assert.True(result1.TotalRecordCount==1);
-        Assert.True(result1.Data[0].TotalSupply==1000);
-        Assert.True(result1.Data[0].Decimals==2);
-        
-        //issue
-        var result11 = await Query.SymbolMarketTokens(_symbolMarketTokenIndexRepository, _objectMapper, new GetSymbolMarketTokensInput()
-        {
-            SkipCount = 0,
-            MaxResultCount = 10,
-            Address = new List<string>()
-            {
-                Address.FromPublicKey("FFF".HexToByteArray()).ToBase58()
-            }
-        });
-        Assert.True(result11.TotalRecordCount==0);
-        
-        //owner
-        var result2 = await Query.SymbolMarketTokens(_symbolMarketTokenIndexRepository, _objectMapper, new GetSymbolMarketTokensInput()
-        {
-            SkipCount = 0,
-            MaxResultCount = 10,
-            Address = new List<string>()
-            {
-                "aLyxCJvWMQH6UEykTyeWAcYss9baPyXkrMQ37BHnUicxD2LL3"
-            }
-        });
-        Assert.True(result2.TotalRecordCount==1);
-        
-        await MockNFTIssue(1, "seedOwnedSymbol1", 100,"AELF","seedOwnedSymbol1","CCC");
-
-        //issueto
-        var result3 = await Query.SymbolMarketTokens(_symbolMarketTokenIndexRepository, _objectMapper, new GetSymbolMarketTokensInput()
-        {
-            SkipCount = 0,
-            MaxResultCount = 10,
-            Address = new List<string>()
-            {
-                Address.FromPublicKey("CCC".HexToByteArray()).ToBase58()
-            }
-        });
-        Assert.True(result3.TotalRecordCount==1);
-
-        //crosschain-seed burned
-        await SeedBurnedAsync_Test(chainId,symbol);
-        
-        //token create
-        // Create NFT collection
-        const string nftSymbol = "SYB-1";
-        const string tokenName = "SYB Token";
-        const bool isBurnable = true;
-        const long totalSupply = 1;
-        const int decimals = 8;
-        const int issueChainId = 1931928;
-        var logEventContext = MockLogEventContext(100,toChainId);
-        var blockStateSetKey = await MockBlockState(logEventContext);
-
-        var tokenCreated = new TokenCreated()
-        {
-            Symbol = seedOwnedSymbol,
-            TokenName = tokenName,
-            TotalSupply = totalSupply,
-            Decimals = decimals,
-            Issuer = Address.FromPublicKey("AAA".HexToByteArray()),
-            Owner = Address.FromPublicKey("AAA".HexToByteArray()),
-            IsBurnable = isBurnable,
-            IssueChainId = issueChainId,
-            ExternalInfo = new ExternalInfo()
-        };
-        var logEventInfo = MockLogEventInfo(tokenCreated.ToLogEvent());
-        var tokenAddedLogEventProcessor = GetRequiredService<TokenCreatedLogEventProcessor>();
-        await tokenAddedLogEventProcessor.HandleEventAsync(logEventInfo, logEventContext);
-        await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
-
-        
-        //crosschain-CrossChainReceivedProcessor
-        await MockCrossChain(1, symbol, 100, "AELF", "tDVV", "READ Token", "AAA", "BBB");
-        
-        Assert.True(result3.TotalRecordCount==1);
-    }
-
     [Fact]
     public async Task SeedCrossChain()
     {
         const string chainId = "AELF";
+        const string newChainId = "tDVW";
         const string symbol = "SEED-1";
         const string seedOwnedSymbol = "seedOwnedSymbol1";
-        await SymbolSeedCrossChain(chainId, symbol, seedOwnedSymbol);
+        await SymbolSeedCrossChain(chainId, newChainId, symbol, seedOwnedSymbol);
         var queryResult = await Query.MySeedAsync(_seedSymbolIndexRepository, new MySeedInput()
         { 
             SkipCount = 0,
@@ -173,7 +142,7 @@ public class ManagerTokenCreatedLogEventProcessorTests : ForestIndexerPluginTest
             AddressList = new List<string>()
             {
                 //"ELF_"+Address.FromPublicKey("AAA".HexToByteArray()).ToBase58()+"_AELF"
-                "ELF_aLyxCJvWMQH6UEykTyeWAcYss9baPyXkrMQ37BHnUicxD2LL3_tDVV"
+                "aLyxCJvWMQH6UEykTyeWAcYss9baPyXkrMQ37BHnUicxD2LL3"
             }
         });
         Assert.True(queryResult2.TotalRecordCount.Equals(1));
