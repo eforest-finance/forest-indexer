@@ -39,9 +39,10 @@ public partial class Query
         var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
         var listingNotQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
 
+        var minQuantity = (int)(1 * Math.Pow(10, decimals));
         listingQuery.Add(q => q.Term(i => i.Field(index => index.ChainId).Value(input.ChainId)));
         listingQuery.Add(q => q.Term(i => i.Field(index => index.Symbol).Value(input.Symbol)));
-        listingQuery.Add(q => q.TermRange(i => i.Field(index => index.RealQuantity).GreaterThan(0.ToString())));
+        listingQuery.Add(q => q.TermRange(i => i.Field(index => index.RealQuantity).GreaterThanOrEquals(minQuantity.ToString())));
 
         if (input.ExpireTimeGt != null)
         {
