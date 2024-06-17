@@ -327,14 +327,17 @@ public partial class Query
             TotalRecordCount = (long)(totalCount == null ? 0 : totalCount),
         };
     }
-    
+
     [Name("messageActivityList")]
     public static async Task<NFTActivityPageResultDto> MessageActivityListAsync(
         [FromServices] IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo> _nftActivityIndexRepository,
         GetMessageActivitiesDto input, [FromServices] IObjectMapper objectMapper)
     {
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>>();
-        
+
+        mustQuery.Add(q => q.Range(i
+            => i.Field(f => f.BlockHeight).GreaterThanOrEquals(input.BlockHeight)));
+
         if (input.Types?.Count > 0)
         {
             mustQuery.Add(q => q.Terms(i => i.Field(f => f.Type).Terms(input.Types)));
@@ -342,17 +345,17 @@ public partial class Query
 
         QueryContainer Filter(QueryContainerDescriptor<NFTActivityIndex> f) => f.Bool(b => b.Must(mustQuery));
 
-        var list = await _nftActivityIndexRepository.GetSortListAsync(Filter, limit: input.MaxResultCount,
+        var list = await _nftActivityIndexRepository.GetSortListAsync(Filter,
             skip: input.SkipCount, sortFunc: GetSortForNFTActivityIndexs());
         var dataList = objectMapper.Map<List<NFTActivityIndex>, List<NFTActivityDto>>(list.Item2);
-        
+
         var totalCount = list?.Item1;
         if (list?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
         {
             totalCount =
                 await QueryRealCountAsync(_nftActivityIndexRepository, mustQuery, null);
         }
-        
+
         return new NFTActivityPageResultDto
         {
             Data = dataList,
