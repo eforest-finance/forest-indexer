@@ -17,3 +17,8 @@ public class GetCollectionActivitiesDto: PagedResultRequestDto
     [CanBeNull] public List<string> BizIdList { get; set; }
     [CanBeNull] public List<int> Types { get; set; }
 }
+
+public class GetMessageActivitiesDto: PagedResultRequestDto
+{
+    [CanBeNull] public List<int> Types { get; set; }
+}
