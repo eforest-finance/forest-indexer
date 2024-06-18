@@ -53,6 +53,8 @@ public class ForestIndexerPluginModule : AElfIndexerClientPluginBaseModule<Fores
             .AddSingleton<IAElfLogEventProcessor<LogEventInfo>, ProxyAccountManagementAddressResetLogEventProcessor>();
         serviceCollection.AddSingleton<IAElfLogEventProcessor<LogEventInfo>, UpdateExtraInfoProcessor>();
         Configure<ContractInfoOptions>(configuration.GetSection("ContractInfo"));
+        Configure<GeneralityOptions>(configuration.GetSection("GeneralityInfo"));
+
         Configure<InitialInfoOptions>(configuration.GetSection("InitialInfo"));
         Configure<CleanDataOptions>(configuration.GetSection("CleanData"));
         Configure<NeedRecordBalanceOptions>(configuration.GetSection("NeedRecordBalance"));
