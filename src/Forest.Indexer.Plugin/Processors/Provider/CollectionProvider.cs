@@ -1,10 +1,9 @@
 using AElfIndexer.Client;
 using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Nest;
-using Newtonsoft.Json;
 using Orleans.Runtime;
 using Volo.Abp.DependencyInjection;
 
@@ -34,6 +33,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         _nftListingInfoIndexRepository;
     
     private readonly ILogger<ICollectionProvider> _logger;
+    private readonly GeneralityOptions _generalityOptions;
 
     public CollectionProvider(
         IAElfIndexerClientEntityRepository<SymbolAuctionInfoIndex, LogEventInfo>
@@ -42,12 +42,16 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
             nftListingInfoIndexRepository,
         IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo>
             nftActivityIndexRepository,
-        ILogger<ICollectionProvider> logger)
+        ILogger<ICollectionProvider> logger,
+        IOptionsSnapshot<GeneralityOptions> generalityOptions
+        )
     {
         _symbolAuctionInfoIndexRepository = symbolAuctionInfoIndexRepository;
         _nftListingInfoIndexRepository = nftListingInfoIndexRepository;
         _nftActivityIndexRepository = nftActivityIndexRepository;
         _logger = logger;
+        _generalityOptions = generalityOptions.Value;
+
     }
     
     public async Task<decimal> CalcCollectionFloorPriceAsync(string chainId, string symbol, decimal oriFloorPrice)
@@ -219,6 +223,19 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
     }
     private async Task<NFTListingInfoIndex> QueryMinPriceForNFTListingInfoIndexAsync(string chainId, string symbol)
     {
+        var optionSGRCollection = _generalityOptions.SGRCollection;
+        var decimals = 0;
+        if (optionSGRCollection.IsNullOrEmpty())
+        {
+            optionSGRCollection = ForestIndexerConstants.SGRCollection;
+        }
+
+        if (optionSGRCollection.Equals(symbol))
+        {
+            decimals = ForestIndexerConstants.SGRDecimal;
+        }
+        _logger.LogInformation("Get SGRCollection:{SGR}",optionSGRCollection);
+        var minQuantity = (int)(1 * Math.Pow(10, decimals));
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
         mustQuery.Add(q => q.Term(i => i.Field(f => f.CollectionSymbol).Value(symbol)));
         mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(chainId)));
@@ -227,7 +244,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
             => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).GreaterThan(DateTime.UtcNow.ToString("O"))));
         //add RealQuantity > 0
         mustQuery.Add(q => q.TermRange(i
-            => i.Field(index => index.RealQuantity).GreaterThan(0.ToString())));
+            => i.Field(index => index.RealQuantity).GreaterThanOrEquals(minQuantity.ToString())));
         QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f)
             => f.Bool(b => b.Must(mustQuery));
 

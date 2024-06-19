@@ -4,6 +4,7 @@ namespace NFTMarketServer.NFT;
 
 public class NFTActivityDto
 {
+    public string Id { get; set; }
     public string NftInfoId { get; set; }
     public int Type { get; set; }
     public string From { get; set; }

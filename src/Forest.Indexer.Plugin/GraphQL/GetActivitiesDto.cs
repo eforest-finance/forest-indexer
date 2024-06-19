@@ -17,3 +17,11 @@ public class GetCollectionActivitiesDto: PagedResultRequestDto
     [CanBeNull] public List<string> BizIdList { get; set; }
     [CanBeNull] public List<int> Types { get; set; }
 }
+
+public class GetMessageActivitiesDto
+{
+    [CanBeNull] public List<int> Types { get; set; }
+    
+    public long BlockHeight { get; set; }
+    public int SkipCount { get; set; }
+}
