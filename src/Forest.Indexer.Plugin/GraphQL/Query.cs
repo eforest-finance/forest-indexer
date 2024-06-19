@@ -197,8 +197,7 @@ public partial class Query
         // query offer list
         var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
         mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(dto.ChainId)));
-        var minQuantity = (int)(1 * Math.Pow(10, decimals));
-        mustQuery.Add(q => q.TermRange(i => i.Field(f => f.RealQuantity).GreaterThanOrEquals(minQuantity.ToString())));
+        mustQuery.Add(q => q.TermRange(i => i.Field(f => f.RealQuantity).GreaterThan(0.ToString())));
         if (!dto.NFTInfoId.IsNullOrEmpty())
             mustQuery.Add(q => q.Term(i => i.Field(f => f.BizInfoId).Value(dto.NFTInfoId)));
 
