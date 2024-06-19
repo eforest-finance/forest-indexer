@@ -170,6 +170,7 @@ public partial class Query
         [FromServices] IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> repository,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
+        [FromServices] ILogger<OfferInfoIndex> _logger,
         GetNFTOffersDto dto)
     {
         if (dto.ChainId.IsNullOrEmpty())
@@ -190,6 +191,8 @@ public partial class Query
                 decimals = tokenInfoIndex.Decimals;
             }
         }
+        _logger.LogInformation("NftOffers decimals: {decimals}, tokenId:{tokenId}", decimals,dto.NFTInfoId);
+
         
         // query offer list
         var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
