@@ -225,5 +225,7 @@ public class ForestIndexerClientAutoMapperProfile : Profile
         CreateMap<NFTOfferChangeIndex, NFTOfferChangeDto>();
         CreateMap<UserBalanceIndex, NFTOwnerInfoDto>();
         CreateMap<LogEventContext, UserNFTOfferNumIndex>();
+        CreateMap<UserBalanceIndex, UserBalanceDto>();
+
     }
 }

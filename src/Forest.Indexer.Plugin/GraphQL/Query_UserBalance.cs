@@ -117,7 +117,44 @@ public partial class Query
             Data = objectMapper.Map<List<UserBalanceIndex>, List<NFTOwnerInfoDto>>(result.Item2)
         };
     }
+    
+    [Name("queryUserBalanceList")]
+    public static async Task<UserBalancePageResultDto> queryUserBalanceListAsync(
+        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepo,
+        [FromServices] IObjectMapper objectMapper,
+        GetUserBalancesDto input)
+    {
+        var userBalanceQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
 
+        userBalanceQuery.Add(q => q.Range(i
+            => i.Field(f => f.BlockHeight).GreaterThanOrEquals(input.BlockHeight)));
+        
+        QueryContainer UserBalanceFilter(QueryContainerDescriptor<UserBalanceIndex> f) =>
+            f.Bool(b => b.Must(userBalanceQuery));
+
+        var result = await userBalanceRepo.GetSortListAsync(UserBalanceFilter, 
+            sortFunc:GetSortForUserBalanceByBolockHeight(), skip: input.SkipCount);
+
+        var totalCount = result?.Item1;
+        if (result?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        {
+            totalCount =
+                await QueryRealCountAsync(userBalanceRepo, userBalanceQuery, null);
+        }
+        
+        return new UserBalancePageResultDto
+        {
+            TotalCount = (long)(totalCount == null ? 0 : totalCount),
+            Data = objectMapper.Map<List<UserBalanceIndex>, List<UserBalanceDto>>(result.Item2)
+        };
+    }
+    private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalanceByBolockHeight()
+    {
+        SortDescriptor<UserBalanceIndex> sortDescriptor = new SortDescriptor<UserBalanceIndex>();
+        sortDescriptor.Ascending(a=>a.BlockHeight);
+        IPromise<IList<ISort>> promise = sortDescriptor;
+        return s => promise;
+    }
     private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalance()
     {
         SortDescriptor<UserBalanceIndex> sortDescriptor = new SortDescriptor<UserBalanceIndex>();
