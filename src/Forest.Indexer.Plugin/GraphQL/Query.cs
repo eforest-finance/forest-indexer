@@ -172,14 +172,6 @@ public partial class Query
         [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
         GetNFTOffersDto dto)
     {
-        if (dto.ChainId.IsNullOrEmpty())
-            return
-                new NftOfferPageResultDto
-                {
-                    TotalRecordCount = 0,
-                    Data = new List<NFTOfferDto>()
-                };
-        
         var decimals = 0;
         if (!dto.NFTInfoId.IsNullOrEmpty())
         {
@@ -193,7 +185,15 @@ public partial class Query
         
         // query offer list
         var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(dto.ChainId)));
+        if (!dto.ChainId.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(dto.ChainId)));
+        }
+        if (!dto.ChainIdList.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Terms(i => i.Field(f => f.ChainId).Terms(dto.ChainIdList)));
+        }
+        
         mustQuery.Add(q => q.TermRange(i => i.Field(f => f.RealQuantity).GreaterThan(0.ToString())));
         if (!dto.NFTInfoId.IsNullOrEmpty())
             mustQuery.Add(q => q.Term(i => i.Field(f => f.BizInfoId).Value(dto.NFTInfoId)));
