@@ -197,6 +197,9 @@ public partial class Query
         mustQuery.Add(q => q.TermRange(i => i.Field(f => f.RealQuantity).GreaterThan(0.ToString())));
         if (!dto.NFTInfoId.IsNullOrEmpty())
             mustQuery.Add(q => q.Term(i => i.Field(f => f.BizInfoId).Value(dto.NFTInfoId)));
+        
+        if (!dto.NFTInfoIdList.IsNullOrEmpty())
+            mustQuery.Add(q => q.Terms(i => i.Field(f => f.BizInfoId).Terms(dto.NFTInfoIdList)));
 
         if (!dto.Symbol.IsNullOrEmpty())
             mustQuery.Add(q => q.Term(i => i.Field(f => f.BizSymbol).Value(dto.Symbol)));
