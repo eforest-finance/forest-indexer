@@ -5,7 +5,7 @@ namespace Forest.Indexer.Plugin.GraphQL;
 
 public class GetNFTOffersDto : PagedResultRequestDto
 {
-    public string ChainId { get; set; }
+    [CanBeNull] public string ChainId { get; set; }
     [CanBeNull] public string NFTInfoId { get; set; }
     [CanBeNull] public List<string> NFTInfoIdList { get; set; }
     [CanBeNull] public List<string> ChainIdList { get; set; }
