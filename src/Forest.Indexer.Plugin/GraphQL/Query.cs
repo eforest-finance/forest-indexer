@@ -347,9 +347,8 @@ public partial class Query
         }
 
         QueryContainer Filter(QueryContainerDescriptor<NFTActivityIndex> f) => f.Bool(b => b.Must(mustQuery));
-
-        var list = await _nftActivityIndexRepository.GetSortListAsync(Filter,
-            skip: input.SkipCount, sortFunc: GetSortForNFTActivityIndexs());
+        
+        var list = await _nftActivityIndexRepository.GetListAsync(Filter, skip: input.SkipCount, sortExp: o => o.BlockHeight);
         var dataList = objectMapper.Map<List<NFTActivityIndex>, List<NFTActivityDto>>(list.Item2);
 
         var totalCount = list?.Item1;
