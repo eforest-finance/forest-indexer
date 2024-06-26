@@ -129,6 +129,7 @@ public partial class Query
             item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
             item.Quantity = item.Quantity;
             item.RealQuantity = item.RealQuantity;
+            item.BusinessId = IdGenerateHelper.GetNFTInfoId(item.ChainId, item.Symbol);
             return item;
         }).ToList();
         

@@ -17,4 +17,5 @@ public class NFTListingInfoDto
     public NFTInfoDto NftInfo { get; set; }
     public NFTCollectionDto NftCollectionDto { get; set; }
     public long RealQuantity { get; set; }
+    public string BusinessId { get; set; }
 }
