@@ -102,7 +102,7 @@ public partial class Query
         }
         if (!dto.NFTInfoIdList.IsNullOrEmpty())
         {
-            listingQuery.Add(q => q.Terms(i => i.Field(index => index.NftInfoId).Terms(dto.ChainIdList)));
+            listingQuery.Add(q => q.Terms(i => i.Field(index => index.NftInfoId).Terms(dto.NFTInfoIdList)));
         }
         
         listingQuery.Add(q => q.LongRange(i => i.Field(index => index.RealQuantity).GreaterThanOrEquals(0)));
@@ -129,7 +129,6 @@ public partial class Query
             item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
             item.Quantity = item.Quantity;
             item.RealQuantity = item.RealQuantity;
-            item.BusinessId = IdGenerateHelper.GetNFTInfoId(item.ChainId, item.Symbol);
             return item;
         }).ToList();
         
