@@ -337,7 +337,12 @@ public partial class Query
         GetMessageActivitiesDto input, [FromServices] IObjectMapper objectMapper)
     {
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>>();
+        
+        var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>>();
 
+        mustNotQuery.Add(q => q.Term(i
+            => i.Field(f => f.ChainId).Value(ForestIndexerConstants.MainChain)));
+        
         mustQuery.Add(q => q.Range(i
             => i.Field(f => f.BlockHeight).GreaterThanOrEquals(input.BlockHeight)));
 
@@ -346,7 +351,7 @@ public partial class Query
             mustQuery.Add(q => q.Terms(i => i.Field(f => f.Type).Terms(input.Types)));
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<NFTActivityIndex> f) => f.Bool(b => b.Must(mustQuery));
+        QueryContainer Filter(QueryContainerDescriptor<NFTActivityIndex> f) => f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
         
         var list = await _nftActivityIndexRepository.GetListAsync(Filter, skip: input.SkipCount, sortExp: o => o.BlockHeight);
         var dataList = objectMapper.Map<List<NFTActivityIndex>, List<NFTActivityDto>>(list.Item2);
