@@ -35,4 +35,6 @@ public class GetUserBalancesDto
 {
     public long BlockHeight { get; set; }
     public int SkipCount { get; set; }
+    
+    public string ChainId { get; set; }
 }

@@ -125,7 +125,9 @@ public partial class Query
         GetUserBalancesDto input)
     {
         var userBalanceQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
-
+        if (!input.ChainId.IsNullOrEmpty()){
+            userBalanceQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(input.ChainId)));
+        }
         userBalanceQuery.Add(q => q.Range(i
             => i.Field(f => f.BlockHeight).GreaterThanOrEquals(input.BlockHeight)));
         
