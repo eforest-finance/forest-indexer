@@ -342,6 +342,12 @@ public partial class Query
 
         mustNotQuery.Add(q => q.Term(i
             => i.Field(f => f.ChainId).Value(ForestIndexerConstants.MainChain)));
+
+        if (!input.ChainId.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Term(i
+                => i.Field(f => f.ChainId).Field(input.ChainId)));
+        }
         
         mustQuery.Add(q => q.Range(i
             => i.Field(f => f.BlockHeight).GreaterThanOrEquals(input.BlockHeight)));
