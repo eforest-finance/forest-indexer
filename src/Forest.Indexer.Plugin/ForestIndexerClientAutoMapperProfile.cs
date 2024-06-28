@@ -143,7 +143,10 @@ public class ForestIndexerClientAutoMapperProfile : Profile
                 opt => opt.MapFrom(source =>
                     source.AveragePrice));
 
-        CreateMap<NFTListingInfoIndex, NFTListingInfoDto>();
+        CreateMap<NFTListingInfoIndex, NFTListingInfoDto>()
+            .ForMember(des => des.BusinessId, opt
+                => opt.MapFrom(source => source.NftInfoId))
+            ;
         CreateMap<Sold, SoldIndex>()
             .ForMember(des => des.NftFrom, opt
                 => opt.MapFrom(source => source.NftFrom.ToBase58()))
@@ -225,5 +228,7 @@ public class ForestIndexerClientAutoMapperProfile : Profile
         CreateMap<NFTOfferChangeIndex, NFTOfferChangeDto>();
         CreateMap<UserBalanceIndex, NFTOwnerInfoDto>();
         CreateMap<LogEventContext, UserNFTOfferNumIndex>();
+        CreateMap<UserBalanceIndex, UserBalanceDto>();
+
     }
 }

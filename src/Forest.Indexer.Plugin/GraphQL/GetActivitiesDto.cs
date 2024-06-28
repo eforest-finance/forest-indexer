@@ -22,6 +22,8 @@ public class GetMessageActivitiesDto
 {
     [CanBeNull] public List<int> Types { get; set; }
     
+    [CanBeNull] public string ChainId { get; set; }
+    
     public long BlockHeight { get; set; }
     public int SkipCount { get; set; }
 }

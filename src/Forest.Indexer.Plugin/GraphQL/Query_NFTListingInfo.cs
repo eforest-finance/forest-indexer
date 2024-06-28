@@ -86,6 +86,55 @@ public partial class Query
         return new NftListingPageResultDto(result.Item1, dataList);
     }
     
+    [Name("collectedNFTListingInfo")]
+    public static async Task<NftListingPageResultDto> CollectedNFTListingInfo(
+        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
+        [FromServices] IObjectMapper objectMapper,
+        [FromServices] ILogger<NFTListingInfoIndex> _logger,
+        GetCollectedNFTListingDto dto)
+    {
+        var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
+        var listingNotQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
+
+        if (!dto.ChainIdList.IsNullOrEmpty())
+        {
+            listingQuery.Add(q => q.Terms(i => i.Field(index => index.ChainId).Terms(dto.ChainIdList)));
+        }
+        if (!dto.NFTInfoIdList.IsNullOrEmpty())
+        {
+            listingQuery.Add(q => q.Terms(i => i.Field(index => index.NftInfoId).Terms(dto.NFTInfoIdList)));
+        }
+        
+        listingQuery.Add(q => q.LongRange(i => i.Field(index => index.RealQuantity).GreaterThanOrEquals(0)));
+
+        if (dto.ExpireTimeGt != null)
+        {
+            var utcTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)dto.ExpireTimeGt).UtcDateTime
+                .ToString("o");
+            listingQuery.Add(q => q.TermRange(i
+                => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).GreaterThan(utcTimeStr)));
+        }
+
+        if (!dto.Owner.IsNullOrWhiteSpace())
+            listingQuery.Add(q => q.Term(i => i.Field(index => index.Owner).Value(dto.Owner)));
+
+        QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f) => f.Bool(b => b.Must(listingQuery).MustNot(listingNotQuery));
+        
+        var result = await nftListingRepo.GetSortListAsync(Filter,sortFunc: GetSortForListingInfos(), skip: dto.SkipCount, limit: dto.MaxResultCount);
+
+        var dataList = result.Item2.Select(i =>
+        {
+            var item = objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(i);
+
+            item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
+            item.Quantity = item.Quantity;
+            item.RealQuantity = item.RealQuantity;
+            return item;
+        }).ToList();
+        
+        return new NftListingPageResultDto(result.Item1, dataList);
+    }
+    
     private static Func<SortDescriptor<NFTListingInfoIndex>, IPromise<IList<ISort>>> GetSortForListingInfos()
     {
         SortDescriptor<NFTListingInfoIndex> sortDescriptor = new SortDescriptor<NFTListingInfoIndex>();
