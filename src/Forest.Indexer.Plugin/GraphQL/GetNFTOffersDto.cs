@@ -12,6 +12,7 @@ public class GetNFTOffersDto : PagedResultRequestDto
     [CanBeNull] public string Symbol { get; set; }
     [CanBeNull] public string OfferTo { get; set; }
     [CanBeNull] public string OfferFrom { get; set; }
+    [CanBeNull] public string OfferNotFrom { get; set; }
     
     public long? ExpireTimeGt { get; set; }
 }

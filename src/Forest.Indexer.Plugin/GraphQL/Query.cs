@@ -11,6 +11,7 @@ using Forest.Indexer.Plugin.Processors;
 using Google.Type;
 using GraphQL;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Nest;
 using NFTMarketServer.NFT;
 using Orleans;
@@ -185,6 +186,13 @@ public partial class Query
         
         // query offer list
         var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
+        var mustNotQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
+
+        if (!dto.OfferNotFrom.IsNullOrEmpty())
+        {
+            mustNotQuery.Add(q => q.Term(i => i.Field(f => f.OfferFrom).Value(dto.OfferNotFrom)));
+        }
+        
         if (!dto.ChainId.IsNullOrEmpty())
         {
             mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(dto.ChainId)));
@@ -216,7 +224,7 @@ public partial class Query
             mustQuery.Add(q => q.TermRange(i => i.Field(f => f.ExpireTime).GreaterThan(utcTimeStr)));
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<OfferInfoIndex> f) => f.Bool(b => b.Must(mustQuery));
+        QueryContainer Filter(QueryContainerDescriptor<OfferInfoIndex> f) => f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
         
         var result = await repository.GetSortListAsync(Filter, limit: dto.MaxResultCount,
             skip: dto.SkipCount, sortFunc: GetSortForNFTOfferIndexs());
