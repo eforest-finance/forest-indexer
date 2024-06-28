@@ -11,6 +11,7 @@ using Forest.Indexer.Plugin.Processors;
 using Google.Type;
 using GraphQL;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Nest;
 using NFTMarketServer.NFT;
 using Orleans;
@@ -172,14 +173,6 @@ public partial class Query
         [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
         GetNFTOffersDto dto)
     {
-        if (dto.ChainId.IsNullOrEmpty())
-            return
-                new NftOfferPageResultDto
-                {
-                    TotalRecordCount = 0,
-                    Data = new List<NFTOfferDto>()
-                };
-        
         var decimals = 0;
         if (!dto.NFTInfoId.IsNullOrEmpty())
         {
@@ -193,10 +186,28 @@ public partial class Query
         
         // query offer list
         var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(dto.ChainId)));
+        var mustNotQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
+
+        if (!dto.OfferNotFrom.IsNullOrEmpty())
+        {
+            mustNotQuery.Add(q => q.Term(i => i.Field(f => f.OfferFrom).Value(dto.OfferNotFrom)));
+        }
+        
+        if (!dto.ChainId.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(dto.ChainId)));
+        }
+        if (!dto.ChainIdList.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Terms(i => i.Field(f => f.ChainId).Terms(dto.ChainIdList)));
+        }
+        
         mustQuery.Add(q => q.TermRange(i => i.Field(f => f.RealQuantity).GreaterThan(0.ToString())));
         if (!dto.NFTInfoId.IsNullOrEmpty())
             mustQuery.Add(q => q.Term(i => i.Field(f => f.BizInfoId).Value(dto.NFTInfoId)));
+        
+        if (!dto.NFTInfoIdList.IsNullOrEmpty())
+            mustQuery.Add(q => q.Terms(i => i.Field(f => f.BizInfoId).Terms(dto.NFTInfoIdList)));
 
         if (!dto.Symbol.IsNullOrEmpty())
             mustQuery.Add(q => q.Term(i => i.Field(f => f.BizSymbol).Value(dto.Symbol)));
@@ -213,7 +224,7 @@ public partial class Query
             mustQuery.Add(q => q.TermRange(i => i.Field(f => f.ExpireTime).GreaterThan(utcTimeStr)));
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<OfferInfoIndex> f) => f.Bool(b => b.Must(mustQuery));
+        QueryContainer Filter(QueryContainerDescriptor<OfferInfoIndex> f) => f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
         
         var result = await repository.GetSortListAsync(Filter, limit: dto.MaxResultCount,
             skip: dto.SkipCount, sortFunc: GetSortForNFTOfferIndexs());
@@ -334,7 +345,18 @@ public partial class Query
         GetMessageActivitiesDto input, [FromServices] IObjectMapper objectMapper)
     {
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>>();
+        
+        var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTActivityIndex>, QueryContainer>>();
 
+        mustNotQuery.Add(q => q.Term(i
+            => i.Field(f => f.ChainId).Value(ForestIndexerConstants.MainChain)));
+
+        if (!input.ChainId.IsNullOrEmpty())
+        {
+            mustQuery.Add(q => q.Term(i
+                => i.Field(f => f.ChainId).Field(input.ChainId)));
+        }
+        
         mustQuery.Add(q => q.Range(i
             => i.Field(f => f.BlockHeight).GreaterThanOrEquals(input.BlockHeight)));
 
@@ -343,10 +365,9 @@ public partial class Query
             mustQuery.Add(q => q.Terms(i => i.Field(f => f.Type).Terms(input.Types)));
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<NFTActivityIndex> f) => f.Bool(b => b.Must(mustQuery));
-
-        var list = await _nftActivityIndexRepository.GetSortListAsync(Filter,
-            skip: input.SkipCount, sortFunc: GetSortForNFTActivityIndexs());
+        QueryContainer Filter(QueryContainerDescriptor<NFTActivityIndex> f) => f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
+        
+        var list = await _nftActivityIndexRepository.GetListAsync(Filter, skip: input.SkipCount, sortExp: o => o.BlockHeight);
         var dataList = objectMapper.Map<List<NFTActivityIndex>, List<NFTActivityDto>>(list.Item2);
 
         var totalCount = list?.Item1;
