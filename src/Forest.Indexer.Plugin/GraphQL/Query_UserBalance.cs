@@ -135,7 +135,9 @@ public partial class Query
             f.Bool(b => b.Must(userBalanceQuery));
 
         var result = await userBalanceRepo.GetSortListAsync(UserBalanceFilter, 
-            sortFunc:GetSortForUserBalanceByBolockHeight(), skip: input.SkipCount);
+            sortFunc:GetSortForUserBalanceByBolockHeight(), skip: input.SkipCount
+            , limit:ForestIndexerConstants.QueryUserBalanceListDefaultSize
+            );
 
         var totalCount = result?.Item1;
         if (result?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)

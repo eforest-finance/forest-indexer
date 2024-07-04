@@ -57,6 +57,7 @@ public static class ForestIndexerConstants
     public const int IntTen = 10;
     public const string SGRCollection = "SGR-0";
     public const int SGRDecimal = 8;
+    public const int QueryUserBalanceListDefaultSize = 3000;
 
 
 }
