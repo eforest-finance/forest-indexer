@@ -72,7 +72,7 @@ public class OfferCanceledByExpireTimeLogEventProcessor : OfferLogEventProcessor
         {
             await AddNFTActivityRecordAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
                 null, cancelOfferIndex.Quantity, cancelOfferIndex.Price,
-                NFTActivityType.CancelOffer, context, cancelOfferIndex.PurchaseToken);
+                NFTActivityType.CancelOffer, context, cancelOfferIndex.PurchaseToken, cancelOfferIndex.ExpireTime);
         }
     }
 }
