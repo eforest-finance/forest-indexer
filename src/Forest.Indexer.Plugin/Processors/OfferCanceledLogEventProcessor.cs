@@ -65,7 +65,7 @@ public class OfferCanceledLogEventProcessor : OfferLogEventProcessorBase<OfferCa
                 var nftInfoId = cancelOfferIndex.BizInfoId;
                 await AddNFTActivityRecordAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
                     null, cancelOfferIndex.Quantity, cancelOfferIndex.Price,
-                    NFTActivityType.CancelOffer, context, cancelOfferIndex.PurchaseToken);
+                    NFTActivityType.CancelOffer, context, cancelOfferIndex.PurchaseToken, cancelOfferIndex.ExpireTime);
                 await _nftOfferIndexRepository.DeleteAsync(cancelOfferIndex);
                 var latestNFTOfferDic =
                     await _offerProvider.QueryLatestNFTOfferByNFTIdsAsync(new List<string> { cancelOfferIndex.BizInfoId },

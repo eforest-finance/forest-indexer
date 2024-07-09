@@ -49,10 +49,10 @@ public abstract class OfferLogEventProcessorBase<TEvent>: AElfLogEventProcessorB
 
     protected async Task AddNFTActivityRecordAsync(string symbol, string offerFrom, string offerTo,
         long quantity, decimal price, NFTActivityType activityType, LogEventContext context,
-        TokenInfoIndex tokenInfoIndex)
+        TokenInfoIndex tokenInfoIndex, DateTime expireTime)
     {
         var nftActivityIndexId = IdGenerateHelper.GetId(context.ChainId, symbol, offerFrom,
-            offerTo, context.TransactionId);
+            offerTo, context.TransactionId, expireTime);
         var nftActivityIndex =
             await _nftActivityIndexRepository.GetFromBlockStateSetAsync(nftActivityIndexId, context.ChainId);
         if (nftActivityIndex != null) return;
