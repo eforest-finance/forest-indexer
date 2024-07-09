@@ -105,7 +105,7 @@ public partial class Query
             listingQuery.Add(q => q.Terms(i => i.Field(index => index.NftInfoId).Terms(dto.NFTInfoIdList)));
         }
         
-        listingQuery.Add(q => q.LongRange(i => i.Field(index => index.RealQuantity).GreaterThanOrEquals(0)));
+        listingQuery.Add(q => q.LongRange(i => i.Field(index => index.RealQuantity).GreaterThan(0)));
 
         if (dto.ExpireTimeGt != null)
         {
