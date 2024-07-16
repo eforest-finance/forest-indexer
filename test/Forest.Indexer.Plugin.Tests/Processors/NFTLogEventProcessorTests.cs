@@ -1261,7 +1261,7 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         result.Item2.Count.ShouldBeGreaterThan(0);
         result.Item2[0].Quantity.ShouldBe(result.Item2[0].RealQuantity);
     }
-
+    
     [Fact]
     public async Task HandleOfferCanceledLogEventAsync_Test()
     {
@@ -1315,10 +1315,9 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
         await Task.Delay(1000);
 
+        var nftActivityIndexId = string.Concat("tDVW-SYB-1-2YcGvyn7QPmhvrZ7aaymmb2MDYWhmAks356nV3kUwL8FkGSYeZ--c09b8c142dd5e07acbc1028e5f59adca5b5be93a0680eb3609b773044a852c43-2099/11/10 16:00:00");
         //step5: check result
-        var activityIndexData = await _nftActivityIndexRepository.GetAsync(IdGenerateHelper.GetId(chainId,
-            offerCanceled.Symbol, offerCanceled.OfferFrom.ToBase58(),
-            null, transactionId));
+        var activityIndexData = await _nftActivityIndexRepository.GetAsync(nftActivityIndexId);
         activityIndexData.ShouldNotBeNull();
         activityIndexData.TransactionHash.ShouldBe(transactionId);
         activityIndexData.Type.ShouldBe(NFTActivityType.CancelOffer);
