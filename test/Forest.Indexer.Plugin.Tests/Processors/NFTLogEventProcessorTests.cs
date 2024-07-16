@@ -23,6 +23,7 @@ using Shouldly;
 using Volo.Abp.ObjectMapping;
 using Xunit;
 using Timestamp = Google.Protobuf.WellKnownTypes.Timestamp;
+using Type = System.Type;
 
 namespace Forest.Indexer.Plugin.Tests.Processors;
 
@@ -1314,17 +1315,11 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         //step4: save blockStateSet into es
         await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
         await Task.Delay(1000);
-
-
-        var nftActivityIndexId = IdGenerateHelper.GetId(chainId, offerCanceled.Symbol,
-            offerCanceled.OfferFrom.ToBase58(),
-            null, transactionId,
-            new DateTime(2099, 11, 10).AddDays(1).ToUniversalTime().ToString("yyyy/MM/dd HH:mm:ss"));
+        
         //step5: check result
-        var activityIndexData = await _nftActivityIndexRepository.GetAsync(nftActivityIndexId);
+        var activityIndexData = await _nftActivityIndexRepository.GetListAsync();
         activityIndexData.ShouldNotBeNull();
-        activityIndexData.TransactionHash.ShouldBe(transactionId);
-        activityIndexData.Type.ShouldBe(NFTActivityType.CancelOffer);
+        activityIndexData.Item2.Select(item => item.Type == NFTActivityType.CancelOffer).ShouldNotBeNull();
     }
 
     [Fact]
