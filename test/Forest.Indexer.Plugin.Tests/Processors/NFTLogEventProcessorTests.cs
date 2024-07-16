@@ -1319,7 +1319,7 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         var nftActivityIndexId = IdGenerateHelper.GetId(chainId, offerCanceled.Symbol,
             offerCanceled.OfferFrom.ToBase58(),
             null, transactionId,
-            new DateTime(2099, 11, 10).AddDays(1).ToUniversalTime().ToUniversalTime().ToString("yyyy/MM/dd HH:mm:ss"));
+            new DateTime(2099, 11, 10).AddDays(1).ToUniversalTime().ToString("yyyy/MM/dd HH:mm:ss"));
         //step5: check result
         var activityIndexData = await _nftActivityIndexRepository.GetAsync(nftActivityIndexId);
         activityIndexData.ShouldNotBeNull();
