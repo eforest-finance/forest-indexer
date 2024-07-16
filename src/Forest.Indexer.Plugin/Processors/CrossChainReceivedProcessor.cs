@@ -136,7 +136,8 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
         _logger.Debug("CrossChainReceived-5-nftInfoId"+nftInfoId);
         _logger.Debug("CrossChainReceived-6-nftInfo"+JsonConvert.SerializeObject(nftInfoIndex));
         if(nftInfoIndex == null) return;
-        
+        var minNftListing = await _nftInfoProvider.GetMinListingNftAsync(nftInfoIndex.Id);
+        nftInfoIndex.OfMinNftListingInfo(minNftListing);
         _objectMapper.Map(context, nftInfoIndex);
         nftInfoIndex.Supply += eventValue.Amount;
         await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
