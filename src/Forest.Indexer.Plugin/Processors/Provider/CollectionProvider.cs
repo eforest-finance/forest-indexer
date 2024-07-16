@@ -198,6 +198,21 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
     private async Task<NFTListingInfoIndex> QueryMinPriceWithTimestampForNFTListingInfoIndexAsync(string chainId, string symbol,
         long beginStampSecond, long endStampSecond)
     {
+        
+        var optionSGRCollection = _generalityOptions.SGRCollection;
+        var decimals = 0;
+        if (optionSGRCollection.IsNullOrEmpty())
+        {
+            optionSGRCollection = ForestIndexerConstants.SGRCollection;
+        }
+
+        if (optionSGRCollection.Equals(symbol))
+        {
+            decimals = ForestIndexerConstants.SGRDecimal;
+        }
+        _logger.LogInformation(" QueryMinPriceWithTimestampForNFTListingInfoIndexAsync Get SGRCollection:{SGR}",optionSGRCollection);
+        var minQuantity = (int)(1 * Math.Pow(10, decimals));
+        
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
         var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
         
@@ -207,7 +222,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         
         //add RealQuantity > 0
         mustQuery.Add(q => q.TermRange(i
-            => i.Field(index => index.RealQuantity).GreaterThan(0.ToString())));
+            => i.Field(index => index.RealQuantity).GreaterThanOrEquals(minQuantity.ToString())));
         QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f)
             => f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
 
