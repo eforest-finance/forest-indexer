@@ -1315,7 +1315,11 @@ public class NFTLogEventProcessorTests : ForestIndexerPluginTestBase
         await BlockStateSetSaveDataAsync<LogEventInfo>(blockStateSetKey);
         await Task.Delay(1000);
 
-        var nftActivityIndexId = string.Concat("tDVW-SYB-1-2YcGvyn7QPmhvrZ7aaymmb2MDYWhmAks356nV3kUwL8FkGSYeZ--c09b8c142dd5e07acbc1028e5f59adca5b5be93a0680eb3609b773044a852c43-2099/11/10 16:00:00");
+
+        var nftActivityIndexId = IdGenerateHelper.GetId(chainId, offerCanceled.Symbol,
+            offerCanceled.OfferFrom.ToBase58(),
+            null, transactionId,
+            new DateTime(2099, 11, 10).AddDays(1).ToUniversalTime().ToUniversalTime().ToString("yyyy/MM/dd HH:mm:ss"));
         //step5: check result
         var activityIndexData = await _nftActivityIndexRepository.GetAsync(nftActivityIndexId);
         activityIndexData.ShouldNotBeNull();
