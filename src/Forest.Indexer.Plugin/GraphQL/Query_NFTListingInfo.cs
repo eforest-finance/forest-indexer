@@ -335,4 +335,61 @@ public partial class Query
         };
         return pageResult;
     }
+   [Name("nftListingInfoAll")]
+    public static async Task<NftListingPageResultDto> NFTListingInfoAll(
+        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
+        [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
+        [FromServices] IObjectMapper objectMapper,
+        [FromServices] ILogger<NFTListingInfoIndex> _logger,
+        GetNFTListingDto input)
+    {
+        if (input.ChainId.IsNullOrWhiteSpace())
+            return new NftListingPageResultDto("invalid input param");
+
+        _logger.Debug($"[NFTListingInfoAll] INPUT: chainId={input.ChainId}, blockHeight={input.BlockHeight}");
+        
+        var decimals = 0;
+        var tokenId = IdGenerateHelper.GetTokenInfoId(input.ChainId, input.Symbol);
+        var tokenInfoIndex = await tokenIndexRepository.GetAsync(tokenId);
+        if (tokenInfoIndex != null)
+        {
+            decimals = tokenInfoIndex.Decimals;
+        }
+        
+        // query listing info
+        var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
+
+        var minQuantity = (int)(1 * Math.Pow(10, decimals));
+        listingQuery.Add(q => q.Term(i => i.Field(index => index.ChainId).Value(input.ChainId)));
+
+        if (input.ExpireTimeGt != null)
+        {
+            var utcTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime
+                .ToString("o");
+            listingQuery.Add(q => q.TermRange(i
+                => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).GreaterThan(utcTimeStr)));
+        }
+
+        
+        QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f) => f.Bool(b => b.Must(listingQuery));
+        
+        var result = await nftListingRepo.GetSortListAsync(Filter,sortFunc: GetSortForListingInfos(), skip: input.SkipCount, limit: input.MaxResultCount);
+        _logger.Debug(
+            $"[NFTListingInfoAll] SETP: query Pager chainId={input.ChainId}, height={input.BlockHeight}, count={result.Item1}");
+        
+        var dataList = result.Item2.Select(i =>
+        {
+            var item = objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(i);
+            _logger.Debug("listing quantity real={Quantity} after quantity {AQuantity} decimal {Decimals}",item.RealQuantity,TokenHelper.GetIntegerDivision(item.RealQuantity, decimals),decimals);
+            
+            item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
+            item.Quantity = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
+            item.RealQuantity = TokenHelper.GetIntegerDivision(item.RealQuantity, decimals);
+            return item;
+        }).ToList();
+
+        _logger.Debug(
+            $"[NFTListingInfoAll] SETP: Convert Data chainId={input.ChainId}, height={input.BlockHeight}, count={dataList.Count}");
+        return new NftListingPageResultDto(result.Item1, dataList);
+    }
 }
