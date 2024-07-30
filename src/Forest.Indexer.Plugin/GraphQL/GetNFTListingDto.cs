@@ -13,7 +13,6 @@ public class GetNFTListingDto : PagedResultRequestDto
     [CanBeNull] public string ExcludedAddress { get; set; }
     
     public long? ExpireTimeGt { get; set; }
-    
-    [CanBeNull] public long BlockHeight { get; set; }
+    public long? BlockHeight { get; set; }
 
 }
