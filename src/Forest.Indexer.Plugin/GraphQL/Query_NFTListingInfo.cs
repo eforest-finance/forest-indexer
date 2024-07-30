@@ -144,6 +144,14 @@ public partial class Query
         IPromise<IList<ISort>> promise = sortDescriptor;
         return s => promise;
     }
+    
+    private static Func<SortDescriptor<NFTListingInfoIndex>, IPromise<IList<ISort>>> GetSortForListingInfosByBlockHeight()
+    {
+        SortDescriptor<NFTListingInfoIndex> sortDescriptor = new SortDescriptor<NFTListingInfoIndex>();
+        sortDescriptor.Ascending(a=>a.BlockHeight);
+        IPromise<IList<ISort>> promise = sortDescriptor;
+        return s => promise;
+    }
 
     [Name("getMinListingNft")]
     public static async Task<NFTListingInfoDto> GetMinListingNftAsync(
@@ -348,19 +356,11 @@ public partial class Query
 
         _logger.Debug($"[NFTListingInfoAll] INPUT: chainId={input.ChainId}, blockHeight={input.BlockHeight}");
         
-        var decimals = 0;
-        var tokenId = IdGenerateHelper.GetTokenInfoId(input.ChainId, input.Symbol);
-        var tokenInfoIndex = await tokenIndexRepository.GetAsync(tokenId);
-        if (tokenInfoIndex != null)
-        {
-            decimals = tokenInfoIndex.Decimals;
-        }
-        
         // query listing info
         var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
 
-        var minQuantity = (int)(1 * Math.Pow(10, decimals));
         listingQuery.Add(q => q.Term(i => i.Field(index => index.ChainId).Value(input.ChainId)));
+        listingQuery.Add(q => q.TermRange(i => i.Field(index => index.BlockHeight).GreaterThanOrEquals(input.BlockHeight.ToString())));
 
         if (input.ExpireTimeGt != null)
         {
@@ -373,18 +373,16 @@ public partial class Query
         
         QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f) => f.Bool(b => b.Must(listingQuery));
         
-        var result = await nftListingRepo.GetSortListAsync(Filter,sortFunc: GetSortForListingInfos(), skip: input.SkipCount, limit: input.MaxResultCount);
+        var result = await nftListingRepo.GetSortListAsync(Filter,sortFunc: GetSortForListingInfosByBlockHeight(), skip: input.SkipCount, limit: input.MaxResultCount);
         _logger.Debug(
             $"[NFTListingInfoAll] SETP: query Pager chainId={input.ChainId}, height={input.BlockHeight}, count={result.Item1}");
         
         var dataList = result.Item2.Select(i =>
         {
             var item = objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(i);
-            _logger.Debug("listing quantity real={Quantity} after quantity {AQuantity} decimal {Decimals}",item.RealQuantity,TokenHelper.GetIntegerDivision(item.RealQuantity, decimals),decimals);
-            
             item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
-            item.Quantity = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
-            item.RealQuantity = TokenHelper.GetIntegerDivision(item.RealQuantity, decimals);
+            item.Quantity = item.Quantity;
+            item.RealQuantity = item.RealQuantity;
             return item;
         }).ToList();
 
