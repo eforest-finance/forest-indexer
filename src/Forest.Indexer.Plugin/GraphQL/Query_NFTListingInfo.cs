@@ -144,6 +144,14 @@ public partial class Query
         IPromise<IList<ISort>> promise = sortDescriptor;
         return s => promise;
     }
+    
+    private static Func<SortDescriptor<NFTListingInfoIndex>, IPromise<IList<ISort>>> GetSortForListingInfosByBlockHeight()
+    {
+        SortDescriptor<NFTListingInfoIndex> sortDescriptor = new SortDescriptor<NFTListingInfoIndex>();
+        sortDescriptor.Ascending(a=>a.BlockHeight);
+        IPromise<IList<ISort>> promise = sortDescriptor;
+        return s => promise;
+    }
 
     [Name("getMinListingNft")]
     public static async Task<NFTListingInfoDto> GetMinListingNftAsync(
@@ -334,5 +342,52 @@ public partial class Query
             Data = dataList
         };
         return pageResult;
+    }
+   [Name("nftListingInfoAll")]
+    public static async Task<NftListingPageResultDto> NFTListingInfoAll(
+        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
+        [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
+        [FromServices] IObjectMapper objectMapper,
+        [FromServices] ILogger<NFTListingInfoIndex> _logger,
+        GetNFTListingDto input)
+    {
+        if (input.ChainId.IsNullOrWhiteSpace())
+            return new NftListingPageResultDto("invalid input param");
+
+        _logger.Debug($"[NFTListingInfoAll] INPUT: chainId={input.ChainId}, blockHeight={input.BlockHeight}");
+        
+        // query listing info
+        var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
+
+        listingQuery.Add(q => q.Term(i => i.Field(index => index.ChainId).Value(input.ChainId)));
+        listingQuery.Add(q => q.TermRange(i => i.Field(index => index.BlockHeight).GreaterThanOrEquals(input.BlockHeight.ToString())));
+
+        if (input.ExpireTimeGt != null)
+        {
+            var utcTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime
+                .ToString("o");
+            listingQuery.Add(q => q.TermRange(i
+                => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).GreaterThan(utcTimeStr)));
+        }
+
+        
+        QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f) => f.Bool(b => b.Must(listingQuery));
+        
+        var result = await nftListingRepo.GetSortListAsync(Filter,sortFunc: GetSortForListingInfosByBlockHeight(), skip: input.SkipCount, limit: input.MaxResultCount);
+        _logger.Debug(
+            $"[NFTListingInfoAll] SETP: query Pager chainId={input.ChainId}, height={input.BlockHeight}, count={result.Item1}");
+        
+        var dataList = result.Item2.Select(i =>
+        {
+            var item = objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(i);
+            item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
+            item.Quantity = item.Quantity;
+            item.RealQuantity = item.RealQuantity;
+            return item;
+        }).ToList();
+
+        _logger.Debug(
+            $"[NFTListingInfoAll] SETP: Convert Data chainId={input.ChainId}, height={input.BlockHeight}, count={dataList.Count}");
+        return new NftListingPageResultDto(result.Item1, dataList);
     }
 }
