@@ -5,6 +5,7 @@ using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
@@ -33,6 +34,7 @@ public class ActivityForSymbolMarketBoughtProcessor : ActivityProcessorBase<Boug
         _symbolMarketActivityIndexRepository = symbolMarketActivityIndexRepository;
         _seedSymbolIndexRepository = seedSymbolIndexRepository;
         _contractInfoOptions = contractInfoOptions.Value;
+        _logger = logger;
     }
 
     public override string GetContractAddress(string chainId)
@@ -42,12 +44,17 @@ public class ActivityForSymbolMarketBoughtProcessor : ActivityProcessorBase<Boug
 
     protected override async Task HandleEventAsync(Bought eventValue, LogEventContext context)
     {
+        _logger.LogInformation("event Bought symobl:{A}", eventValue.Symbol);
         if (eventValue == null || context == null) return;
         var seedSymbolIndexId = IdGenerateHelper.GetTsmSeedSymbolId(context.ChainId, eventValue.Symbol);
         var seedSymbolIndex =
             await _seedSymbolIndexRepository.GetFromBlockStateSetAsync(seedSymbolIndexId,
                 context.ChainId);
-        if (seedSymbolIndex == null) return;
+        var seedType = SeedType.Regular;
+        if (seedSymbolIndex != null)
+        {
+            seedType = seedSymbolIndex.SeedType;
+        }
 
         var symbolMarketActivityId = IdGenerateHelper.GetSymbolMarketActivityId(
             SymbolMarketActivityType.Buy.ToString(), context.ChainId, eventValue.Symbol,
@@ -58,7 +65,7 @@ public class ActivityForSymbolMarketBoughtProcessor : ActivityProcessorBase<Boug
         if (symbolMarketActivityIndex != null) return;
 
         symbolMarketActivityIndex = await buildSymbolMarketActivityIndexAsync(symbolMarketActivityId, eventValue,
-            context, seedSymbolIndex.SeedType);
+            context, seedType);
         _objectMapper.Map(context, symbolMarketActivityIndex);
         await _symbolMarketActivityIndexRepository.AddOrUpdateAsync(symbolMarketActivityIndex);
     }
