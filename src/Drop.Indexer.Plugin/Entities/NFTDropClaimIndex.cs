@@ -1,10 +1,9 @@
-using AElf.Indexing.Elasticsearch;
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Drop.Indexer.Plugin.Entities;
 
-public class NFTDropClaimIndex : AElfIndexerClientEntity<string>, IIndexBuild
+public class NFTDropClaimIndex : AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     
