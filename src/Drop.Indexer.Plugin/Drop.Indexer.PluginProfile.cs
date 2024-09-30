@@ -1,3 +1,4 @@
+using AeFinder.Sdk.Processor;
 using Drop.Indexer.Plugin.Entities;
 using Drop.Indexer.Plugin.GraphQL;
 using AutoMapper;

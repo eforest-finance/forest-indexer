@@ -18,6 +18,7 @@ public class NFTDropIndex : AeFinderEntity, IAeFinderEntity
     
     public decimal ClaimPrice { get; set; }
     
+    [Keyword]
     public string ClaimSymbol { get; set; }
     
     public DropDetailList DetailList { get; set; }
