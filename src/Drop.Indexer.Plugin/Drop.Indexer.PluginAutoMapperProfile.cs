@@ -5,9 +5,9 @@ using AutoMapper;
 
 namespace Drop.Indexer.Plugin;
 
-public class DropIndexerPluginProfile : Profile
+public class DropIndexerPluginAutoMapperProfile : Profile
 {
-    public DropIndexerPluginProfile()
+    public DropIndexerPluginAutoMapperProfile()
     {
         CreateMap<LogEventContext, NFTDropIndex>();
         CreateMap<NFTDropIndex, NFTDropInfoDto>()

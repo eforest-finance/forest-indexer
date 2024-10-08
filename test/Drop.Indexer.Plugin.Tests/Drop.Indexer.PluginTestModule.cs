@@ -1,4 +1,5 @@
 using AeFinder.App.TestBase;
+using Drop.Indexer.Plugin.Processors;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Modularity;
 
@@ -15,5 +16,9 @@ public class DropIndexerPluginTestModule : AbpModule
         
         // Add your Processors.
         // context.Services.AddSingleton<MyLogEventProcessor>();
+        context.Services.AddSingleton<DropCreatedLogEventProcessor>();
+        context.Services.AddSingleton<DropChangedLogEventProcessor>();
+        context.Services.AddSingleton<DropStateChangedLogEventProcessor>();
+        context.Services.AddSingleton<DropClaimedLogEventProcessor>();
     }
 }
