@@ -10,7 +10,6 @@ namespace Drop.Indexer.Plugin.Processors;
 public class DropClaimedLogEventProcessor : LogEventProcessorBase<DropClaimAdded>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
     
     public DropClaimedLogEventProcessor(
         IObjectMapper objectMapper
@@ -21,7 +20,7 @@ public class DropClaimedLogEventProcessor : LogEventProcessorBase<DropClaimAdded
     
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos.First(c => c.ChainId == chainId).NFTDropContractAddress;
+        return ContractInfoHelper.GetNFTDropContractAddress(chainId);
     }
 
     public override async Task ProcessAsync(DropClaimAdded eventValue, LogEventContext context)
