@@ -1,10 +1,10 @@
+using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Drop.Indexer.Plugin.Entities;
 using GraphQL;
 using Nest;
 using Volo.Abp.ObjectMapping;
 using Forest.Contracts.Drop;
-using Volo.Abp.Domain.Repositories;
 
 namespace Drop.Indexer.Plugin.GraphQL;
 
@@ -51,11 +51,12 @@ public class Query
         };
         queryable = queryable.Where(a => !states.Contains(a.State));
         
-        IPromise<IList<ISort>> Sort(SortDescriptor<NFTDropIndex> s) =>
-            s.Script(script => script.Type(SortTypeNumber)
-                .Script(scriptDescriptor => scriptDescriptor.Source(DropIndexerConstants.QueryDropListScript))
-                .Order(SortOrder.Ascending));
-        
+        //todo v2
+        // IPromise<IList<ISort>> Sort(SortDescriptor<NFTDropIndex> s) =>
+        //     s.Script(script => script.Type(SortTypeNumber)
+        //         .Script(scriptDescriptor => scriptDescriptor.Source(DropIndexerConstants.QueryDropListScript))
+        //         .Order(SortOrder.Ascending));
+        //
         if (dto.Type == SearchType.All)
         {
             queryable = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount);
@@ -83,7 +84,8 @@ public class Query
             return pageResult1;
         }
         
-        var mustQuery = new List<Func<QueryContainerDescriptor<NFTDropIndex>, QueryContainer>>();
+        //todo v2
+        // var mustQuery = new List<Func<QueryContainerDescriptor<NFTDropIndex>, QueryContainer>>();
         var nowStr = long.Parse(DateTime.UtcNow.ToString("o"));
         switch (dto.Type)
         {

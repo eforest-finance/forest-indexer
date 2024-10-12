@@ -7,12 +7,6 @@ public static class DateTimeHelper
         return new DateTime(target.Year, target.Month, target.Day, 0, 0, 0);
     }
 
-    public static DateTime GainMondayDateTime(DateTime target)
-    {
-        var daysUntilMonday = ((int)target.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
-        return target.AddDays(-daysUntilMonday);
-    }
-
     public static long ToUnixTimeMilliseconds(DateTime value)
     {
         var span = value - DateTime.UnixEpoch;
