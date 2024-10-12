@@ -1,7 +1,6 @@
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Drop.Indexer.Plugin.Entities;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 using Forest.Contracts.Drop;
@@ -14,11 +13,9 @@ public class DropClaimedLogEventProcessor : LogEventProcessorBase<DropClaimAdded
     private readonly ContractInfoOptions _contractInfoOptions;
     
     public DropClaimedLogEventProcessor(
-        IObjectMapper objectMapper,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions
+        IObjectMapper objectMapper
     ) 
     {
-        _contractInfoOptions = contractInfoOptions.Value;
         _objectMapper = objectMapper;
     }
     

@@ -1,7 +1,6 @@
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Drop.Indexer.Plugin.Entities;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 using Forest.Contracts.Drop;
@@ -11,20 +10,17 @@ namespace Drop.Indexer.Plugin.Processors;
 public class DropChangedLogEventProcessor : LogEventProcessorBase<DropChanged>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
     
     public DropChangedLogEventProcessor(
-        IObjectMapper objectMapper,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions
+        IObjectMapper objectMapper
         )
     {
-        _contractInfoOptions = contractInfoOptions.Value;
         _objectMapper = objectMapper;
     }
     
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos.First(c => c.ChainId == chainId).NFTDropContractAddress;
+        return ContractInfoHelper.GetNFTDropContractAddress(chainId);
     }
 
     public override async Task ProcessAsync(DropChanged eventValue, LogEventContext context)
