@@ -49,4 +49,10 @@ public static class DateTimeHelper
         return new DateTimeOffset(dateTime).ToUnixTimeSeconds();
     }
 
+    public static long ToEpochMilliseconds(DateTime dateTime)
+    {
+        var dateTimeOffset = new DateTimeOffset(dateTime.ToUniversalTime());
+        
+        return dateTimeOffset.ToUnixTimeMilliseconds();
+    }
 }

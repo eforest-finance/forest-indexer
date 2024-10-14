@@ -1,10 +1,12 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Drop.Indexer.Plugin.Entities;
+using Drop.Indexer.Plugin.Util;
 using GraphQL;
-using Nest;
 using Volo.Abp.ObjectMapping;
 using Forest.Contracts.Drop;
+using Nest;
 
 namespace Drop.Indexer.Plugin.GraphQL;
 
@@ -35,103 +37,120 @@ public class Query
         [FromServices] IObjectMapper objectMapper,
         GetNFTDropListDto dto)
     {
+        
         if (dto == null)
-        {
             return new NFTDropPageResultDto
             {
                 TotalRecordCount = 0,
                 Data = new List<NFTDropInfoDto>()
             };
-        }
+        var utcNow = DateTime.UtcNow;
         var queryable = await repository.GetQueryableAsync();
-        HashSet<DropState> states = new HashSet<DropState>
-        {
-            DropState.Create,
-            DropState.Cancel
-        };
-        queryable = queryable.Where(a => !states.Contains(a.State));
-        
-        //todo v2
-        // IPromise<IList<ISort>> Sort(SortDescriptor<NFTDropIndex> s) =>
-        //     s.Script(script => script.Type(SortTypeNumber)
-        //         .Script(scriptDescriptor => scriptDescriptor.Source(DropIndexerConstants.QueryDropListScript))
-        //         .Order(SortOrder.Ascending));
-        //
+
         if (dto.Type == SearchType.All)
         {
-            queryable = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount);
-            // todo sort for v2
-            /*QueryContainer Filter1(QueryContainerDescriptor<NFTDropIndex> f) =>
-                f.Bool(b => b.MustNot(mustNotQuery));
-            var result1 = await repository.GetSortListAsync(Filter1, sortFunc: Sort,
-                skip: dto.SkipCount, limit: dto.MaxResultCount);*/
-            var result1 = queryable.ToList();
+            queryable.Where(DropQueryFilters.DropStateMustNot());
+            var count1 = queryable.Count();
+            var list1 = queryable.ToList();
+            var result1 = list1
+                .OrderBy(drop =>
+                {
+                    if (drop.StartTime < utcNow && drop.ExpireTime > utcNow)
+                    {
+                        return 1;
+                    }
+                    else if (drop.StartTime > utcNow)
+                    {
+                        return 2;
+                    }
+                    else
+                    {
+                        return 3;
+                    }
+                })
+                .ThenBy(drop => drop.StartTime)
+                .ThenBy(drop => drop.ExpireTime)
+                .Skip(dto.SkipCount)
+                .Take(dto.MaxResultCount) 
+                .ToList();     
             if (result1.IsNullOrEmpty())
             {
                 return new NFTDropPageResultDto
                 {
-                    TotalRecordCount = 0,
+                    TotalRecordCount = count1,
                     Data = new List<NFTDropInfoDto>()
                 };
             }
-
             var dataList1 = objectMapper.Map<List<NFTDropIndex>, List<NFTDropInfoDto>>(result1);
             var pageResult1 = new NFTDropPageResultDto
             {
-                TotalRecordCount = dataList1.Count,
+                TotalRecordCount = count1,
                 Data = dataList1
             };
             return pageResult1;
         }
         
-        //todo v2
-        // var mustQuery = new List<Func<QueryContainerDescriptor<NFTDropIndex>, QueryContainer>>();
-        var nowStr = long.Parse(DateTime.UtcNow.ToString("o"));
+        
         switch (dto.Type)
         {
             case SearchType.Ongoing:
             {
-                queryable = queryable.Where(a => DateTimeHelper.ToUnixTimeMilliseconds(a.StartTime) <= nowStr);
-                queryable = queryable.Where(a => DateTimeHelper.ToUnixTimeMilliseconds(a.ExpireTime) >= nowStr);
-
+                queryable.Where(DropQueryFilters.StartTimeBeforeMust(utcNow));
+                queryable.Where(DropQueryFilters.ExpireTimeAfterMust(utcNow));
                 break;
             }
             case SearchType.YetToBegin:
             {
-                queryable = queryable.Where(a => DateTimeHelper.ToUnixTimeMilliseconds(a.StartTime) >= nowStr);
+                queryable.Where(DropQueryFilters.StartTimeAfterMust(utcNow));
                 break;
             }
             case SearchType.Finished:
             {
-                queryable = queryable.Where(a => DateTimeHelper.ToUnixTimeMilliseconds(a.ExpireTime) <= nowStr);
+                queryable.Where(DropQueryFilters.ExpireTimeBeforeMust(utcNow));
                 break;
             }
             default:
             {
-                // todo log for v2
                 Logger.LogInformation("unknown type: {totalCount}", dto.Type);
                 break;
             }
         }
-        
-
-        /*var result = await repository.GetSortListAsync(Filter2, sortFunc: Sort, 
-            skip: dto.SkipCount, limit: dto.MaxResultCount);*/
-        // todo sort for v2
-        queryable = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount);
-        var result = queryable.ToList();
+        var count = queryable.Count();
+        var list = queryable.ToList();
+        var result = list
+            .OrderBy(drop =>
+            {
+                if (drop.StartTime < utcNow && drop.ExpireTime > utcNow)
+                {
+                    return 1;
+                }
+                else if (drop.StartTime > utcNow)
+                {
+                    return 2;
+                }
+                else
+                {
+                    return 3;
+                }
+            })
+            .ThenBy(drop => drop.StartTime)
+            .ThenBy(drop => drop.ExpireTime)
+            .Skip(dto.SkipCount)
+            .Take(dto.MaxResultCount)
+            .ToList();  
         if (result.IsNullOrEmpty())
         {
             return new NFTDropPageResultDto
             {
-                TotalRecordCount = 0,
+                TotalRecordCount = count,
                 Data = new List<NFTDropInfoDto>()
             };
         }
+        
         var dataList = objectMapper.Map<List<NFTDropIndex>, List<NFTDropInfoDto>>(result);
         var pageResult = new NFTDropPageResultDto
         {
-            TotalRecordCount = result.Count,
+            TotalRecordCount = count,
             Data = dataList
         };
         return pageResult;
