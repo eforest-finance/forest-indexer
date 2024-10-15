@@ -49,7 +49,7 @@ public class Query
 
         if (dto.Type == SearchType.All)
         {
-            queryable.Where(DropQueryFilters.DropStateMustNot());
+            queryable = queryable.Where(DropQueryFilters.DropStateMustNot());
             var count1 = queryable.Count();
             var list1 = queryable.ToList();
             var result1 = list1
@@ -95,18 +95,18 @@ public class Query
         {
             case SearchType.Ongoing:
             {
-                queryable.Where(DropQueryFilters.StartTimeBeforeMust(utcNow));
-                queryable.Where(DropQueryFilters.ExpireTimeAfterMust(utcNow));
+                queryable = queryable.Where(DropQueryFilters.StartTimeBeforeMust(utcNow));
+                queryable = queryable.Where(DropQueryFilters.ExpireTimeAfterMust(utcNow));
                 break;
             }
             case SearchType.YetToBegin:
             {
-                queryable.Where(DropQueryFilters.StartTimeAfterMust(utcNow));
+                queryable = queryable.Where(DropQueryFilters.StartTimeAfterMust(utcNow));
                 break;
             }
             case SearchType.Finished:
             {
-                queryable.Where(DropQueryFilters.ExpireTimeBeforeMust(utcNow));
+                queryable = queryable.Where(DropQueryFilters.ExpireTimeBeforeMust(utcNow));
                 break;
             }
             default:
