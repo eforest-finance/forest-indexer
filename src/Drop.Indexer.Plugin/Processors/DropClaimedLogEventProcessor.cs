@@ -1,23 +1,23 @@
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Drop.Indexer.Plugin.Entities;
+using Forest.Contracts.Drop;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
-using Forest.Contracts.Drop;
 
 namespace Drop.Indexer.Plugin.Processors;
 
 public class DropClaimedLogEventProcessor : LogEventProcessorBase<DropClaimAdded>
 {
     private readonly IObjectMapper _objectMapper;
-    
+
     public DropClaimedLogEventProcessor(
         IObjectMapper objectMapper
-    ) 
+    )
     {
         _objectMapper = objectMapper;
     }
-    
+
     public override string GetContractAddress(string chainId)
     {
         return ContractInfoHelper.GetNFTDropContractAddress(chainId);
@@ -25,7 +25,7 @@ public class DropClaimedLogEventProcessor : LogEventProcessorBase<DropClaimAdded
 
     public override async Task ProcessAsync(DropClaimAdded eventValue, LogEventContext context)
     {
-        Logger.LogInformation("DropClaimed: {eventValue} context: {context}",JsonConvert.SerializeObject(eventValue), 
+        Logger.LogInformation("DropClaimed: {eventValue} context: {context}", JsonConvert.SerializeObject(eventValue),
             JsonConvert.SerializeObject(context));
         var id = IdGenerateHelper.GetNFTDropClaimId(eventValue.DropId.ToHex(), eventValue.Address.ToBase58());
         var claimIndex = await GetEntityAsync<NFTDropClaimIndex>(id);
@@ -46,6 +46,7 @@ public class DropClaimedLogEventProcessor : LogEventProcessorBase<DropClaimAdded
             claimIndex.ClaimTotal = Math.Max(claimIndex.ClaimTotal, eventValue.TotalAmount);
             claimIndex.ClaimAmount = Math.Max(claimIndex.ClaimAmount, eventValue.CurrentAmount);
         }
+
         _objectMapper.Map(context, claimIndex);
         var newUpdatetime = context.Block.BlockTime;
         var oldUpdatetime = claimIndex.UpdateTime;

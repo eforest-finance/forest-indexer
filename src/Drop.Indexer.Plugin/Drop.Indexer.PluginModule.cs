@@ -1,14 +1,14 @@
 using AeFinder.Sdk.Processor;
 using Drop.Indexer.Plugin.GraphQL;
 using Drop.Indexer.Plugin.Processors;
-using Microsoft.Extensions.DependencyInjection;
 using GraphQL.Types;
+using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.Modularity;
 
 namespace Drop.Indexer.Plugin;
 
-public class DropIndexerPluginModule: AbpModule
+public class DropIndexerPluginModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {

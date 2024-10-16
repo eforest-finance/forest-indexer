@@ -1,6 +1,13 @@
-namespace Drop.Indexer.Plugin.Processors;
+using AeFinder.Sdk;
+using Forest.Indexer.Plugin.Entities;
+using Forest.Indexer.Plugin.GraphQL;
+using Shouldly;
+using Volo.Abp.ObjectMapping;
+using Xunit;
 
-public class MyLogEventProcessorTests : DropIndexerPluginTestBase
+namespace Forest.Indexer.Plugin.Processors;
+
+public class MyLogEventProcessorTests: ForestIndexerPluginTestBase
 {
     // private readonly MyLogEventProcessor _myLogEventProcessor;
     // private readonly IReadOnlyRepository<MyEntity> _repository;

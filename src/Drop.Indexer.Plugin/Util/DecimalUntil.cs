@@ -4,10 +4,7 @@ public class DecimalUntil
 {
     private static decimal ConvertToOtherToken(decimal amount, int decimals)
     {
-        if (amount > 0)
-        {
-            return amount / (decimal)Math.Pow(10, decimals);
-        }
+        if (amount > 0) return amount / (decimal)Math.Pow(10, decimals);
 
         return 0;
     }

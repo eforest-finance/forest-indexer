@@ -13,7 +13,7 @@ public class DropIndexerPluginTestModule : AbpModule
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         Configure<AeFinderAppEntityOptions>(options => { options.AddTypes<DropIndexerPluginModule>(); });
-        
+
         // Add your Processors.
         // context.Services.AddSingleton<MyLogEventProcessor>();
         context.Services.AddSingleton<DropCreatedLogEventProcessor>();

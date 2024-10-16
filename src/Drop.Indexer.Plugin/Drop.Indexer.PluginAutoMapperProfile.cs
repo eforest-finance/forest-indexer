@@ -1,7 +1,7 @@
 using AeFinder.Sdk.Processor;
+using AutoMapper;
 using Drop.Indexer.Plugin.Entities;
 using Drop.Indexer.Plugin.GraphQL;
-using AutoMapper;
 
 namespace Drop.Indexer.Plugin;
 
@@ -13,7 +13,7 @@ public class DropIndexerPluginAutoMapperProfile : Profile
         CreateMap<NFTDropIndex, NFTDropInfoDto>()
             .ForMember(destination => destination.DropId,
                 opt => opt.MapFrom(source => source.Id));
-        
+
         CreateMap<LogEventContext, NFTDropClaimIndex>();
         CreateMap<NFTDropClaimIndex, NFTDropClaimDto>();
     }

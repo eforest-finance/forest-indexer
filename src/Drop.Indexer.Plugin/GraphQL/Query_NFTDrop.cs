@@ -1,12 +1,10 @@
-using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Drop.Indexer.Plugin.Entities;
 using Drop.Indexer.Plugin.Util;
+using Forest.Contracts.Drop;
 using GraphQL;
 using Volo.Abp.ObjectMapping;
-using Forest.Contracts.Drop;
-using Nest;
 
 namespace Drop.Indexer.Plugin.GraphQL;
 
@@ -14,7 +12,7 @@ public class Query
 {
     private const string SortTypeNumber = "number";
     private static readonly IAeFinderLogger Logger;
-    
+
     [Name("nftDrop")]
     public static async Task<NFTDropInfoDto> NFTDropInfo(
         [FromServices] IReadOnlyRepository<NFTDropIndex> repository,
@@ -29,15 +27,14 @@ public class Query
 
         return objectMapper.Map<NFTDropIndex, NFTDropInfoDto>(nftDropIndex.FirstOrDefault());
     }
-    
-    
+
+
     [Name("nftDropList")]
     public static async Task<NFTDropPageResultDto> NFTDropList(
         [FromServices] IReadOnlyRepository<NFTDropIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNFTDropListDto dto)
     {
-        
         if (dto == null)
             return new NFTDropPageResultDto
             {
@@ -55,31 +52,22 @@ public class Query
                 .OrderBy(drop =>
                 {
                     if (drop.StartTime < utcNow && drop.ExpireTime > utcNow)
-                    {
                         return 1;
-                    }
-                    else if (drop.StartTime > utcNow)
-                    {
+                    if (drop.StartTime > utcNow)
                         return 2;
-                    }
-                    else
-                    {
-                        return 3;
-                    }
+                    return 3;
                 })
                 .ThenBy(drop => drop.StartTime)
                 .ThenBy(drop => drop.ExpireTime)
                 .Skip(dto.SkipCount)
-                .Take(dto.MaxResultCount) 
-                .ToList();     
+                .Take(dto.MaxResultCount)
+                .ToList();
             if (result1.IsNullOrEmpty())
-            {
                 return new NFTDropPageResultDto
                 {
                     TotalRecordCount = count1,
                     Data = new List<NFTDropInfoDto>()
                 };
-            }
             var dataList1 = objectMapper.Map<List<NFTDropIndex>, List<NFTDropInfoDto>>(result1);
             var pageResult1 = new NFTDropPageResultDto
             {
@@ -88,8 +76,8 @@ public class Query
             };
             return pageResult1;
         }
-        
-        
+
+
         switch (dto.Type)
         {
             case SearchType.Ongoing:
@@ -114,38 +102,30 @@ public class Query
                 break;
             }
         }
+
         var count = queryable.Count();
         var list = queryable.ToList();
         var result = list
             .OrderBy(drop =>
             {
                 if (drop.StartTime < utcNow && drop.ExpireTime > utcNow)
-                {
                     return 1;
-                }
-                else if (drop.StartTime > utcNow)
-                {
+                if (drop.StartTime > utcNow)
                     return 2;
-                }
-                else
-                {
-                    return 3;
-                }
+                return 3;
             })
             .ThenBy(drop => drop.StartTime)
             .ThenBy(drop => drop.ExpireTime)
             .Skip(dto.SkipCount)
             .Take(dto.MaxResultCount)
-            .ToList();  
+            .ToList();
         if (result.IsNullOrEmpty())
-        {
             return new NFTDropPageResultDto
             {
                 TotalRecordCount = count,
                 Data = new List<NFTDropInfoDto>()
             };
-        }
-        
+
         var dataList = objectMapper.Map<List<NFTDropIndex>, List<NFTDropInfoDto>>(result);
         var pageResult = new NFTDropPageResultDto
         {
@@ -154,8 +134,8 @@ public class Query
         };
         return pageResult;
     }
-    
-    
+
+
     [Name("dropClaim")]
     public static async Task<NFTDropClaimDto> NFTDropClaim(
         [FromServices] IReadOnlyRepository<NFTDropClaimIndex> repository,
@@ -172,15 +152,15 @@ public class Query
 
         return objectMapper.Map<NFTDropClaimIndex, NFTDropClaimDto>(nftDropClaimIndex.FirstOrDefault());
     }
-    
-    
+
+
     [Name("expiredDropList")]
     public static async Task<NFTDropPageResultDto> ExpiredDropList(
         [FromServices] IReadOnlyRepository<NFTDropIndex> repository,
         [FromServices] IObjectMapper objectMapper)
     {
         var queryable = await repository.GetQueryableAsync();
-        HashSet<DropState> states = new HashSet<DropState>
+        var states = new HashSet<DropState>
         {
             DropState.Create,
             DropState.Cancel,
@@ -188,16 +168,14 @@ public class Query
         };
         queryable = queryable.Where(a => !states.Contains(a.State) && a.ExpireTime <= DateTime.Now).Take(100);
 
-  
+
         var dropList = queryable.ToList();
         if (dropList.IsNullOrEmpty())
-        {
             return new NFTDropPageResultDto
             {
                 TotalRecordCount = 0,
                 Data = new List<NFTDropInfoDto>()
             };
-        }
         var dataList = objectMapper.Map<List<NFTDropIndex>, List<NFTDropInfoDto>>(dropList);
         var pageResult = new NFTDropPageResultDto
         {
