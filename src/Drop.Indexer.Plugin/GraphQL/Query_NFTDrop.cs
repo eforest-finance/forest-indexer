@@ -46,10 +46,9 @@ public class Query
             };
         var utcNow = DateTime.UtcNow;
         var queryable = await repository.GetQueryableAsync();
-
+        queryable = queryable.Where(DropQueryFilters.DropStateMustNot());
         if (dto.Type == SearchType.All)
         {
-            queryable = queryable.Where(DropQueryFilters.DropStateMustNot());
             var count1 = queryable.Count();
             var list1 = queryable.ToList();
             var result1 = list1
