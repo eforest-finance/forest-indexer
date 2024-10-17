@@ -70,4 +70,8 @@ public static class ForestIndexerConstants
     public const string TokenAdaptorContractAddressAELF = "";
     public const string TokenAdaptorContractAddressTDVV = "";
     public const string TokenAdaptorContractAddressTDVW = "";
+    
+    public const string TokenContractAddressAELF = "";
+    public const string TokenContractAddressTDVV = "";
+    public const string TokenContractAddressTDVW = "";
 }

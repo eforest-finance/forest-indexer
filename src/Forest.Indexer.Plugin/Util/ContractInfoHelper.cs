@@ -22,4 +22,14 @@ public class ContractInfoHelper
             _ => ""
         };
     }
+    public static string GetTokenContractAddress(string chainId)
+    {
+        return chainId switch
+        {
+            ForestIndexerConstants.AELF => ForestIndexerConstants.TokenContractAddressAELF,
+            ForestIndexerConstants.TDVV => ForestIndexerConstants.TokenContractAddressTDVV,
+            ForestIndexerConstants.TDVW => ForestIndexerConstants.TokenContractAddressTDVW,
+            _ => ""
+        };
+    }
 }
