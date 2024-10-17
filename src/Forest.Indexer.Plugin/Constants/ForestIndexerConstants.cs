@@ -66,4 +66,8 @@ public static class ForestIndexerConstants
     public const string NFTForestContractAddressAELF = "";
     public const string NFTForestContractAddressTDVV = "";
     public const string NFTForestContractAddressTDVW = "";
+    
+    public const string TokenAdaptorContractAddressAELF = "";
+    public const string TokenAdaptorContractAddressTDVV = "";
+    public const string TokenAdaptorContractAddressTDVW = "";
 }
