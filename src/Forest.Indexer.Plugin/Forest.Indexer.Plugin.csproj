@@ -11,5 +11,9 @@
       <PackageReference Include="Volo.Abp.Core" Version="8.1.4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Drop.Indexer.Plugin\Drop.Indexer.Plugin.csproj" />
+    </ItemGroup>
+
 
 </Project>
