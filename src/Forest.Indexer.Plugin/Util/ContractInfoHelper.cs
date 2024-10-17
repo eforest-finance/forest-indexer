@@ -43,4 +43,15 @@ public class ContractInfoHelper
             _ => ""
         };
     }
+    
+    public static string GetSymbolRegistrarContractAddress(string chainId)
+    {
+        return chainId switch
+        {
+            ForestIndexerConstants.AELF => ForestIndexerConstants.SymbolRegistrarContractAddressAELF,
+            ForestIndexerConstants.TDVV => ForestIndexerConstants.SymbolRegistrarContractAddressTDVV,
+            ForestIndexerConstants.TDVW => ForestIndexerConstants.SymbolRegistrarContractAddressTDVW,
+            _ => ""
+        };
+    }
 }

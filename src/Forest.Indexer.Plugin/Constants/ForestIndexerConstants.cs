@@ -78,4 +78,8 @@ public static class ForestIndexerConstants
     public const string AuctionContractAddressAELF = "";
     public const string AuctionContractAddressTDVV = "";
     public const string AuctionContractAddressTDVW = "";
+    
+    public const string SymbolRegistrarContractAddressAELF = "";
+    public const string SymbolRegistrarContractAddressTDVV = "";
+    public const string SymbolRegistrarContractAddressTDVW = "";
 }
