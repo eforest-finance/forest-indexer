@@ -3,7 +3,7 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class OfferInfoIndex : AeFinderEntity, IAeFinderEntity
+public class OfferInfoIndex : NFTOfferBase, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     

@@ -1,4 +1,5 @@
 using AeFinder.Sdk.Entities;
+using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.enums;
 using Nest;
 
