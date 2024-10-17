@@ -3,20 +3,19 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class NFTInfoIndex : AeFinderEntity, IAeFinderEntity
+public class NFTInfoIndex : TokenInfoBase
 {
-    [Keyword] public override string Id { get; set; }
     [Keyword] public HashSet<string> IssueManagerSet { get; set; }
 
     [Keyword] public string RandomIssueManager { get; set; }
-
+    
     [Keyword] public string CreatorAddress { get; set; }
     [Keyword] public string ImageUrl { get; set; }
-
+    
     [Keyword] public string CollectionSymbol { get; set; }
     [Keyword] public string CollectionName { get; set; }
     [Keyword] public string CollectionId { get; set; }
-
+    
     public bool OtherOwnerListingFlag { get; set; }
     [Keyword] public string ListingId { get; set; }
     [Keyword] public string ListingAddress { get; set; }
@@ -40,20 +39,20 @@ public class NFTInfoIndex : AeFinderEntity, IAeFinderEntity
     [Keyword] public string FileExtension { get; set; }
     [Keyword] public string Description { get; set; }
     public bool IsOfficial { get; set; }
-
+    
     public bool HasListingFlag { get; set; }
     public decimal MinListingPrice { get; set; }
-
+    
     public DateTime? MinListingExpireTime { get; set; }
 
     [Keyword] public string MinListingId { get; set; }
-
+    
     public bool HasOfferFlag { get; set; }
-
+    
     public decimal MaxOfferPrice { get; set; }
-
+    
     public DateTime? MaxOfferExpireTime { get; set; }
-
+    
     [Keyword] public string MaxOfferId { get; set; }
 
     public void OfMinNftListingInfo(NFTListingInfoIndex minNftListing)
@@ -63,7 +62,7 @@ public class NFTInfoIndex : AeFinderEntity, IAeFinderEntity
         MinListingExpireTime = minNftListing?.ExpireTime;
         MinListingId = minNftListing?.Id;
     }
-
+    
     public void OfMaxOfferInfo(OfferInfoIndex maxOfferInfo)
     {
         HasOfferFlag = maxOfferInfo != null;

@@ -1,10 +1,9 @@
-using AeFinder.Sdk.Entities;
 using Forest.Indexer.Plugin.enums;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class CollectionIndex : AeFinderEntity, IAeFinderEntity
+public class CollectionIndex : TokenInfoBase
 {
     [Keyword] public override string Id { get; set; }
     [Keyword] public HashSet<string> OwnerManagerSet { get; set; }
@@ -18,5 +17,7 @@ public class CollectionIndex : AeFinderEntity, IAeFinderEntity
 
     [Keyword] public string CreatorAddress { get; set; }
     public CollectionType CollectionType { get; set; }
+    [Keyword] public string Owner { get; set; }
+    [Keyword] public string Issuer { get; set; }
     
 }

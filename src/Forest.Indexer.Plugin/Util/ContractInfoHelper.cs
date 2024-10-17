@@ -54,4 +54,15 @@ public class ContractInfoHelper
             _ => ""
         };
     }
+    
+    public static string GetProxyAccountContractAddress(string chainId)
+    {
+        return chainId switch
+        {
+            ForestIndexerConstants.AELF => ForestIndexerConstants.ProxyAccountContractAddressAELF,
+            ForestIndexerConstants.TDVV => ForestIndexerConstants.ProxyAccountContractAddressTDVV,
+            ForestIndexerConstants.TDVW => ForestIndexerConstants.ProxyAccountContractAddressTDVW,
+            _ => ""
+        };
+    }
 }

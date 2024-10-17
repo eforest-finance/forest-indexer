@@ -32,6 +32,11 @@ public class TokenInfoBase : AeFinderEntity, IAeFinderEntity
     public long Issued { get; set; }
 
     public DateTime CreateTime { get; set; }
+    
+    [Keyword]
+    public string ChainId { get; set; }
+    
+    public bool IsDeleted { get; set; }
 
     public List<ExternalInfoDictionary> ExternalInfoDictionary { get; set; }
 }

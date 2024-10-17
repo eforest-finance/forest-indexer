@@ -5,7 +5,7 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class TsmSeedSymbolIndex: AeFinderEntity, IAeFinderEntity
+public class TsmSeedSymbolIndex : AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     
@@ -44,4 +44,7 @@ public class TsmSeedSymbolIndex: AeFinderEntity, IAeFinderEntity
     public long AuctionEndTime { get; set; }
     
     public TokenPriceInfo TopBidPrice { get; set; }
+    
+    [Keyword]
+    public string ChainId { get; set; }
 }

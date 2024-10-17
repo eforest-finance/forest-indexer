@@ -3,7 +3,7 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class SeedSymbolMarketTokenIndex: AeFinderEntity, IAeFinderEntity
+public class SeedSymbolMarketTokenIndex : TokenInfoBase
 {
     [Keyword] public override string Id { get; set; }
     [Keyword] public string TransactionId { get; set; }
@@ -17,4 +17,9 @@ public class SeedSymbolMarketTokenIndex: AeFinderEntity, IAeFinderEntity
     [Keyword] public string IssueChain { get; set; }
     
     public bool SameChainFlag { get; set; }
+    
+    [Keyword] public string Owner { get; set; }
+    [Keyword] public string Issuer { get; set; }
+    
+    
 }

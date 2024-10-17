@@ -82,4 +82,8 @@ public static class ForestIndexerConstants
     public const string SymbolRegistrarContractAddressAELF = "";
     public const string SymbolRegistrarContractAddressTDVV = "";
     public const string SymbolRegistrarContractAddressTDVW = "";
+    
+    public const string ProxyAccountContractAddressAELF = "";
+    public const string ProxyAccountContractAddressTDVV = "";
+    public const string ProxyAccountContractAddressTDVW = "";
 }
