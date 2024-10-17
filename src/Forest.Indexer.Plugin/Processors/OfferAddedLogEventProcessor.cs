@@ -1,6 +1,6 @@
 // using AElfIndexer.Client;
 // using AElfIndexer.Client.Handlers;
-// using AElfIndexer.Grains.State.Client;
+// using AElfIndexer.Grains.State.Client; todo v2
 
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
@@ -47,8 +47,8 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
 
     public async override Task ProcessAsync(OfferAdded eventValue, LogEventContext context)
     {
-        _logger.LogInformation("OfferAddedLogEventProcessor-1 {context}",JsonConvert.SerializeObject(context));
-        _logger.LogInformation("OfferAddedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
+        _logger.LogDebug("OfferAddedLogEventProcessor-1 {context}",JsonConvert.SerializeObject(context));
+        _logger.LogDebug("OfferAddedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
         var offerIndexId = IdGenerateHelper.GetOfferId(context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
             eventValue.OfferTo.ToBase58(), eventValue.ExpireTime.Seconds,eventValue.Price.Amount);
         var offerIndex = await GetEntityAsync<OfferInfoIndex>(offerIndexId);

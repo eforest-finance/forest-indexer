@@ -18,4 +18,7 @@ public class NFTOfferBase: AeFinderEntity, IAeFinderEntity
     public long RealQuantity { get; set; }
     
     public DateTime ExpireTime { get; set; }
+    
+    [Keyword]
+    public string ChainId { get; set; }
 }
