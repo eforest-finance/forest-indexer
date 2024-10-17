@@ -84,14 +84,14 @@ public class ActivityForIssueFTProcessor: LogEventProcessorBase<Issued>
         var feeMap = new Dictionary<string, long>();
         if (extraProperties.TryGetValue(ExtraPropertiesKeyTransactionFee, out var transactionFee))
         {
-            Logger.LogDebug("TransactionFee {Fee}",transactionFee);
+            Logger.LogDebug("ActivityForIssueFTProcessor TransactionFee {Fee}",transactionFee);
             feeMap = JsonConvert.DeserializeObject<Dictionary<string, long>>(transactionFee) ??
                      new Dictionary<string, long>();
         }
 
         if (extraProperties.TryGetValue(ExtraPropertiesKeyResourceFee, out var resourceFee))
         {
-            Logger.LogDebug("ResourceFee {Fee}",resourceFee);
+            Logger.LogDebug("ActivityForIssueFTProcessor ResourceFee {Fee}",resourceFee);
             var resourceFeeMap = JsonConvert.DeserializeObject<Dictionary<string, long>>(resourceFee) ??
                                  new Dictionary<string, long>();
             foreach (var (symbol, fee) in resourceFeeMap)

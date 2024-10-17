@@ -32,4 +32,15 @@ public class ContractInfoHelper
             _ => ""
         };
     }
+    
+    public static string GetAuctionContractAddress(string chainId)
+    {
+        return chainId switch
+        {
+            ForestIndexerConstants.AELF => ForestIndexerConstants.AuctionContractAddressAELF,
+            ForestIndexerConstants.TDVV => ForestIndexerConstants.AuctionContractAddressTDVV,
+            ForestIndexerConstants.TDVW => ForestIndexerConstants.AuctionContractAddressTDVW,
+            _ => ""
+        };
+    }
 }

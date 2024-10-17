@@ -1,10 +1,11 @@
 using AeFinder.Sdk.Entities;
+using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.enums;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class SeedSymbolIndex: AeFinderEntity, IAeFinderEntity
+public class SeedSymbolIndex: TokenInfoBase, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     [Wildcard] public string SeedOwnedSymbol { get; set; }

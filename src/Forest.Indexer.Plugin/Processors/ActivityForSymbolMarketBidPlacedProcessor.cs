@@ -1,72 +1,82 @@
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
-using AElf.Contracts.TokenAdapterContract;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
-using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class ActivityForCreateFTAndNFTProcessor: LogEventProcessorBase<ManagerTokenCreated>
+public class ActivityForSymbolMarketBidPlacedProcessor : LogEventProcessorBase<Forest.Contracts.Auction.BidPlaced>
 {
     private readonly IObjectMapper _objectMapper;
     protected const string FeeMapTypeElf = "ELF";
     private const string ExtraPropertiesKeyTransactionFee = "TransactionFee";
     private const string ExtraPropertiesKeyResourceFee = "ResourceFee";
-    public ActivityForCreateFTAndNFTProcessor(
-        IObjectMapper objectMapper) : base()
+
+    public ActivityForSymbolMarketBidPlacedProcessor(
+        IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
     }
 
     public override string GetContractAddress(string chainId)
     {
-        return ContractInfoHelper.GetTokenAdaptorContractAddress(chainId);
+        return ContractInfoHelper.GetAuctionContractAddress(chainId);
     }
-    
-    public override async Task ProcessAsync(ManagerTokenCreated eventValue, LogEventContext context)
+
+    public override async Task ProcessAsync(Forest.Contracts.Auction.BidPlaced eventValue,
+        LogEventContext context)
     {
         if (eventValue == null || context == null) return;
+        var auctionInfoIndex =
+            await GetEntityAsync<SymbolAuctionInfoIndex>(eventValue.AuctionId.ToHex());
+        if (auctionInfoIndex == null)
+        {
+            return;
+        }
 
-        var seedOwnedSymbol = EnumDescriptionHelper.GetExtraInfoValueForSeedOwnedSymbol(eventValue.ExternalInfo);
-        if (seedOwnedSymbol.IsNullOrEmpty()) return;
+        var seedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId,auctionInfoIndex.Symbol);
+        var seedSymbolIndex =
+            await GetEntityAsync<SeedSymbolIndex>(seedSymbolIndexId);
 
-        var seedSymbolIndexId = IdGenerateHelper.GetTsmSeedSymbolId(context.ChainId, seedOwnedSymbol);
-        var seedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(seedSymbolIndexId);
-        
         if (seedSymbolIndex == null) return;
-        if (!seedSymbolIndex.TokenType.Equals(TokenType.FT) && !seedSymbolIndex.TokenType.Equals(TokenType.NFT)) return;
+        var symbolAuctionInfoIndex =
+            await GetEntityAsync<SymbolAuctionInfoIndex>(eventValue.AuctionId.ToHex());
 
+        if (symbolAuctionInfoIndex == null) return;
         var symbolMarketActivityId = IdGenerateHelper.GetSymbolMarketActivityId(
-            SymbolMarketActivityType.Buy.ToString(), context.ChainId, seedOwnedSymbol,
+            SymbolMarketActivityType.Buy.ToString(), context.ChainId, seedSymbolIndex.SeedOwnedSymbol,
             context.Transaction.From, context.Transaction.To, context.Transaction.TransactionId);
-        var symbolMarketActivityIndex = await GetEntityAsync<SymbolMarketActivityIndex>(symbolMarketActivityId);
+        var symbolMarketActivityIndex =
+            await GetEntityAsync<SymbolMarketActivityIndex>(symbolMarketActivityId);
 
         if (symbolMarketActivityIndex != null) return;
 
-        symbolMarketActivityIndex = await buildSymbolMarketActivityIndexAsync(symbolMarketActivityId, eventValue,
-            context, seedSymbolIndex.SeedType);
+        symbolMarketActivityIndex =
+            await buildSymbolMarketActivityIndexAsync(symbolMarketActivityId, eventValue, context,
+                seedSymbolIndex.SeedType, symbolAuctionInfoIndex.Symbol);
         _objectMapper.Map(context, symbolMarketActivityIndex);
-        symbolMarketActivityIndex.Symbol = seedOwnedSymbol;
-        symbolMarketActivityIndex.SeedSymbol = eventValue.Symbol;
+        symbolMarketActivityIndex.SeedSymbol = seedSymbolIndex.Symbol;
         await SaveEntityAsync(symbolMarketActivityIndex);
 
     }
 
     private async Task<SymbolMarketActivityIndex> buildSymbolMarketActivityIndexAsync(string symbolMarketActivityId,
-        ManagerTokenCreated eventValue,
-        LogEventContext context, SeedType seedType)
+        Forest.Contracts.Auction.BidPlaced eventValue,
+        LogEventContext context, SeedType seedType, string symbol)
     {
         return new SymbolMarketActivityIndex
         {
             Id = symbolMarketActivityId,
-            Type = SymbolMarketActivityType.Create,
-            TransactionDateTime = context.Block.BlockTime,
-            Symbol = eventValue.Symbol,
-            Address = FullAddressHelper.ToFullAddress(eventValue.RealOwner.ToBase58(), context.ChainId),
+            Type = SymbolMarketActivityType.Bid,
+            Price = eventValue.Price.Amount,
+            PriceSymbol = eventValue.Price.Symbol,
+
+            TransactionDateTime = eventValue.BidTime.ToDateTime(),
+            Symbol = symbol,
+            Address = FullAddressHelper.ToFullAddress(eventValue.Bidder.ToBase58(), context.ChainId),
             SeedType = seedType,
             TransactionFee = GetFeeTypeElfAmount(context.Transaction.ExtraProperties),
             TransactionFeeSymbol = FeeMapTypeElf,
@@ -89,14 +99,14 @@ public class ActivityForCreateFTAndNFTProcessor: LogEventProcessorBase<ManagerTo
         var feeMap = new Dictionary<string, long>();
         if (extraProperties.TryGetValue(ExtraPropertiesKeyTransactionFee, out var transactionFee))
         {
-            Logger.LogDebug("ActivityForCreateFTAndNFTProcessor TransactionFee {Fee}",transactionFee);
+            Logger.LogDebug("ActivityForSymbolMarketBidPlacedProcessor TransactionFee {Fee}",transactionFee);
             feeMap = JsonConvert.DeserializeObject<Dictionary<string, long>>(transactionFee) ??
                      new Dictionary<string, long>();
         }
 
         if (extraProperties.TryGetValue(ExtraPropertiesKeyResourceFee, out var resourceFee))
         {
-            Logger.LogDebug("ActivityForCreateFTAndNFTProcessor ResourceFee {Fee}",resourceFee);
+            Logger.LogDebug("ActivityForSymbolMarketBidPlacedProcessor ResourceFee {Fee}",resourceFee);
             var resourceFeeMap = JsonConvert.DeserializeObject<Dictionary<string, long>>(resourceFee) ??
                                  new Dictionary<string, long>();
             foreach (var (symbol, fee) in resourceFeeMap)
