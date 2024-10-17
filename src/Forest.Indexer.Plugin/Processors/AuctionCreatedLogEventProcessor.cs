@@ -1,10 +1,8 @@
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
+using Drop.Indexer.Plugin.Processors;
 using Forest.Contracts.Auction;
 using Forest.Indexer.Plugin.Entities;
-using Forest.Indexer.Plugin.Processors.Provider;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Forest.Indexer.Plugin.Util;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
@@ -15,22 +13,11 @@ public class AuctionCreatedLogEventProcessor : LogEventProcessorBase<AuctionCrea
 {
     private readonly IObjectMapper _objectMapper;
 
-    private readonly IAuctionInfoProvider _auctionInfoProvider;
-    private readonly ICollectionProvider _collectionProvider;
-    private readonly ICollectionChangeProvider _collectionChangeProvider;
-
     public AuctionCreatedLogEventProcessor(
-        IObjectMapper objectMapper,
-        IAuctionInfoProvider auctionInfoProvider,
-        ICollectionProvider collectionProvider,
-        ICollectionChangeProvider collectionChangeProvider)
+        IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _auctionInfoProvider = auctionInfoProvider;
-        _collectionProvider = collectionProvider;
-        _collectionChangeProvider = collectionChangeProvider;
     }
-
 
     public override string GetContractAddress(string chainId)
     {
@@ -77,7 +64,63 @@ public class AuctionCreatedLogEventProcessor : LogEventProcessorBase<AuctionCrea
         };
         _objectMapper.Map(context, symbolAuctionInfoIndex);
         await SaveEntityAsync(symbolAuctionInfoIndex);
-        await _auctionInfoProvider.SetSeedSymbolIndexPriceByAuctionInfoAsync(eventValue.AuctionId.ToHex(),context.Block.BlockTime, context);
-        await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
+        await SetSeedSymbolIndexPriceByAuctionInfoAsync(eventValue.AuctionId.ToHex(),context.Block.BlockTime, context);
+        await SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
+    }
+    public async Task SetSeedSymbolIndexPriceByAuctionInfoAsync(string auctionId, DateTime dateTime, LogEventContext context)
+    {
+        Logger.LogDebug("SetSeedSymbolIndexPriceByAuctionInfoAsync 1 {chainId} {auctionId}",context.ChainId,auctionId);
+        var auctionInfoIndex = await GetEntityAsync<SymbolAuctionInfoIndex>(auctionId);
+        if (auctionInfoIndex == null)
+        {
+            Logger.LogDebug("SetSeedSymbolIndexPriceByAuctionInfoAsync 1-stop {chainId} {symbol}",context.ChainId,auctionInfoIndex.Symbol);
+            return;
+        }
+        Logger.LogDebug("SetSeedSymbolIndexPriceByAuctionInfoAsync 2 {chainId} {symbol}",context.ChainId,auctionInfoIndex.Symbol);
+        var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, auctionInfoIndex.Symbol);
+        var seedSymbolIndex = await GetEntityAsync<SeedSymbolIndex>(seedSymbolId);
+        if (seedSymbolIndex == null)
+        {
+            Logger.LogDebug("SetSeedSymbolIndexPriceByAuctionInfoAsync 2-stop {chainId} {symbol}",context.ChainId,auctionInfoIndex.Symbol);
+            return;
+        }
+        Logger.LogDebug("SetSeedSymbolIndexPriceByAuctionInfoAsync 3 {chainId} {symbol}",context.ChainId,auctionInfoIndex.Symbol);
+
+        if (auctionInfoIndex.FinishPrice != null && auctionInfoIndex.FinishPrice.Amount >= 0)
+        {
+            seedSymbolIndex.AuctionPriceSymbol = auctionInfoIndex.FinishPrice.Symbol;
+            seedSymbolIndex.AuctionPrice = DecimalUntil.ConvertToElf(auctionInfoIndex.FinishPrice.Amount);
+        }
+        else
+        {
+            seedSymbolIndex.AuctionPriceSymbol = auctionInfoIndex.StartPrice.Symbol;
+            seedSymbolIndex.AuctionPrice = DecimalUntil.ConvertToElf(auctionInfoIndex.StartPrice.Amount);
+            
+        }
+        seedSymbolIndex.MaxAuctionPrice = seedSymbolIndex.AuctionPrice;
+        seedSymbolIndex.HasAuctionFlag = true;
+
+        seedSymbolIndex.AuctionDateTime = dateTime;
+        seedSymbolIndex.BeginAuctionPrice = DecimalUntil.ConvertToElf(auctionInfoIndex.StartPrice.Amount);
+        Logger.LogDebug("SetSeedSymbolIndexPriceByAuctionInfoAsync 4 {chainId} {symbol}",context.ChainId,auctionInfoIndex.Symbol);
+        _objectMapper.Map(context, seedSymbolIndex);
+        Logger.LogDebug("SetSeedSymbolIndexPriceByAuctionInfoAsync 4 {chainId} {symbol} {seedSymbolIndex}",context.ChainId,auctionInfoIndex.Symbol,JsonConvert.SerializeObject(seedSymbolIndex));
+        await SaveEntityAsync(seedSymbolIndex);
+    }
+    public async Task SaveCollectionPriceChangeIndexAsync(LogEventContext context, string symbol)
+    {
+        var collectionPriceChangeIndex = new CollectionPriceChangeIndex();
+        var nftCollectionSymbol = SymbolHelper.GetNFTCollectionSymbol(symbol);
+        if (nftCollectionSymbol == null)
+        {
+            return;
+        }
+
+        collectionPriceChangeIndex.Symbol = nftCollectionSymbol;
+        collectionPriceChangeIndex.Id = IdGenerateHelper.GetNFTCollectionId(context.ChainId, nftCollectionSymbol);
+        collectionPriceChangeIndex.UpdateTime = context.Block.BlockTime;
+        _objectMapper.Map(context, collectionPriceChangeIndex);
+        await SaveEntityAsync(collectionPriceChangeIndex);
+
     }
 }
