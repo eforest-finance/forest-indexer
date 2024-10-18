@@ -10,31 +10,14 @@ public class OfferChangedLogEventProcessor : LogEventProcessorBase<OfferChanged>
 {
     private readonly ILogger<OfferChangedLogEventProcessor> _logger;
     private readonly IObjectMapper _objectMapper;
-    private readonly INFTInfoProvider _infoProvider;
-    private readonly INFTOfferProvider _offerProvider;
-    private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
-    private readonly IUserBalanceProvider _userBalanceProvider;
-    private readonly ICollectionChangeProvider _collectionChangeProvider;
 
     public OfferChangedLogEventProcessor(
         ILogger<OfferChangedLogEventProcessor> logger, 
-        IObjectMapper objectMapper,
-        INFTInfoProvider infoProvider,
-        INFTOfferProvider offerProvider,
-        INFTOfferChangeProvider nftOfferChangeProvider,
-        ICollectionProvider collectionProvider,
-        ICollectionChangeProvider collectionChangeProvider,
-        IUserBalanceProvider userBalanceProvider
-        )
+        IObjectMapper objectMapper
+    )
     {
         _logger = logger;
         _objectMapper = objectMapper;
-        _infoProvider = infoProvider;
-        _offerProvider = offerProvider;
-        _nftOfferChangeProvider = nftOfferChangeProvider;
-        _collectionProvider = collectionProvider;
-        _collectionChangeProvider = collectionChangeProvider;
-        _userBalanceProvider = userBalanceProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -55,13 +38,52 @@ public class OfferChangedLogEventProcessor : LogEventProcessorBase<OfferChanged>
         offerIndex.Quantity = eventValue.Quantity;
         var userBalanceId =
             IdGenerateHelper.GetUserBalanceId(eventValue.OfferFrom.ToBase58(), context.ChainId, tokenIndexId);
-        var userBalance = await _userBalanceProvider.QueryUserBalanceByIdAsync(userBalanceId, context.ChainId);
+        var userBalance = await GetEntityAsync<UserBalanceIndex>(userBalanceId);
         var balance = userBalance == null ? 0 : userBalance.Amount;
 
         offerIndex.RealQuantity = Math.Min(eventValue.Quantity, balance / eventValue.Price.Amount);
         _objectMapper.Map(context, offerIndex);
         await SaveEntityAsync(offerIndex);
-        await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
-        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Modify);
+        await SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
+        await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Modify);
+    }
+    public async Task SaveCollectionPriceChangeIndexAsync(LogEventContext context, string symbol)
+    {
+        var collectionPriceChangeIndex = new CollectionPriceChangeIndex();
+        var nftCollectionSymbol = SymbolHelper.GetNFTCollectionSymbol(symbol);
+        if (nftCollectionSymbol == null)
+        {
+            return;
+        }
+
+        collectionPriceChangeIndex.Symbol = nftCollectionSymbol;
+        collectionPriceChangeIndex.Id = IdGenerateHelper.GetNFTCollectionId(context.ChainId, nftCollectionSymbol);
+        collectionPriceChangeIndex.UpdateTime = context.Block.BlockTime;
+        _objectMapper.Map(context, collectionPriceChangeIndex);
+        await SaveEntityAsync(collectionPriceChangeIndex);
+    }
+    
+    public async Task SaveNFTOfferChangeIndexAsync(LogEventContext context, string symbol, EventType eventType)
+    {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+
+        if (symbol.Equals(ForestIndexerConstants.TokenSimpleElf))
+        {
+            return;
+        }
+
+        var nftOfferChangeIndex = new NFTOfferChangeIndex
+        {
+            Id = IdGenerateHelper.GetId(context.ChainId, symbol, Guid.NewGuid()),
+            NftId = IdGenerateHelper.GetNFTInfoId(context.ChainId, symbol),
+            EventType = eventType,
+            CreateTime = context.Block.BlockTime
+        };
+        
+        _objectMapper.Map(context, nftOfferChangeIndex);
+        await SaveEntityAsync(nftOfferChangeIndex);
     }
 }
