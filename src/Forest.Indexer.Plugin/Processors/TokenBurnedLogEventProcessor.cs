@@ -1,3 +1,4 @@
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using AElf.Contracts.MultiToken;
 using Forest.Indexer.Plugin.Entities;
@@ -12,38 +13,19 @@ namespace Forest.Indexer.Plugin.Processors;
 public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly IUserBalanceProvider _userBalanceProvider;
-    private readonly INFTInfoProvider _nftInfoProvider;
-    private readonly ICollectionChangeProvider _collectionChangeProvider;
-    private readonly INFTOfferProvider _nftOfferProvider;
-    private readonly INFTListingInfoProvider _nftListingInfoProvider;
-    private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
-
     private readonly ILogger<TokenBurnedLogEventProcessor> _logger;
-    private readonly INFTListingChangeProvider _listingChangeProvider;
     private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
+    private readonly INFTOfferProvider _nftOfferProvider;
 
     public TokenBurnedLogEventProcessor(ILogger<TokenBurnedLogEventProcessor> logger
         , IObjectMapper objectMapper
-        , IUserBalanceProvider userBalanceProvider
-        , INFTInfoProvider nftInfoProvider
-        , ICollectionChangeProvider collectionChangeProvider
-        , INFTOfferProvider nftOfferProvider
-        , INFTListingInfoProvider nftListingInfoProvider
-        , INFTOfferChangeProvider nftOfferChangeProvider
-        , INFTListingChangeProvider listingChangeProvider
-        ,IAElfClientServiceProvider aElfClientServiceProvider)
+        ,IAElfClientServiceProvider aElfClientServiceProvider,
+        INFTOfferProvider nftOfferProvider)
     {
         _logger = logger;
         _objectMapper = objectMapper;
-        _userBalanceProvider = userBalanceProvider;
-        _nftInfoProvider = nftInfoProvider;
-        _collectionChangeProvider = collectionChangeProvider;
-        _nftOfferProvider = nftOfferProvider;
-        _nftListingInfoProvider = nftListingInfoProvider;
-        _nftOfferChangeProvider = nftOfferChangeProvider;
-        _listingChangeProvider = listingChangeProvider;
         _aElfClientServiceProvider = aElfClientServiceProvider;
+        _nftOfferProvider = nftOfferProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -64,15 +46,15 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         {
             return;
         }
-        var userBalance = await _userBalanceProvider.SaveUserBalanceAsync(eventValue.Symbol,
+        var userBalance = await SaveUserBalanceAsync(eventValue.Symbol,
             eventValue.Burner.ToBase58(),
             -eventValue.Amount, context);
         await _nftOfferProvider.UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context);
-        await _nftListingInfoProvider.UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context);
-        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
+        
+        await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
         if (SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;
-        await _collectionChangeProvider.SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
+        await SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
         
         if (SymbolHelper.CheckSymbolIsSeedCollection(eventValue.Symbol)) return;
 
@@ -90,6 +72,30 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         
         await HandleForSeedTokenAsync(eventValue, context);
         
+    }
+
+    private async Task SaveNFTOfferChangeIndexAsync(LogEventContext context, string symbol, EventType eventType)
+    {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+
+        if (symbol.Equals(ForestIndexerConstants.TokenSimpleElf))
+        {
+            return;
+        }
+
+        var nftOfferChangeIndex = new NFTOfferChangeIndex
+        {
+            Id = IdGenerateHelper.GetId(context.ChainId, symbol, Guid.NewGuid()),
+            NftId = IdGenerateHelper.GetNFTInfoId(context.ChainId, symbol),
+            EventType = eventType,
+            CreateTime = context.Block.BlockTime
+        };
+        
+        _objectMapper.Map(context, nftOfferChangeIndex);
+        await SaveEntityAsync(nftOfferChangeIndex);
     }
 
     private async Task HandleForSeedTokenAsync(Burned eventValue, LogEventContext context)
@@ -110,6 +116,38 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         _objectMapper.Map(context, symbolMarketTokenIndex);
         await SaveEntityAsync(symbolMarketTokenIndex);
         await SaveActivityAsync(eventValue, context, symbolMarketTokenIndex.Id, symbolMarketTokenIndex.Decimals);
+    }
+    
+    public async Task<long> SaveUserBalanceAsync(String symbol, String address, long amount, LogEventContext context)
+    {
+        var nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, symbol);
+        var userBalanceId = IdGenerateHelper.GetUserBalanceId(address, context.ChainId, nftInfoIndexId);
+        var userBalanceIndex = await GetEntityAsync<UserBalanceIndex>(userBalanceId);
+        
+        if (userBalanceIndex == null)
+        {
+            userBalanceIndex = new UserBalanceIndex()
+            {
+                Id = userBalanceId,
+                ChainId = context.ChainId,
+                NFTInfoId = nftInfoIndexId,
+                Address = address,
+                Amount = amount,
+                Symbol = symbol,
+                ChangeTime = context.Block.BlockTime
+            };
+        }
+        else
+        {
+            userBalanceIndex.Amount += amount;
+            userBalanceIndex.ChangeTime = context.Block.BlockTime;
+        }
+
+        _objectMapper.Map(context, userBalanceIndex);
+        _logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
+            symbol, userBalanceIndex.Amount);
+        await SaveEntityAsync(userBalanceIndex);
+        return userBalanceIndex.Amount;
     }
 
     private async Task HandleForSeedSymbolBurnedAsync(Burned eventValue, LogEventContext context)
@@ -149,10 +187,6 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         //burned seed symbol index
         if (!seedSymbol.IsBurnable) return;
 
-        //add calc minNftListing
-        var minNftListing = await _nftInfoProvider.GetMinListingNftAsync(seedSymbolId);
-        seedSymbol.OfMinNftListingInfo(minNftListing);
-
         _objectMapper.Map(context, seedSymbol);
         seedSymbol.IsDeleteFlag = true;
         seedSymbol.Supply -= 1;
@@ -161,7 +195,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
             seedSymbol.SeedStatus = SeedStatus.REGISTERED;
         }
         await SaveEntityAsync(seedSymbol);
-        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
+        await SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         await SaveActivityAsync(eventValue, context, seedSymbol.Id, seedSymbol.Decimals);
     }
 
@@ -183,18 +217,31 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         if (nftIndex == null) return;
         if (!nftIndex.IsBurnable) return;
         if (nftIndex.TotalSupply <= 0) return;
-
-        //add calc minNftListing
-        var minNftListing = await _nftInfoProvider.GetMinListingNftAsync(nftIndexId);
-        nftIndex.OfMinNftListingInfo(minNftListing);
+        
         nftIndex.Supply -= eventValue.Amount;
         _objectMapper.Map(context, nftIndex);
         await SaveEntityAsync(nftIndex);
-        await _collectionChangeProvider.SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
-        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
+        await SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
+        await SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         await SaveActivityAsync(eventValue, context, nftIndex.Id, nftIndex.Decimals);
     }
+    
+    private async Task SaveCollectionChangeIndexAsync(LogEventContext context, string symbol)
+    {
+        var collectionChangeIndex = new CollectionChangeIndex();
+        var nftCollectionSymbol = SymbolHelper.GetNFTCollectionSymbol(symbol);
+        if (nftCollectionSymbol == null)
+        {
+            return;
+        }
 
+        collectionChangeIndex.Symbol = nftCollectionSymbol;
+        collectionChangeIndex.Id = IdGenerateHelper.GetNFTCollectionId(context.ChainId, nftCollectionSymbol);
+        collectionChangeIndex.UpdateTime = context.Block.BlockTime;
+        _objectMapper.Map(context, collectionChangeIndex);
+        await SaveEntityAsync(collectionChangeIndex);
+    }
+    
     private async Task SaveActivityAsync(Burned eventValue, LogEventContext context, string bizId, int decimals)
     {
         var nftActivityIndexId =
@@ -210,7 +257,51 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
             Timestamp = context.Block.BlockTime,
             NftInfoId = bizId
         };
-        await _nftInfoProvider.AddNFTActivityAsync(context, nftActivityIndex);
+        await AddNFTActivityAsync(context, nftActivityIndex);
+    }
+    
+    public async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
+    {
+        // NFT activity
+        var nftActivityIndexExists = await GetEntityAsync<NFTActivityIndex>(nftActivityIndex.Id);
+        if (nftActivityIndexExists != null)
+        {
+            Logger.LogDebug("[AddNFTActivityAsync] FAIL: activity EXISTS, nftActivityIndexId={Id}", nftActivityIndex.Id);
+            return false;
+        }
+
+        var from = nftActivityIndex.From;
+        var to = nftActivityIndex.To;
+        _objectMapper.Map(context, nftActivityIndex);
+        nftActivityIndex.From = FullAddressHelper.ToFullAddress(from, context.ChainId);
+        nftActivityIndex.To = FullAddressHelper.ToFullAddress(to, context.ChainId);
+
+        Logger.LogDebug("[AddNFTActivityAsync] SAVE: activity SAVE, nftActivityIndexId={Id}", nftActivityIndex.Id);
+        await SaveEntityAsync(nftActivityIndex);
+
+        Logger.LogDebug("[AddNFTActivityAsync] SAVE: activity FINISH, nftActivityIndexId={Id}", nftActivityIndex.Id);
+        return true;
+    }
+    
+    public async Task SaveNFTListingChangeIndexAsync(LogEventContext context, string symbol)
+    {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+
+        if (symbol.Equals(ForestIndexerConstants.TokenSimpleElf))
+        {
+            return;
+        }
+        var nftListingChangeIndex = new NFTListingChangeIndex
+        {
+            Symbol = symbol,
+            Id = IdGenerateHelper.GetId(context.ChainId, symbol),
+            UpdateTime = context.Block.BlockTime
+        };
+        _objectMapper.Map(context, nftListingChangeIndex);
+        await SaveEntityAsync(nftListingChangeIndex);
     }
 
 }

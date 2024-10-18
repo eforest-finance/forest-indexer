@@ -63,7 +63,7 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
         await ReCoverUserBalanceAsync(eventValue.OriginBalanceSymbol, eventValue.OfferFrom.ToBase58(), eventValue.OriginBalance, context);
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Add);
     }
-    
+
     private async Task AddNFTActivityRecordAsync(string symbol, string offerFrom, string offerTo,
         long quantity, decimal price, NFTActivityType activityType, LogEventContext context,
         TokenInfoIndex tokenInfoIndex, DateTime expireTime)
@@ -95,7 +95,7 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
         
         await SaveEntityAsync(nftActivityIndex);
     }
-    
+
     private async Task<string> TransferAddress(string offerToAddress)
     {
         if (offerToAddress.IsNullOrWhiteSpace()) return offerToAddress;
@@ -107,7 +107,7 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
         return proxyAccount.ManagersSet.FirstOrDefault(offerToAddress);
     }
     
-    public async Task SaveNFTOfferChangeIndexAsync(LogEventContext context, string symbol, EventType eventType)
+    private async Task SaveNFTOfferChangeIndexAsync(LogEventContext context, string symbol, EventType eventType)
     {
         if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
         {
@@ -131,7 +131,7 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
         await SaveEntityAsync(nftOfferChangeIndex);
     }
     
-    public async Task<long> ReCoverUserBalanceAsync(String symbol, String address, long amount, LogEventContext context)
+    private async Task<long> ReCoverUserBalanceAsync(String symbol, String address, long amount, LogEventContext context)
     {
         var nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, symbol);
         var userBalanceId = IdGenerateHelper.GetUserBalanceId(address, context.ChainId, nftInfoIndexId);
