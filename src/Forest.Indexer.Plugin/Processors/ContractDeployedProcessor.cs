@@ -25,7 +25,7 @@ public class ContractDeployedProcessor: LogEventProcessorBase<ContractDeployed>
     {
         if (eventValue.Address.ToBase58() != ContractInfoHelper.GetNFTForestContractAddress(context.ChainId)) return;
         
-        var tokenInfoList = TokenInfoListConstants.TokenInfoList.Where(n => n.ChainId == context.ChainId).ToList();
+        var tokenInfoList = TokenInfoListOptions.TokenInfoList.Where(n => n.ChainId == context.ChainId).ToList();
         foreach (var tokenInfo in tokenInfoList)
         {
             var tokenInfoIndex = _objectMapper.Map<TokenInfo, TokenInfoIndex>(tokenInfo);
