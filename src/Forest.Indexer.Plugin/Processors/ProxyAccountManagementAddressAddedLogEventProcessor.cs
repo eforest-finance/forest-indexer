@@ -92,21 +92,6 @@ public class
         return collectionIndex;
     }
 
-    private SeedSymbolMarketTokenIndex FillSymbolMarketTokenIndexIssuer(SeedSymbolMarketTokenIndex seedSymbolMarketTokenIndex,
-        ProxyAccountIndex proxyAccountIndex)
-    {
-        if (seedSymbolMarketTokenIndex == null) return seedSymbolMarketTokenIndex;
-
-        if (proxyAccountIndex != null)
-            seedSymbolMarketTokenIndex.IssueManagerSet = proxyAccountIndex.ManagersSet;
-        else
-            seedSymbolMarketTokenIndex.IssueManagerSet = new HashSet<string> { seedSymbolMarketTokenIndex.Issuer };
-
-        seedSymbolMarketTokenIndex.RandomIssueManager = seedSymbolMarketTokenIndex.IssueManagerSet?.FirstOrDefault("");
-
-        return seedSymbolMarketTokenIndex;
-    }
-    
     private NFTInfoIndex FillNFTInfoIndex(NFTInfoIndex nftInfoIndex,
         ProxyAccountIndex proxyAccountIndex)
     {
