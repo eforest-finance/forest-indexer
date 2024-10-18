@@ -46,7 +46,7 @@ public class ProxyAccountCreatedLogEventProcessor : LogEventProcessorBase<ProxyA
         await UpdateProxyAccountInfoForNFTInfoIndexAsync(agentIndex, context.ChainId,context);
     }
     
-    public async Task UpdateProxyAccountInfoForNFTCollectionIndexAsync(ProxyAccountIndex proxyAccountIndex, string chainId,LogEventContext context)
+    private async Task UpdateProxyAccountInfoForNFTCollectionIndexAsync(ProxyAccountIndex proxyAccountIndex, string chainId,LogEventContext context)
     {
         if (proxyAccountIndex == null || proxyAccountIndex.ProxyAccountAddress.IsNullOrEmpty() ||
             chainId.IsNullOrEmpty()) return;
@@ -62,7 +62,7 @@ public class ProxyAccountCreatedLogEventProcessor : LogEventProcessorBase<ProxyA
         await SaveEntityAsync(nftCollectionIndex);
     }
     
-    public async Task UpdateProxyAccountInfoForNFTInfoIndexAsync(ProxyAccountIndex proxyAccountIndex, string chainId,LogEventContext context)
+    private async Task UpdateProxyAccountInfoForNFTInfoIndexAsync(ProxyAccountIndex proxyAccountIndex, string chainId,LogEventContext context)
     {
         if (proxyAccountIndex == null || proxyAccountIndex.ProxyAccountAddress.IsNullOrEmpty() ||
             chainId.IsNullOrEmpty()) return;
