@@ -146,7 +146,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
         await SaveEntityAsync(collectionPriceChangeIndex);
     }
 
-    public async Task SaveNFTListingChangeIndexAsync(LogEventContext context, string symbol)
+    private async Task SaveNFTListingChangeIndexAsync(LogEventContext context, string symbol)
     {
         if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
         {
@@ -168,7 +168,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
         await SaveEntityAsync(nftListingChangeIndex);
     }
 
-    public async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
+    private async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
     {
         // NFT activity
         var nftActivityIndexExists = await GetEntityAsync<NFTActivityIndex>(nftActivityIndex.Id);
