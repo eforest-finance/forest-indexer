@@ -65,4 +65,14 @@ public class ContractInfoHelper
             _ => ""
         };
     }
+    public static string GetGenesisContractAddress(string chainId)
+    {
+        return chainId switch
+        {
+            ForestIndexerConstants.AELF => ForestIndexerConstants.GenesisContractAddressAELF,
+            ForestIndexerConstants.TDVV => ForestIndexerConstants.GenesisContractAddressTDVV,
+            ForestIndexerConstants.TDVW => ForestIndexerConstants.GenesisContractAddressTDVW,
+            _ => ""
+        };
+    }
 }

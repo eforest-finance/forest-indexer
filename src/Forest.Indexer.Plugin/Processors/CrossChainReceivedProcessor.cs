@@ -1,73 +1,54 @@
+using AeFinder.Sdk.Logging;
+using AeFinder.Sdk.Processor;
 using AElf;
 using AElf.Contracts.MultiToken;
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
-using Forest.Indexer.Plugin.Processors.Provider;
+using Forest.Indexer.Plugin.Util;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Orleans.Runtime;
 using Volo.Abp.ObjectMapping;
-
+//todo V2 ,code:doing
 namespace Forest.Indexer.Plugin.Processors;
 
-public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainReceived, LogEventInfo>
+public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainReceived>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
     private readonly UserBalanceProvider _balanceProvider;
     private readonly INFTOfferProvider _nftOfferProvider;
     private readonly INFTListingInfoProvider _nftListingInfoProvider;
     private readonly INFTInfoProvider _nftInfoProvider;
     private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
-    private readonly IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> _nftInfoIndexRepository;
 
-    private readonly IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> _seedSymbolIndexRepository;
-    private readonly IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo>
-        _tsmSeedSymbolIndexRepository;
     private readonly ILogger<AElfLogEventProcessorBase<CrossChainReceived, LogEventInfo>> _logger;
     private readonly INFTListingChangeProvider _listingChangeProvider;
 
-    public CrossChainReceivedProcessor(ILogger<AElfLogEventProcessorBase<CrossChainReceived, LogEventInfo>> logger,
-        IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolIndexRepository,
-        IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> tsmSeedSymbolIndexRepository,
+    public CrossChainReceivedProcessor(
         IObjectMapper objectMapper,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions,
         UserBalanceProvider balanceProvider,
         INFTOfferProvider nftOfferProvider,
         INFTListingInfoProvider nftListingInfoProvider,
         INFTOfferChangeProvider nftOfferChangeProvider,
         INFTListingChangeProvider listingChangeProvider,
-        IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoIndexRepository,
-        INFTInfoProvider nftInfoProvider) :
-        base(logger)
+        INFTInfoProvider nftInfoProvider)
     {
         _objectMapper = objectMapper;
-        _seedSymbolIndexRepository = seedSymbolIndexRepository;
-        _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
-        _contractInfoOptions = contractInfoOptions.Value;
         _balanceProvider = balanceProvider;
         _nftOfferProvider = nftOfferProvider;
         _nftListingInfoProvider = nftListingInfoProvider;
         _nftInfoProvider = nftInfoProvider;
         _nftOfferChangeProvider = nftOfferChangeProvider;
-        _logger = logger;
         _listingChangeProvider = listingChangeProvider;
-        _nftInfoIndexRepository = nftInfoIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos?.FirstOrDefault(c => c?.ChainId == chainId)
-            ?.TokenContractAddress;
+        return ContractInfoHelper.GetTokenContractAddress(chainId);
     }
 
-    protected override async Task HandleEventAsync(CrossChainReceived eventValue, LogEventContext context)
+    public override async Task ProcessAsync(CrossChainReceived eventValue, LogEventContext context)
     {
-        _logger.Debug("CrossChainReceived-1-eventValue"+JsonConvert.SerializeObject(eventValue));
-        _logger.Debug("CrossChainReceived-2-context"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("CrossChainReceived-1-eventValue"+JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("CrossChainReceived-2-context"+JsonConvert.SerializeObject(context));
         if (eventValue == null || context == null) return;
         var needRecordBalance =
             await _nftOfferProvider.NeedRecordBalance(eventValue.Symbol, eventValue.To.ToBase58(), context.ChainId);
@@ -97,9 +78,10 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
         
         var seedSymbolIndexIdToChainId =
             IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
-        var seedSymbolIndexToChain = await _seedSymbolIndexRepository.GetFromBlockStateSetAsync(seedSymbolIndexIdToChainId, context.ChainId);
-        _logger.Debug("CrossChainReceived-3-seedSymbolIndexIdToChainId"+seedSymbolIndexIdToChainId);
-        _logger.Debug("CrossChainReceived-4-seedSymbolIndexToChain"+JsonConvert.SerializeObject(seedSymbolIndexToChain));
+        var seedSymbolIndexToChain = await GetEntityAsync<SeedSymbolIndex>(seedSymbolIndexIdToChainId);
+       
+        Logger.LogDebug("CrossChainReceived-3-seedSymbolIndexIdToChainId"+seedSymbolIndexIdToChainId);
+        Logger.LogDebug("CrossChainReceived-4-seedSymbolIndexToChain"+JsonConvert.SerializeObject(seedSymbolIndexToChain));
         if(seedSymbolIndexToChain == null) return;
         
         seedSymbolIndexToChain.IsDeleteFlag = false;
@@ -110,21 +92,21 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
         //add calc minNftListing
         var minNftListing = await _nftInfoProvider.GetMinListingNftAsync(seedSymbolIndexIdToChainId);
         seedSymbolIndexToChain.OfMinNftListingInfo(minNftListing);
-        await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbolIndexToChain);
+        await SaveEntityAsync(seedSymbolIndexToChain);
 
         //Set the tsm seed symbol index info to the to chain
         var tsmSeedSymbolIndexIdToChainId =
             IdGenerateHelper.GetSeedSymbolId(context.ChainId, seedSymbolIndexToChain.SeedOwnedSymbol);
-        var tsmSeedSymbolIndexToChain = 
-            await _tsmSeedSymbolIndexRepository.GetFromBlockStateSetAsync(tsmSeedSymbolIndexIdToChainId, context.ChainId);
-        _logger.Debug("CrossChainReceived-5-tsmSeedSymbolIndexIdToChainId"+tsmSeedSymbolIndexIdToChainId);
-        _logger.Debug("CrossChainReceived-6-tsmSeedSymbolIndexToChain"+JsonConvert.SerializeObject(tsmSeedSymbolIndexToChain));
+        var tsmSeedSymbolIndexToChain = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexIdToChainId);
+        
+        Logger.LogDebug("CrossChainReceived-5-tsmSeedSymbolIndexIdToChainId"+tsmSeedSymbolIndexIdToChainId);
+        Logger.LogDebug("CrossChainReceived-6-tsmSeedSymbolIndexToChain"+JsonConvert.SerializeObject(tsmSeedSymbolIndexToChain));
         if(tsmSeedSymbolIndexToChain == null) return;
         tsmSeedSymbolIndexToChain.IsBurned = false;
         tsmSeedSymbolIndexToChain.ChainId = context.ChainId;
         tsmSeedSymbolIndexToChain.Owner = eventValue.To.ToBase58();
         _objectMapper.Map(context, tsmSeedSymbolIndexToChain);
-        await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(tsmSeedSymbolIndexToChain);
+        await SaveEntityAsync(tsmSeedSymbolIndexToChain);
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
     
@@ -132,15 +114,17 @@ public class CrossChainReceivedProcessor : AElfLogEventProcessorBase<CrossChainR
     {
         var nftInfoId =
             IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
-        var nftInfoIndex = await _nftInfoIndexRepository.GetFromBlockStateSetAsync(nftInfoId, context.ChainId);
-        _logger.Debug("CrossChainReceived-5-nftInfoId"+nftInfoId);
-        _logger.Debug("CrossChainReceived-6-nftInfo"+JsonConvert.SerializeObject(nftInfoIndex));
+        var nftInfoIndex = await GetEntityAsync<NFTInfoIndex>(nftInfoId);
+        
+        Logger.LogDebug("CrossChainReceived-5-nftInfoId"+nftInfoId);
+        Logger.LogDebug("CrossChainReceived-6-nftInfo"+JsonConvert.SerializeObject(nftInfoIndex));
         if(nftInfoIndex == null) return;
         var minNftListing = await _nftInfoProvider.GetMinListingNftAsync(nftInfoIndex.Id);
         nftInfoIndex.OfMinNftListingInfo(minNftListing);
         _objectMapper.Map(context, nftInfoIndex);
         nftInfoIndex.Supply += eventValue.Amount;
-        await _nftInfoIndexRepository.AddOrUpdateAsync(nftInfoIndex);
+        await SaveEntityAsync(nftInfoIndex);
+
         await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
 }

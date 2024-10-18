@@ -1,6 +1,6 @@
 namespace Forest.Indexer.Plugin;
 
-public static class ForestIndexerConstants
+public static partial class ForestIndexerConstants
 {
     public const string UNDERLINE = "_";
     public const string NFTCollectionSymbolPattern = @"^.+-0$";
@@ -86,4 +86,8 @@ public static class ForestIndexerConstants
     public const string ProxyAccountContractAddressAELF = "";
     public const string ProxyAccountContractAddressTDVV = "";
     public const string ProxyAccountContractAddressTDVW = "";
+    
+    public const string GenesisContractAddressAELF = "";
+    public const string GenesisContractAddressTDVV = "";
+    public const string GenesisContractAddressTDVW = "";
 }
