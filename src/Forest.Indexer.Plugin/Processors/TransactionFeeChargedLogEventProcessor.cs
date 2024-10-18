@@ -1,10 +1,10 @@
 using AeFinder.Sdk.Processor;
 using AElf.Contracts.MultiToken;
-using AutoMapper.Internal.Mappers;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
