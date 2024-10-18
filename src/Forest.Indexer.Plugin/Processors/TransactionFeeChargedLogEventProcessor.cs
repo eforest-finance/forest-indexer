@@ -1,46 +1,36 @@
+using AeFinder.Sdk.Processor;
 using AElf.Contracts.MultiToken;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
-using Forest.Indexer.Plugin.Entities;
-using Forest.Indexer.Plugin.Processors.Provider;
+using Forest.Indexer.Plugin.Util;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Orleans.Runtime;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class TransactionFeeChargedLogEventProcessor : AElfLogEventProcessorBase<TransactionFeeCharged, LogEventInfo>
+public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<TransactionFeeCharged>
 {
-    private readonly ContractInfoOptions _contractInfoOptions;
     private readonly IUserBalanceProvider _userBalanceProvider;
     private readonly INFTOfferProvider _nftOfferProvider;
-    private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
-    private readonly ILogger<AElfLogEventProcessorBase<TransactionFeeCharged, LogEventInfo>> _logger;
+    private readonly ILogger<TransactionFeeChargedLogEventProcessor> _logger;
     
 
-    public TransactionFeeChargedLogEventProcessor(ILogger<AElfLogEventProcessorBase<TransactionFeeCharged, LogEventInfo>> logger
+    public TransactionFeeChargedLogEventProcessor(ILogger<TransactionFeeChargedLogEventProcessor> logger
         , IUserBalanceProvider userBalanceProvider
-        , INFTOfferProvider nftOfferProvider
-        , INFTOfferChangeProvider nftOfferChangeProvider
-        , IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
+        , INFTOfferProvider nftOfferProvider)
     {
         _logger = logger;
-        _contractInfoOptions = contractInfoOptions.Value;
         _userBalanceProvider = userBalanceProvider;
         _nftOfferProvider = nftOfferProvider;
-        _nftOfferChangeProvider = nftOfferChangeProvider;
     }
 
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos?.FirstOrDefault(c => c?.ChainId == chainId)?.TokenContractAddress;
+        return ContractInfoHelper.GetTokenContractAddress(chainId);
     }
 
-    protected override async Task HandleEventAsync(TransactionFeeCharged eventValue, LogEventContext context)
+    public async override Task ProcessAsync(TransactionFeeCharged eventValue, LogEventContext context)
     {
-        _logger.Debug("TransactionFeeChargedLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        _logger.Debug("TransactionFeeChargedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
+        _logger.LogDebug("TransactionFeeChargedLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
+        _logger.LogDebug("TransactionFeeChargedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
         var needRecordBalance =

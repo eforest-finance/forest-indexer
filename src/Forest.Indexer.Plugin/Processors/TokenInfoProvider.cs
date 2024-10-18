@@ -1,7 +1,5 @@
+using AeFinder.Sdk.Processor;
 using AElf.Contracts.MultiToken;
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.ObjectMapping;
@@ -15,13 +13,11 @@ public interface ITokenInfoProvider
 
 public class TokenInfoProvider : ITokenInfoProvider, ISingletonDependency
 {
-    private readonly IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> _tokenIndexRepository;
     private readonly IObjectMapper _objectMapper;
     
-    public TokenInfoProvider(IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
+    public TokenInfoProvider(
         IObjectMapper objectMapper)
     {
-        _tokenIndexRepository = tokenIndexRepository;
         _objectMapper = objectMapper;
     }
     
@@ -44,8 +40,8 @@ public class TokenInfoProvider : ITokenInfoProvider, ISingletonDependency
         }
         
         tokenInfoIndex.Id = IdGenerateHelper.GetTokenInfoId(context.ChainId, eventValue.Symbol);
-        tokenInfoIndex.CreateTime = context.BlockTime;
+        tokenInfoIndex.CreateTime = context.Block.BlockTime;
         _objectMapper.Map(context, tokenInfoIndex);
-        await _tokenIndexRepository.AddOrUpdateAsync(tokenInfoIndex);
+        // await _tokenIndexRepository.AddOrUpdateAsync(tokenInfoIndex); todo v2
     }
 }

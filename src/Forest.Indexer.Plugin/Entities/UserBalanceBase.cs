@@ -17,4 +17,7 @@ public class UserBalanceBase : AeFinderEntity, IAeFinderEntity
     [Keyword] public string Symbol { get; set; }
 
     public DateTime ChangeTime { get; set; }
+    
+    [Keyword]
+    public string ChainId { get; set; }
 }

@@ -29,11 +29,11 @@ public class SpecialSeedRemovedLogEventProcessor: LogEventProcessorBase<SpecialS
         foreach (var seed in seedList)
         {
             var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, seed.Symbol);
-            var seedSymbol = await GetEntityAsync<SeedSymbolIndex>(seedSymbolId);
+            var seedSymbol = await GetEntityAsync<TsmSeedSymbolIndex>(seedSymbolId);
             if(seedSymbol == null) continue;
             
             _objectMapper.Map(context, seedSymbol);
-            await DeleteEntityAsync<SeedSymbolIndex>(seedSymbolId);
+            await DeleteEntityAsync<TsmSeedSymbolIndex>(seedSymbolId);
         }
     }
 }
