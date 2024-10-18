@@ -15,4 +15,14 @@ public static class ForestQueryFilters
             && index.OfferTo == eventValue.OfferTo.ToBase58()
             && index.ExpireTime == eventValue.ExpireTime.ToDateTime();
     }
+    
+    public static Expression<Func<OfferInfoIndex, bool>> OfferCanceledFilter(LogEventContext context,OfferCanceled eventValue)
+    {
+        return index =>
+            index.ChainId == context.ChainId
+            && index.BizSymbol == eventValue.Symbol
+            && index.OfferFrom == eventValue.OfferFrom.ToBase58();
+    }
+    
+    
 }
