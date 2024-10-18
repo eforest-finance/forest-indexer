@@ -64,7 +64,7 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Add);
     }
     
-    protected async Task AddNFTActivityRecordAsync(string symbol, string offerFrom, string offerTo,
+    private async Task AddNFTActivityRecordAsync(string symbol, string offerFrom, string offerTo,
         long quantity, decimal price, NFTActivityType activityType, LogEventContext context,
         TokenInfoIndex tokenInfoIndex, DateTime expireTime)
     {

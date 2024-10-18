@@ -1,8 +1,8 @@
+using AeFinder.Sdk;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
 using Microsoft.Extensions.Logging;
-using Nest;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -12,11 +12,14 @@ public class OfferCanceledByExpireTimeLogEventProcessor : LogEventProcessorBase<
 {
     private readonly ILogger<OfferCanceledByExpireTimeLogEventProcessor> _logger;
     private readonly IObjectMapper _objectMapper;
+    private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
     public OfferCanceledByExpireTimeLogEventProcessor(ILogger<OfferCanceledByExpireTimeLogEventProcessor> logger,
-        IObjectMapper objectMapper)
+        IObjectMapper objectMapper,
+        IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository)
     {
         _logger = logger;
         _objectMapper = objectMapper;
+        _nftOfferIndexRepository = nftOfferIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
@@ -30,30 +33,78 @@ public class OfferCanceledByExpireTimeLogEventProcessor : LogEventProcessorBase<
         _logger.LogDebug("OfferCanceledByExpireTimeLogEventProcessor-2 {eventValue}",
             JsonConvert.SerializeObject(eventValue));
 
-        var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Term(i =>
-            i.Field(f => f.ChainId).Value(context.ChainId)));
-        mustQuery.Add(q => q.Term(i =>
-            i.Field(f => f.BizSymbol).Value(eventValue.Symbol)));
-        mustQuery.Add(q => q.Term(i =>
-            i.Field(f => f.OfferFrom).Value(eventValue.OfferFrom.ToBase58())));
-        mustQuery.Add(q => q.Term(i =>
-            i.Field(f => f.OfferTo).Value(eventValue.OfferTo.ToBase58())));
-        mustQuery.Add(q => q.Term(i =>
-            i.Field(f => f.ExpireTime).Value(eventValue.ExpireTime.ToDateTime())));
+        var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(ForestQueryFilters.OfferCanceledByExpireTimeFilter(context, eventValue));
+        
+        var offerIndexList = queryable.ToList();
+        if (offerIndexList.IsNullOrEmpty()) return;
+        foreach (var cancelOfferIndex in offerIndexList)
+        {
+            await AddNFTActivityRecordAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
+                null, cancelOfferIndex.Quantity, cancelOfferIndex.Price,
+                NFTActivityType.CancelOffer, context, cancelOfferIndex.PurchaseToken, cancelOfferIndex.ExpireTime); 
+        }
+    }
+    
+    private async Task AddNFTActivityRecordAsync(string symbol, string offerFrom, string offerTo,
+        long quantity, decimal price, NFTActivityType activityType, LogEventContext context,
+        TokenInfoIndex tokenInfoIndex, DateTime expireTime)
+    {
+        var nftActivityIndexId = IdGenerateHelper.GetId(context.ChainId, symbol, offerFrom,
+            offerTo, context.Transaction.TransactionId, expireTime);
+        var nftActivityIndex = await GetEntityAsync<NFTActivityIndex>(nftActivityIndexId);
+        if (nftActivityIndex != null) return;
 
-        QueryContainer ListingFilter(QueryContainerDescriptor<OfferInfoIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
+        var nftInfoIndexId = IdGenerateHelper.GetId(context.ChainId, symbol);
+        
+        var decimals = await QueryDecimal(context.ChainId, symbol);
+        
+        nftActivityIndex = new NFTActivityIndex
+        {
+            Id = nftActivityIndexId,
+            Type = activityType,
+            TransactionHash = context.Transaction.TransactionId,
+            Timestamp = context.Block.BlockTime,
+            NftInfoId = nftInfoIndexId
+        };
+        _objectMapper.Map(context, nftActivityIndex);
+        nftActivityIndex.From = FullAddressHelper.ToFullAddress(offerFrom, context.ChainId);
+        nftActivityIndex.To = FullAddressHelper.ToFullAddress(await TransferAddress(offerTo), context.ChainId);
 
-        // var offerIndexList = await _nftOfferIndexRepository.GetListAsync(ListingFilter);
-        //
-        // if (offerIndexList.Item1 == 0) return;
-        //
-        // foreach (var cancelOfferIndex in offerIndexList.Item2)
-        // {
-        //     await AddNFTActivityRecordAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
-        //         null, cancelOfferIndex.Quantity, cancelOfferIndex.Price,
-        //         NFTActivityType.CancelOffer, context, cancelOfferIndex.PurchaseToken, cancelOfferIndex.ExpireTime); 
-        // } todo v2
+        nftActivityIndex.Amount = TokenHelper.GetIntegerDivision(quantity, decimals);
+        nftActivityIndex.Price = price;
+        nftActivityIndex.PriceTokenInfo = tokenInfoIndex;
+        
+        await SaveEntityAsync(nftActivityIndex);
+    }
+    
+    private async Task<string> TransferAddress(string offerToAddress)
+    {
+        if (offerToAddress.IsNullOrWhiteSpace()) return offerToAddress;
+        var proxyAccount = await GetEntityAsync<ProxyAccountIndex>(offerToAddress);
+        if (proxyAccount == null || proxyAccount.ManagersSet == null)
+        {
+            return offerToAddress;
+        }
+        return proxyAccount.ManagersSet.FirstOrDefault(offerToAddress);
+    }
+    
+    public async Task<int> QueryDecimal(string chainId,string symbol)
+    {
+        var decimals = 0;
+        if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
+        {
+            var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, symbol);
+            var seedSymbol = await GetEntityAsync<SeedSymbolIndex>(seedSymbolId);
+            decimals = seedSymbol.Decimals;
+        }
+        else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, chainId))
+        {
+            var nftIndexId = IdGenerateHelper.GetNFTInfoId(chainId, symbol);
+            var nftIndex = await GetEntityAsync<NFTInfoIndex>(nftIndexId);
+            decimals = nftIndex.Decimals;
+        }
+
+        return decimals;
     }
 }
