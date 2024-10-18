@@ -269,7 +269,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         return true;
     }
     
-    public async Task SaveCollectionChangeIndexAsync(LogEventContext context, string symbol)
+    private async Task SaveCollectionChangeIndexAsync(LogEventContext context, string symbol)
     {
         var collectionChangeIndex = new CollectionChangeIndex();
         var nftCollectionSymbol = SymbolHelper.GetNFTCollectionSymbol(symbol);
