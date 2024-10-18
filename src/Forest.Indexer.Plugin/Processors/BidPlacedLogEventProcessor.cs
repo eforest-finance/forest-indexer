@@ -1,3 +1,4 @@
+using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
@@ -12,14 +13,20 @@ public class BidPlacedLogEventProcessor : LogEventProcessorBase<Forest.Contracts
 {
     private readonly IObjectMapper _objectMapper;
     private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
+    private readonly ITsmSeedSymbolProvider _tsmSeedSymbolProvider;
+    private readonly IReadOnlyRepository<TsmSeedSymbolIndex> _tsmSeedSymbolIndexRepository;
 
     public BidPlacedLogEventProcessor(
         IObjectMapper objectMapper,
-        IAElfClientServiceProvider aElfClientServiceProvider
+        IAElfClientServiceProvider aElfClientServiceProvider,
+        ITsmSeedSymbolProvider tsmSeedSymbolProvider,
+        IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolIndexRepository
         )
     {
         _objectMapper = objectMapper;
         _aElfClientServiceProvider = aElfClientServiceProvider;
+        _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
+
     }
 
     public override string GetContractAddress(string chainId)
@@ -185,8 +192,7 @@ public class BidPlacedLogEventProcessor : LogEventProcessorBase<Forest.Contracts
     }
     private async Task<TsmSeedSymbolIndex> GetTsmSeedAsync(string chainId, string seedSymbol)
     {
-        //todo V2 getTsmSeedInfo from Contract //code done, need test by self
-        var tokenContractAddress = ContractInfoHelper.GetTokenContractAddress(chainId);
+        /*var tokenContractAddress = ContractInfoHelper.GetTokenContractAddress(chainId);
         var tokenInfo =
             await _aElfClientServiceProvider.GetTokenInfoAsync(chainId, tokenContractAddress, seedSymbol);
         if (tokenInfo == null)
@@ -203,7 +209,11 @@ public class BidPlacedLogEventProcessor : LogEventProcessorBase<Forest.Contracts
         return new TsmSeedSymbolIndex()
         {
             Id = seedSymbolIndexId
-        };
+        };*/
+        var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
+        List<TsmSeedSymbolIndex> list = queryable.Skip(0).Take(1).ToList();
+        return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }
     private async Task<HashSet<string>> GetAllBiddersAsync(string auctionId)
     {
