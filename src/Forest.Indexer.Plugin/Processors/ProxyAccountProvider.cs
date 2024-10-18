@@ -96,12 +96,12 @@ public class ProxyAccountProvider : IProxyAccountProvider, ISingletonDependency
         QueryContainer Filter(QueryContainerDescriptor<CollectionIndex> f)
             => f.Bool(b => b.Must(mustQuery));
 
-        // var result = await _nftCollectionIndexRepository.GetListAsync(Filter, skip: 0, limit: 1);
-        // if (result == null) return;
-        // var nftCollectionIndex = FillNFTCollectionIndex(result?.Item2?.FirstOrDefault(), proxyAccountIndex);
-        // if (nftCollectionIndex == null) return;
-        // _objectMapper.Map(context,nftCollectionIndex);
-        // await _nftCollectionIndexRepository.AddOrUpdateAsync(nftCollectionIndex); todo v2
+        var result = await _nftCollectionIndexRepository.GetListAsync(Filter, skip: 0, limit: 1);
+        if (result == null) return;
+        var nftCollectionIndex = FillNFTCollectionIndex(result?.Item2?.FirstOrDefault(), proxyAccountIndex);
+        if (nftCollectionIndex == null) return;
+        _objectMapper.Map(context,nftCollectionIndex);
+        await _nftCollectionIndexRepository.AddOrUpdateAsync(nftCollectionIndex);
     }
 
     public async Task UpdateProxyAccountInfoForNFTInfoIndexAsync(ProxyAccountIndex proxyAccountIndex, string chainId,LogEventContext context)
