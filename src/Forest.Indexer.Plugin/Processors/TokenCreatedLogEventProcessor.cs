@@ -14,38 +14,16 @@ namespace Forest.Indexer.Plugin.Processors;
 public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly IUserBalanceProvider _userBalanceProvider;
-    private readonly INFTInfoProvider _nftInfoProvider;
-    private readonly ICollectionChangeProvider _collectionChangeProvider;
-    private readonly INFTOfferProvider _nftOfferProvider;
-    private readonly INFTListingInfoProvider _nftListingInfoProvider;
-    private readonly INFTOfferChangeProvider _nftOfferChangeProvider;
-
     private readonly ILogger<TokenCreatedLogEventProcessor> _logger;
-    private readonly INFTListingChangeProvider _listingChangeProvider;
     private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
 
     public TokenCreatedLogEventProcessor(ILogger<TokenCreatedLogEventProcessor> logger
         , IObjectMapper objectMapper
-        , IUserBalanceProvider userBalanceProvider
-        , INFTInfoProvider nftInfoProvider
-        , ICollectionChangeProvider collectionChangeProvider
-        , INFTOfferProvider nftOfferProvider
-        , INFTListingInfoProvider nftListingInfoProvider
-        , INFTOfferChangeProvider nftOfferChangeProvider
-        , INFTListingChangeProvider listingChangeProvider
         ,IAElfClientServiceProvider aElfClientServiceProvider
         )
     {
         _logger = logger;
         _objectMapper = objectMapper;
-        _userBalanceProvider = userBalanceProvider;
-        _nftInfoProvider = nftInfoProvider;
-        _collectionChangeProvider = collectionChangeProvider;
-        _nftOfferProvider = nftOfferProvider;
-        _nftListingInfoProvider = nftListingInfoProvider;
-        _nftOfferChangeProvider = nftOfferChangeProvider;
-        _listingChangeProvider = listingChangeProvider;
         _aElfClientServiceProvider = aElfClientServiceProvider;
     }
 
@@ -59,7 +37,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         _logger.LogDebug("TokenCreatedLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
         _logger.LogDebug("TokenCreatedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
         if (eventValue == null || context == null) return;
-        await _tokenInfoProvider.TokenInfoIndexCreateAsync(eventValue, context);
+        await TokenInfoIndexCreateAsync(eventValue, context);
         if(SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;
         if (SymbolHelper.CheckSymbolIsSeedCollection(eventValue.Symbol))
         {
@@ -123,6 +101,30 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         }
     }
 
+    private async Task TokenInfoIndexCreateAsync(TokenCreated eventValue, LogEventContext context)
+    {
+        if (eventValue == null || context == null)
+        {
+            return;
+        }
+
+        var tokenInfoIndex = _objectMapper.Map<TokenCreated, TokenInfoIndex>(eventValue);
+        tokenInfoIndex.Issuer = eventValue.Issuer.ToBase58();
+        if (eventValue.Owner == null)
+        {
+            tokenInfoIndex.Owner = eventValue.Issuer.ToBase58();
+        }
+        else
+        {
+            tokenInfoIndex.Owner = eventValue.Owner.ToBase58();
+        }
+        
+        tokenInfoIndex.Id = IdGenerateHelper.GetTokenInfoId(context.ChainId, eventValue.Symbol);
+        tokenInfoIndex.CreateTime = context.Block.BlockTime;
+        _objectMapper.Map(context, tokenInfoIndex);
+        await SaveEntityAsync(tokenInfoIndex);
+    }
+    
     private async Task<TsmSeedSymbolIndex> BuildNoMainChainTsmSeedSymbolIndex(LogEventContext context, string seedSymbol,
         String seedOwnedSymbol)
     {
@@ -398,9 +400,31 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
             await SaveEntityAsync(tsmSeedSymbolIndexNoMainChain);
         }
         await SaveEntityAsync(seedSymbolIndex);
-        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
+        await SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
 
+    private async Task SaveNFTListingChangeIndexAsync(LogEventContext context, string symbol)
+    {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+
+        if (symbol.Equals(ForestIndexerConstants.TokenSimpleElf))
+        {
+            return;
+        }
+        var nftListingChangeIndex = new NFTListingChangeIndex
+        {
+            Symbol = symbol,
+            Id = IdGenerateHelper.GetId(context.ChainId, symbol),
+            UpdateTime = context.Block.BlockTime
+        };
+        _objectMapper.Map(context, nftListingChangeIndex);
+        await SaveEntityAsync(nftListingChangeIndex);
+
+    }
+    
     private async Task HandleForNFTCreateAsync(TokenCreated eventValue, LogEventContext context)
     {
         var nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, eventValue.Symbol);
@@ -460,7 +484,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         _objectMapper.Map(context, nftInfoIndex);
         await SaveEntityAsync(nftInfoIndex);
         _logger.LogDebug("TokenCreatedLogEventProcessor-7 nftSave Id:{A} Symbol:{B}", nftInfoIndex.Id, nftInfoIndex.Symbol);
-        await _listingChangeProvider.SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
+        await SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
     }
 
     private async Task HandleForNFTCollectionCreateAsync(TokenCreated eventValue, LogEventContext context)
