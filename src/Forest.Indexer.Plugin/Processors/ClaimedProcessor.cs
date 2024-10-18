@@ -12,7 +12,6 @@ namespace Forest.Indexer.Plugin.Processors;
 public class ClaimedProcessor : LogEventProcessorBase<Claimed>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly INFTInfoProvider _nftInfoProvider;
 
     public ClaimedProcessor(
         IObjectMapper objectMapper)
