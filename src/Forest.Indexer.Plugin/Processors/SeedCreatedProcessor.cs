@@ -12,16 +12,14 @@ namespace Forest.Indexer.Plugin.Processors;
 public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ISeedProvider _seedProvider;
+    
     private readonly ILogger<SeedCreatedProcessor> _logger;
 
     public SeedCreatedProcessor(
         ILogger<SeedCreatedProcessor> logger,
-        IObjectMapper objectMapper,
-        ISeedProvider seedProvider)
+        IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _seedProvider = seedProvider;
         _logger = logger;
     }
     
@@ -34,7 +32,7 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
     {
         _logger.LogDebug("SeedCreatedProcessor-1"+JsonConvert.SerializeObject(eventValue));
         _logger.LogDebug("SeedCreatedProcessor-2"+JsonConvert.SerializeObject(context));
-        var seedSymbolIndex = await _seedProvider.GetSeedSymbolIndexAsync(context.ChainId, eventValue.OwnedSymbol);
+        var seedSymbolIndex = await GetSeedSymbolIndexAsync(context.ChainId, eventValue.OwnedSymbol);
         _logger.LogDebug("SeedCreatedProcessor ImageUrl:{ImageUrl}", eventValue.ImageUrl);
         _objectMapper.Map(context, seedSymbolIndex);
         seedSymbolIndex.SeedSymbol = eventValue.Symbol;
@@ -92,5 +90,24 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
             ftSeedSymbolIndex.Status = SeedStatus.NOTSUPPORT;
             await SaveEntityAsync(ftSeedSymbolIndex);
         }
+    }
+    
+    public async Task<TsmSeedSymbolIndex> GetSeedSymbolIndexAsync(string chainId, string symbol)
+    {
+        var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, symbol);
+        var seedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(seedSymbolId);
+        
+        if (seedSymbolIndex == null)
+        {
+            seedSymbolIndex = new TsmSeedSymbolIndex
+            {
+                Id = seedSymbolId,
+                Symbol = symbol,
+                SeedName = IdGenerateHelper.GetSeedName(symbol),
+                TokenType = TokenHelper.GetTokenType(symbol)
+            };
+        }
+
+        return seedSymbolIndex;
     }
 }
