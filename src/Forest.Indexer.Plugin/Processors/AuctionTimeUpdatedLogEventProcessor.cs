@@ -90,25 +90,8 @@ public class AuctionTimeUpdatedLogEventProcessor : LogEventProcessorBase<Auction
     }
     private async Task<TsmSeedSymbolIndex> GetTsmSeedAsync(string chainId, string seedSymbol)
     {
-        /*//todo V2 getTsmSeedInfo from Contract.need test by self
-        var tokenContractAddress = ContractInfoHelper.GetTokenContractAddress(chainId);
-        var tokenInfo =
-            await _aElfClientServiceProvider.GetTokenInfoAsync(chainId, tokenContractAddress, seedSymbol);
-        if (tokenInfo == null)
-        {
-            return null;
-        }
-        var seedOwnedSymbol = EnumDescriptionHelper.GetExtraInfoValue(tokenInfo.ExternalInfo, TokenCreatedExternalInfoEnum.SeedOwnedSymbol);
-        if (seedOwnedSymbol == null)
-        {
-            return null;
-        }
+        //todo V2 GetTsmSeedAsync //code: done, need test
 
-        var seedSymbolIndexId = IdGenerateHelper.GetTsmSeedSymbolId(chainId, seedOwnedSymbol);
-        return new TsmSeedSymbolIndex()
-        {
-            Id = seedSymbolIndexId
-        };*/
         var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
         List<TsmSeedSymbolIndex> list = queryable.Skip(0).Take(1).ToList();
