@@ -1,3 +1,4 @@
+using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
@@ -12,14 +13,21 @@ public class BidPlacedLogEventProcessor : LogEventProcessorBase<Forest.Contracts
 {
     private readonly IObjectMapper _objectMapper;
     private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
+    private readonly IReadOnlyRepository<TsmSeedSymbolIndex> _tsmSeedSymbolIndexRepository;
+    private readonly IReadOnlyRepository<SymbolBidInfoIndex> _symbolBidInfoIndexRepository;
+
 
     public BidPlacedLogEventProcessor(
         IObjectMapper objectMapper,
-        IAElfClientServiceProvider aElfClientServiceProvider
+        IAElfClientServiceProvider aElfClientServiceProvider,
+        IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolIndexRepository,
+        IReadOnlyRepository<SymbolBidInfoIndex> symbolBidInfoIndexRepository
         )
     {
         _objectMapper = objectMapper;
         _aElfClientServiceProvider = aElfClientServiceProvider;
+        _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
+        _symbolBidInfoIndexRepository = symbolBidInfoIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
@@ -185,46 +193,23 @@ public class BidPlacedLogEventProcessor : LogEventProcessorBase<Forest.Contracts
     }
     private async Task<TsmSeedSymbolIndex> GetTsmSeedAsync(string chainId, string seedSymbol)
     {
-        //todo V2 getTsmSeedInfo from Contract //code done, need test by self
-        var tokenContractAddress = ContractInfoHelper.GetTokenContractAddress(chainId);
-        var tokenInfo =
-            await _aElfClientServiceProvider.GetTokenInfoAsync(chainId, tokenContractAddress, seedSymbol);
-        if (tokenInfo == null)
-        {
-            return null;
-        }
-        var seedOwnedSymbol = EnumDescriptionHelper.GetExtraInfoValue(tokenInfo.ExternalInfo, TokenCreatedExternalInfoEnum.SeedOwnedSymbol);
-        if (seedOwnedSymbol == null)
-        {
-            return null;
-        }
-
-        var seedSymbolIndexId = IdGenerateHelper.GetTsmSeedSymbolId(chainId, seedOwnedSymbol);
-        return new TsmSeedSymbolIndex()
-        {
-            Id = seedSymbolIndexId
-        };
+        //todo V2 GetTsmSeedAsync //code: done, need test
+        var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
+        List<TsmSeedSymbolIndex> list = queryable.Skip(0).Take(1).ToList();
+        return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }
     private async Task<HashSet<string>> GetAllBiddersAsync(string auctionId)
     {
-        //todo V2 GetAllBiddersAsync //code: doing, plan:1、Contract add View method record bidders.2、aefinder not record bidders,server build info with bidders
-
-        var mustQuery = new List<Func<QueryContainerDescriptor<SymbolBidInfoIndex>, QueryContainer>>
-        {
-            q => q.Term(i => i.Field(f => f.AuctionId)
-                .Value(auctionId))
-        };
-
-        QueryContainer Filter(QueryContainerDescriptor<SymbolBidInfoIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
-
-        var skipCount = 0;
+        //todo V2 GetAllBiddersAsync //code: done, need test
         var bidderSet = new HashSet<string>();
+        var skipCount = 0;
+        var queryable = await _symbolBidInfoIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x=>x.AuctionId == auctionId);
         List<SymbolBidInfoIndex> dataList;
         do
         {
-            var result = await _symbolBidInfoIndexRepository.GetListAsync(Filter, skip: skipCount);
-            dataList = result.Item2;
+            dataList =  queryable.Skip(skipCount).ToList();
             if (dataList.IsNullOrEmpty())
             {
                 break;

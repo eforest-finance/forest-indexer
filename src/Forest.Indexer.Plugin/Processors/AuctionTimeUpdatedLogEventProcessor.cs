@@ -1,3 +1,4 @@
+using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Contracts.Auction;
@@ -12,14 +13,17 @@ public class AuctionTimeUpdatedLogEventProcessor : LogEventProcessorBase<Auction
 {
     private readonly IObjectMapper _objectMapper;
     private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
+    private readonly IReadOnlyRepository<TsmSeedSymbolIndex> _tsmSeedSymbolIndexRepository;
 
     public AuctionTimeUpdatedLogEventProcessor(
         IObjectMapper objectMapper,
-        IAElfClientServiceProvider aElfClientServiceProvider
+        IAElfClientServiceProvider aElfClientServiceProvider,
+        IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolIndexRepository
     )
     {
         _objectMapper = objectMapper;
         _aElfClientServiceProvider = aElfClientServiceProvider;
+        _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
     }
 
 
@@ -86,38 +90,11 @@ public class AuctionTimeUpdatedLogEventProcessor : LogEventProcessorBase<Auction
     }
     private async Task<TsmSeedSymbolIndex> GetTsmSeedAsync(string chainId, string seedSymbol)
     {
-        /*var mustQuery = new List<Func<QueryContainerDescriptor<TsmSeedSymbolIndex>, QueryContainer>>
-        {
-            q => q.Term(i => i.Field(f => f.ChainId)
-                .Value(chainId)),
+        //todo V2 GetTsmSeedAsync //code: done, need test
 
-            q => q.Term(i => i.Field(f => f.SeedSymbol)
-                .Value(seedSymbol))
-        };
-
-        QueryContainer Filter(QueryContainerDescriptor<TsmSeedSymbolIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
-
-        var result = await _tsmSeedSymbolIndexRepository.GetListAsync(Filter);
-        return result.Item2.IsNullOrEmpty() ? null : result.Item2.FirstOrDefault();*/
-        //todo V2 getTsmSeedInfo from Contract.need test by self
-        var tokenContractAddress = ContractInfoHelper.GetTokenContractAddress(chainId);
-        var tokenInfo =
-            await _aElfClientServiceProvider.GetTokenInfoAsync(chainId, tokenContractAddress, seedSymbol);
-        if (tokenInfo == null)
-        {
-            return null;
-        }
-        var seedOwnedSymbol = EnumDescriptionHelper.GetExtraInfoValue(tokenInfo.ExternalInfo, TokenCreatedExternalInfoEnum.SeedOwnedSymbol);
-        if (seedOwnedSymbol == null)
-        {
-            return null;
-        }
-
-        var seedSymbolIndexId = IdGenerateHelper.GetTsmSeedSymbolId(chainId, seedOwnedSymbol);
-        return new TsmSeedSymbolIndex()
-        {
-            Id = seedSymbolIndexId
-        };
+        var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
+        List<TsmSeedSymbolIndex> list = queryable.Skip(0).Take(1).ToList();
+        return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }
 }
