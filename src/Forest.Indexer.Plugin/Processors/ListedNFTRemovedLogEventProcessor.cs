@@ -50,9 +50,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
                 throw new UserFriendlyException($"purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND");
 
             _objectMapper.Map(context, nftListingInfoIndex);
-            //todo V2 how to delete
-            await _listedNFTIndexRepository.DeleteAsync(nftListingInfoIndex);
-
+            await DeleteEntityAsync(nftListingInfoIndex);
             var nffInfoId = IdGenerateHelper.GetNFTInfoId(context.ChainId, eventValue.Symbol);
             var latestNFTListingInfoDic =
                 await QueryLatestNFTListingInfoByNFTIdsAsync(new List<string> { nffInfoId }, nftListingInfoIndex.Id);
