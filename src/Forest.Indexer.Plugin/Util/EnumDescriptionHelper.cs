@@ -20,13 +20,14 @@ public class EnumDescriptionHelper
         return externalInfo.Value.GetValueOrDefault(key, defaultValue);
     }
     
+    /*
     public static string GetExtraInfoValue(IEnumerable<ExternalInfoDictionaryDto> externalInfo, TokenCreatedExternalInfoEnum keyEnum, string defaultValue = null)
     {
         var key = GetEnumDescription(keyEnum);
         return externalInfo.Where(kv => kv.Key.Equals(key))
             .Select(kv => kv.Value)
             .FirstOrDefault(defaultValue);
-    }
+    }*/
     
     public static string GetExtraInfoValueForSeedOwnedSymbol(AElf.Contracts.TokenAdapterContract.ExternalInfos externalInfo)
     {
