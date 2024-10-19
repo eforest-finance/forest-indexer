@@ -1,3 +1,4 @@
+using AeFinder.Sdk;
 using AElfIndexer.Client;
 using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
@@ -11,8 +12,7 @@ public partial class Query
 {
     [Name("symbolMarketActivities")]
     public static async Task<SymbolMarkerActivityPageResultDto> SymbolMarketActivities(
-        [FromServices]
-        IAElfIndexerClientEntityRepository<SymbolMarketActivityIndex, LogEventInfo> symbolMarketActivityIndexRepository,
+        [FromServices] IReadOnlyRepository<SymbolMarketActivityIndex> symbolMarketActivityIndexRepository,
         [FromServices] IObjectMapper objectMapper,
         GetActivitiesInput dto)
     {
