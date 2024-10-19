@@ -5,7 +5,7 @@ using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
 
-public class Query
+public partial class Query
 {
     public static async Task<List<MyEntityDto>> MyEntity(
         [FromServices] IReadOnlyRepository<MyEntity> repository,
