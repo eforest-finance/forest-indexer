@@ -15,7 +15,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
     private readonly IObjectMapper _objectMapper;
     private readonly IReadOnlyRepository<NFTListingInfoIndex> _listedNFTIndexRepository;
     private readonly IReadOnlyRepository<UserBalanceIndex> _userBalanceIndexRepository;
-
+    private static int WriteCount = 0;
 
 
     public ListedNFTAddedLogEventProcessor(
@@ -467,6 +467,13 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
             beginBlockHeight = result.Last().BlockHeight;
             foreach (var userBalanceIndex in result)
             {
+                WriteCount++;
+                if (WriteCount >= ForestIndexerConstants.MaxWriteDBRecord)
+                {
+                    Logger.LogInformation("ListedNFTAddedLogEventProcessor.UpdateUserBanlanceBynftInfoIdAsync recordCount:{A} ,limit:{B}, nftInfoIndex:{C},BlockHeight:{D}",
+                        result.Count,ForestIndexerConstants.MaxWriteDBRecord, nftInfoIndex, context.Block.BlockHeight);
+                    break;
+                }
                 userBalanceIndex.ListingPrice = nftInfoIndex.ListingPrice;
                 userBalanceIndex.ListingTime = nftInfoIndex.LatestListingTime;
                 _objectMapper.Map(context, userBalanceIndex);
@@ -482,7 +489,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
         queryable = queryable.Where(x=>x.BlockHeight > blockHeight && x.BlockHeight < temMaxBlockHeight);
         queryable = queryable.Where(x=>x.NFTInfoId == nftInfoIndex.Id );
 
-        var resultUserBalanceIndex = queryable.Skip(0).Take(100).OrderBy(o => o.BlockHeight).ToList();
+        var resultUserBalanceIndex = queryable.Skip(0).Take(100).OrderByDescending(o => o.BlockHeight).ToList();
         return resultUserBalanceIndex;
     }
 }

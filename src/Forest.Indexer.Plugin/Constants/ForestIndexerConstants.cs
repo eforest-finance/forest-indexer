@@ -90,4 +90,5 @@ public static partial class ForestIndexerConstants
     public const string GenesisContractAddressAELF = "";
     public const string GenesisContractAddressTDVV = "";
     public const string GenesisContractAddressTDVW = "";
+    public const int MaxWriteDBRecord = 80;
 }

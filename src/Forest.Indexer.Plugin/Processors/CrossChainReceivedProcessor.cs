@@ -95,9 +95,18 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
                 return;
             }
 
+            var writeCount = 0;
             //update RealQuantity
             foreach (var offerInfoIndex in result)
             {
+                writeCount++;
+                if (writeCount >= ForestIndexerConstants.MaxWriteDBRecord)
+                {
+                    Logger.LogInformation("CrossChainReceivedProcessor.UpdateOfferRealQualityAsync recordCount:{A} ,limit:{B}, offerFrom:{C},symbol:{D}, balance:{E}",
+                        result.Count,ForestIndexerConstants.MaxWriteDBRecord, offerFrom, symbol, balance);
+                    break;
+                }
+
                 if (symbol.Equals(offerInfoIndex!.PurchaseToken.Symbol))
                 {
                     var symbolTokenIndexId = IdGenerateHelper.GetId(context.ChainId, offerInfoIndex.BizSymbol);
@@ -374,7 +383,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         while (queryCount < MaxQueryCount)
         {
 
-            var result = queryable.Skip(skip).Take(MaxQuerySize).ToList();
+            var result = queryable.Skip(skip).Take(MaxQuerySize).OrderByDescending(x=>x.BlockHeight).ToList();
             if (result.IsNullOrEmpty())
             {
                 break;
@@ -388,9 +397,17 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
             queryCount++;
         }
 
+        var writeCount = 0;
         //update RealQuantity
         foreach (var nftListingInfoIndex in nftListings)
         {
+            writeCount++;
+            if (writeCount >= ForestIndexerConstants.MaxWriteDBRecord)
+            {
+                Logger.LogInformation("CrossChainReceivedProcessor.UpdateListingInfoRealQualityAsync recordCount:{A} ,limit:{B}, user:{C},symbol:{D}, balance:{E}",
+                    nftListings.Count,ForestIndexerConstants.MaxWriteDBRecord, ownerAddress, symbol, balance);
+                break;
+            }
             var realNftListingInfoIndex = await GetEntityAsync<NFTListingInfoIndex>(nftListingInfoIndex.Id);
             if (realNftListingInfoIndex == null) continue;
             var realQuantity = Math.Min(realNftListingInfoIndex.Quantity, balance);
