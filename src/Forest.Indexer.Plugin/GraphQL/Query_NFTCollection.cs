@@ -265,9 +265,9 @@ public partial class Query
 
     [Name("generateNFTCollectionExtensionById")]
     public static async Task<NFTCollectionExtensionResultDto> GenerateNFTCollectionExtensionById(
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolRepository,
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepository,
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepository,
+        [FromServices] IReadOnlyRepository<SeedSymbolIndex> seedSymbolRepository,
+        [FromServices] IReadOnlyRepository<NFTInfoIndex> nftInfoRepository,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
         [FromServices] ILogger<CollectionIndex> _logger,
         GetNFTCollectionGenerateDataDto dto)
     {
@@ -277,13 +277,10 @@ public partial class Query
                 await CountSeedSymbolIndexAsync(seedSymbolRepository, userBalanceRepository, _logger, dto.ChainId);
             return collectionExtensionResultDto;
         }
-        var mustQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>
-        {
-            q => q.Term(i => i.Field(f => f.ChainId)
-                .Value(dto.ChainId)),
-            q => q.Term(i => i.Field(f => f.CollectionSymbol)
-                .Value(dto.Symbol))
-        };
+        var queryable = await nftInfoRepository.GetQueryableAsync();
+        queryable = queryable.Where(f=>f.ChainId == dto.ChainId && f.CollectionSymbol == dto.Symbol);
+        
+        //todo V2 use script ,code:undo
         var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
         //Exclude 1.Burned All NFT ( supply = 0 and issued = totalSupply) 2.Create Failed (supply=0 and issued=0)
         mustNotQuery.Add(q => q
@@ -338,29 +335,21 @@ public partial class Query
      * Generate the number of accounts corresponding to nftIds
      */
     private static async Task GenerateUserCountByNFTIdsAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> repository,
         [FromServices] ILogger<CollectionIndex> _logger,
         HashSet<string> nftIds,
         HashSet<string> userSet)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Terms(i
-            => i.Field(f => f.NFTInfoId).Terms(nftIds)));
-        //query balance > 0 
-        mustQuery.Add(q => q.Range(i
-            => i.Field(f => f.Amount).GreaterThan(0)));
-
-        QueryContainer Filter(QueryContainerDescriptor<UserBalanceIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f=>nftIds.Contains(f.NFTInfoId) && f.Amount >0);
 
         var skipCount = 0;
         var dataList = new List<UserBalanceIndex>();
         do
         {
-            var result = await repository.GetListAsync(Filter, skip: skipCount, limit: QuerySize,
-                sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
-            _logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result.Item1);
-            dataList = result.Item2;
+            var result = queryable.Skip(skipCount).Take(QuerySize).OrderBy(o => o.BlockHeight).ToList();
+            _logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result?.Count);
+            dataList = result;
             if (dataList.IsNullOrEmpty())
             {
                 break;
@@ -374,18 +363,18 @@ public partial class Query
     }
     
     private static async Task<NFTCollectionExtensionResultDto> CountSeedSymbolIndexAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> repository,
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepository,
+        [FromServices] IReadOnlyRepository<SeedSymbolIndex> repository,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
         [FromServices] ILogger<CollectionIndex> _logger,
         string chainId)
     {
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.IsDeleteFlag == false && f.ChainId == chainId);
         var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>
         {
-            q => q.Term(i => 
-                i.Field(f => f.IsDeleteFlag).Value(false)),
-            q => q.Term(i => 
-                i.Field(f => f.ChainId).Value(chainId))
         };
+        
+        //todo V2 use script,code:undo
         var mustNotQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>();
         //Exclude 1.Burned All NFT ( supply = 0 and issued = totalSupply) 2.Create Failed (supply=0 and issued=0)
         mustNotQuery.Add(q => q

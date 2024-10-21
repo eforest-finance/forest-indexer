@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using AeFinder.Sdk;
 using AElfIndexer.Client;
 using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
@@ -149,8 +150,9 @@ public partial class Query
         return pageResult;
     }
     
+    //todo V2 use script ,code:undo
     private static async Task<List<string>> GetMatchedNftIdsAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceAppService,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceAppService,
         [FromServices] ILogger<UserBalanceIndex> logger,
         GetNFTInfosDto dto,
         string script)
@@ -189,9 +191,9 @@ public partial class Query
         logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
         return nftIds;
     }
-    
+    //todo V2 use script ,code:undo
     private static async Task<Tuple<long, List<string>>> GetMatchedNftIdsPageAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceAppService,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceAppService,
         [FromServices] ILogger<UserBalanceIndex> logger,
         GetNFTInfosDto dto,
         string script)

@@ -1,19 +1,17 @@
-using System.Linq.Expressions;
-using AElf;
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Nest;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
 
 public partial class Query
 {
-    [Name("seedBriefInfos")]
+    /*
+    [Obsolete("")]
+     [Name("seedBriefInfos")]
     public static async Task<SeedBriefInfoPageResultDto> SeedBriefInfos(
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<SeedSymbolIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetSeedBriefInfosDto dto)
     {
@@ -25,29 +23,29 @@ public partial class Query
                 Data = new List<SeedBriefInfoDto>()
             };
         }
+        var queryable = await repository.GetQueryableAsync();
+
         var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>();
         var shouldQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>();
         var shouldQuery2 = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>();
 
         if (!dto.SearchParam.IsNullOrWhiteSpace())
         {
-            shouldQuery2.Add(q => q.Term(i => i.Field(f => f.TokenName).Value(ForestIndexerConstants.SeedNamePrefix +ForestIndexerConstants.SymbolSeparator + dto.SearchParam)));
-            shouldQuery2.Add(q => q.Term(i => i.Field(f => f.TokenName).Value(dto.SearchParam)));
+            queryable = queryable.Where(f => f.TokenName == (ForestIndexerConstants.SeedNamePrefix +
+                                                          ForestIndexerConstants.SymbolSeparator + dto.SearchParam) || f.TokenName == dto.SearchParam);
         }
 
         if (!dto.ChainList.IsNullOrEmpty())
         {
-            mustQuery.Add(q => q.Terms(i => i.Field(f => f.ChainId).Terms(dto.ChainList)));
+            queryable = queryable.Where(f => dto.ChainList.Contains(f.ChainId));
         }
 
         if (!dto.SymbolTypeList.IsNullOrEmpty())
         {
-            mustQuery.Add(q => q.Terms(i => i.Field(f => f.TokenType).Terms(dto.SymbolTypeList)));
+            queryable = queryable.Where(f => dto.SymbolTypeList.Contains(f.TokenType));
         }
-        mustQuery.Add(q =>
-            q.Range(i => i.Field(f => f.Supply).GreaterThan(0)));
-        mustQuery.Add(q=>q.Bool(b=>b.Must(m => m.Term(i=>i.Field(f=>f.IsDeleteFlag).Value(false)))));
-        
+        queryable = queryable.Where(f => f.Supply > 0 && f.IsDeleteFlag == false);
+       
         if (!dto.HasListingFlag && !dto.HasAuctionFlag && !dto.HasOfferFlag)
         {
             AddQueryForMinListingPriceAndMaxAuctionPrice(mustQuery, shouldQuery, dto);
@@ -100,8 +98,9 @@ public partial class Query
         };
         return pageResult;
     }
+    */
 
-    private static List<SeedBriefInfoDto> ConvertMap(List<SeedSymbolIndex> resultList, GetSeedBriefInfosDto dto)
+    /*private static List<SeedBriefInfoDto> ConvertMap(List<SeedSymbolIndex> resultList, GetSeedBriefInfosDto dto)
     {
         if (resultList.IsNullOrEmpty() || dto == null)
         {
@@ -275,6 +274,7 @@ public partial class Query
                 q.Range(i => i.Field(f => f.MaxAuctionPrice).LessThanOrEquals(Convert.ToDouble(dto.PriceHigh))));
         }
     }
+    
 
     private static Func<SortDescriptor<SeedSymbolIndex>, IPromise<IList<ISort>>> GetSortForSeedBrife(string sorting)
     {
@@ -315,49 +315,50 @@ public partial class Query
 
         return s => promise;
     }
-    
+    */
     [Name("getSyncSeedSymbolRecords")]
     public static async Task<List<SeedSymbolSyncDto>> GetSyncSeedSymbolRecordsAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<SeedSymbolIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetChainBlockHeightDto dto)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Term(i
-            => i.Field(f => f.ChainId).Value(dto.ChainId)));
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f=>f.ChainId == dto.ChainId);
 
         if (dto.StartBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.StartBlockHeight)));
+            queryable = queryable.Where(f=>f.BlockHeight >= dto.StartBlockHeight);
         }
 
         if (dto.EndBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).LessThanOrEquals(dto.EndBlockHeight)));
+            queryable = queryable.Where(f=>f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<SeedSymbolIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
+        var result = queryable.OrderBy(o => o.BlockHeight).ToList();
+        if (result.IsNullOrEmpty())
+        {
+            return new List<SeedSymbolSyncDto>();
+        }
 
-        var result = await repository.GetListAsync(Filter, 
-            sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
-        return objectMapper.Map<List<SeedSymbolIndex>, List<SeedSymbolSyncDto>>(result.Item2);
+        return objectMapper.Map<List<SeedSymbolIndex>, List<SeedSymbolSyncDto>>(result);
     }
     
     [Name("getSyncSeedSymbolRecord")]
     public static async Task<SeedSymbolSyncDto> GetSyncSeedSymbolRecordAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<SeedSymbolIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetSyncSeedSymbolRecordDto dto)
     {
         if (dto == null || dto.Id.IsNullOrEmpty() || dto.ChainId.IsNullOrEmpty()) return null;
-        var result = await repository.GetAsync(dto.Id);
-        if (result == null)
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f=>f.Id == dto.Id);
+
+        var result = queryable.ToList();
+        if (result.IsNullOrEmpty())
         {
             return null;
         }
-        return objectMapper.Map<SeedSymbolIndex, SeedSymbolSyncDto>(result);
+        return objectMapper.Map<SeedSymbolIndex, SeedSymbolSyncDto>(result.FirstOrDefault());
     }
 }
