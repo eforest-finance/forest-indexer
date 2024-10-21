@@ -9,5 +9,9 @@ public class ForestIndexerAutoMapperProfile : Profile
     public ForestIndexerAutoMapperProfile()
     {
         CreateMap<MyEntity, MyEntityDto>();
+        CreateMap<SymbolMarketActivityIndex,SymbolMarkerActivityDto>();
+        CreateMap<CollectionIndex,NFTCollectionDto>();
+
+
     }
 }

@@ -1,6 +1,5 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
 using Nest;
@@ -25,16 +24,14 @@ public partial class Query
             };
         }
 
-        var mustQuery = new List<Func<QueryContainerDescriptor<SymbolMarketActivityIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Terms(i => i.Field(f => f.Address).Terms(dto.Address)));
-        mustQuery.Add(q => q.Terms(i => i.Field(f => f.Type).Terms(dto.Types)));
-        QueryContainer Filter(QueryContainerDescriptor<SymbolMarketActivityIndex> f) => f.Bool(b => b.Must(mustQuery));
-        var result = await symbolMarketActivityIndexRepository.GetListAsync(Filter, sortExp: k => k.TransactionDateTime,
-            sortType: SortOrder.Descending, skip: dto.SkipCount, limit: dto.MaxResultCount);
-        var dataList = objectMapper.Map<List<SymbolMarketActivityIndex>, List<SymbolMarkerActivityDto>>(result.Item2);
+        var queryable = await symbolMarketActivityIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(q => dto.Address.Contains(q.Address) && dto.Types.Contains(q.Type));
+        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount).OrderByDescending(k=>k.TransactionDateTime).ToList();
+        
+        var dataList = objectMapper.Map<List<SymbolMarketActivityIndex>, List<SymbolMarkerActivityDto>>(result);
         var pageResult = new SymbolMarkerActivityPageResultDto
         {
-            TotalRecordCount = result.Item1,
+            TotalRecordCount = result.Count,
             Data = dataList
         };
         return pageResult;
