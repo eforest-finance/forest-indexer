@@ -23,6 +23,11 @@ public class NFTActivityIndex : AeFinderEntity, IAeFinderEntity
     
     public DateTime Timestamp { get; set; }
     public TokenInfoIndex PriceTokenInfo { get; set; }
+    
+    [Keyword]
+    public string ChainId { get; set; }
+
+    public long BlockHeight { get; set; }
 }
 
 

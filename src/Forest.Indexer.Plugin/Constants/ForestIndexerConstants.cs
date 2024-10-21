@@ -29,6 +29,7 @@ public static partial class ForestIndexerConstants
     public const string SeedZeroIdPattern = @"^[a-zA-Z]{4}-SEED-0$";
 
     public const int MaxCountNumber = 180;
+    public const int DefaultMaxCountNumber = 1000;
 
     public const int NFTInfoQueryStatusDefault = 0;
     public const int NFTInfoQueryStatusBuy = 1;

@@ -7,12 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AeFinder.Sdk" Version="1.2.0"/>
+        <PackageReference Include="AeFinder.Sdk" Version="1.2.0" />
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="enums\"/>
-        <Folder Include="Handlers"/>
-        <Folder Include="Processors\Provider\"/>
+        <Folder Include="enums\" />
+        <Folder Include="Handlers" />
+        <Folder Include="Processors\Provider\" />
     </ItemGroup>
 
 </Project>

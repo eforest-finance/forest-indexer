@@ -24,5 +24,9 @@ public static class ForestQueryFilters
             && index.OfferFrom == eventValue.OfferFrom.ToBase58();
     }
     
+    public static Expression<Func<SeedSymbolIndex, bool>> SeedExpTimeAfterMust(DateTime utcNow)
+    {
+        return a => a.SeedExpTime > utcNow;
+    }
     
 }
