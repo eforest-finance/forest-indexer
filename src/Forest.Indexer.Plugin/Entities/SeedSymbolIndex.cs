@@ -5,7 +5,7 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class SeedSymbolIndex: TokenInfoBase, IAeFinderEntity
+public abstract class SeedSymbolIndex: TokenInfoBase, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     [Wildcard] public string SeedOwnedSymbol { get; set; }
@@ -78,7 +78,18 @@ public class SeedSymbolIndex: TokenInfoBase, IAeFinderEntity
     [Keyword] public string MaxOfferId { get; set; }
     
     [Keyword] public string SeedImage { get; set; }
-    
+    [Keyword]
+    public string ChainId { get; set; }
+
+    [Keyword]
+    public string BlockHash { get; set; }
+
+    public long BlockHeight { get; set; }
+
+    [Keyword]
+    public string PreviousBlockHash { get; set; }
+
+    public bool IsDeleted { get; set; }
     public void OfMinNftListingInfo(NFTListingInfoIndex minNftListing)
     {
         HasListingFlag = minNftListing != null;

@@ -1,4 +1,4 @@
-using AElf.Contracts.Whitelist;
+/*using AElf.Contracts.Whitelist;
 using AElfIndexer.Client;
 using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
@@ -8,13 +8,13 @@ using Nest;
 using Newtonsoft.Json;
 using Orleans.Runtime;
 using Volo.Abp;
-using Volo.Abp.ObjectMapping;
+using Volo.Abp.ObjectMapping;*/
 
 namespace Forest.Indexer.Plugin.GraphQL;
 
 public partial class Query
 {
-    
+    /*[Obsolete("")]
     [Name("nftListingWhitelistPrices")]
     public static async Task<NFTListingWhitelistPricePageResultDto> NftListingWhitelistPrices(
         [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftRepo,
@@ -168,6 +168,6 @@ public partial class Query
             logger.LogError(e, "nftListingWhitelistPrices ERROR");
             throw;
         }
-    }
+    }*/
 
 }

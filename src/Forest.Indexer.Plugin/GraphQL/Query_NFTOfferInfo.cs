@@ -1,11 +1,9 @@
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors;
 using GraphQL;
 using Microsoft.Extensions.Logging;
 using Nest;
-using Orleans.Runtime;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -24,12 +22,12 @@ public partial class Query
     
     [Name("getExpiredNftMaxOffer")]
     public static async Task<List<ExpiredNftMaxOfferDto>> GetNftMaxOfferAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> nftOfferRepository,
+        [FromServices] IReadOnlyRepository<OfferInfoIndex> nftOfferRepository,
         [FromServices] INFTInfoProvider nftInfoProvider,
         [FromServices] ILogger<OfferInfoIndex> logger,
         GetExpiredNftMaxOfferDto input)
     {
-        logger.Debug($"[getNftMaxOffer] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
+        logger.LogDebug($"[getNftMaxOffer] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
         
         var offerQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
 
@@ -47,7 +45,7 @@ public partial class Query
         QueryContainer Filter(QueryContainerDescriptor<OfferInfoIndex> f) => f.Bool(b => b.Must(offerQuery));
         
         var result = await nftOfferRepository.GetSortListAsync(Filter, skip: 0);
-        logger.Debug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result.Item1}");
+        logger.LogDebug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result.Item1}");
         
         List<ExpiredNftMaxOfferDto> data = new();
         foreach (var item in result.Item2)
@@ -88,10 +86,12 @@ public partial class Query
 
     [Name("getNftOfferChange")]
     public static async Task<List<NFTOfferChangeDto>> GetNFTOfferChangeAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTOfferChangeIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<NFTOfferChangeIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNFTOfferChangeDto dto)
     {
+        var queryable = await repository.GetQueryableAsync();
+
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTOfferChangeIndex>, QueryContainer>>
         {
             q => q.Range(i
@@ -99,12 +99,16 @@ public partial class Query
             q => q.Term(i 
                 => i.Field(f => f.ChainId).Value(dto.ChainId))
         };
-        var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTOfferChangeIndex>, QueryContainer>>();
-        mustNotQuery.Add(q => q.Term(i => i.Field(index => index.NftId).Value(IdGenerateHelper.GetNFTInfoId(dto.ChainId, ForestIndexerConstants.TokenSimpleElf))));
-        
-        QueryContainer Filter(QueryContainerDescriptor<NFTOfferChangeIndex> f) => f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
-        var result = await repository.GetListAsync(Filter, sortExp: o => o.BlockHeight);
-        
-        return objectMapper.Map<List<NFTOfferChangeIndex>, List<NFTOfferChangeDto>>(result.Item2);
+        queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
+        queryable = queryable.Where(f => f.ChainId == dto.ChainId);
+        queryable = queryable.Where(index => index.NftId != IdGenerateHelper.GetNFTInfoId(dto.ChainId, ForestIndexerConstants.TokenSimpleElf));
+
+        var result = queryable.OrderBy(o => o.BlockHeight).ToList();
+        if (result.IsNullOrEmpty())
+        {
+            return new List<NFTOfferChangeDto>();
+        }
+
+        return objectMapper.Map<List<NFTOfferChangeIndex>, List<NFTOfferChangeDto>>(result);
     }
 }

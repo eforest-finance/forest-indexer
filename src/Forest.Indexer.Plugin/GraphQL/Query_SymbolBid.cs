@@ -1,14 +1,7 @@
-using AElfIndexer.Client;
-using AElfIndexer.Client.Providers;
-using AElfIndexer.Grains;
-using AElfIndexer.Grains.Grain.Client;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
 using Microsoft.Extensions.Logging;
-using Nest;
-using Newtonsoft.Json;
-using Orleans;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -19,65 +12,62 @@ public partial class Query
 
     [Name("getSymbolAuctionInfos")]
     public static async Task<List<SymbolAuctionInfoDto>> GetSymbolAuctionInfoAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<SymbolAuctionInfoIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<SymbolAuctionInfoIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetChainBlockHeightDto dto
     )
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<SymbolAuctionInfoIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Term(i
-            => i.Field(f => f.ChainId).Value(dto.ChainId)));
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f=>f.ChainId == dto.ChainId);
 
         if (dto.StartBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.StartBlockHeight)));
+            queryable = queryable.Where(f=>f.BlockHeight >= dto.StartBlockHeight);
         }
 
         if (dto.EndBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).LessThanOrEquals(dto.EndBlockHeight)));
+            queryable = queryable.Where(f=>f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<SymbolAuctionInfoIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
+        var result = queryable.Skip(0).Take(QueryCurrentSize).OrderBy(o => o.BlockHeight).ToList();
+        if (result.IsNullOrEmpty())
+        {
+            return new List<SymbolAuctionInfoDto>();
+        }
 
-        var result = await repository.GetListAsync(Filter, skip: 0, limit: QueryCurrentSize, sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
-        return objectMapper.Map<List<SymbolAuctionInfoIndex>, List<SymbolAuctionInfoDto>>(result.Item2);
+        return objectMapper.Map<List<SymbolAuctionInfoIndex>, List<SymbolAuctionInfoDto>>(result);
     }
 
 
     [Name("getSymbolBidInfos")]
     public static async Task<List<SymbolBidInfoDto>> GetSymbolBidInfosAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<SymbolBidInfoIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<SymbolBidInfoIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] ILogger<SymbolBidInfoIndex> logger,
         GetChainBlockHeightDto dto
     )
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<SymbolBidInfoIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Term(i
-            => i.Field(f => f.ChainId).Value(dto.ChainId)));
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f=>f.ChainId == dto.ChainId);
 
         if (dto.StartBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.StartBlockHeight)));
+            queryable = queryable.Where(f=>f.BlockHeight >= dto.StartBlockHeight);
         }
 
         if (dto.EndBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).LessThanOrEquals(dto.EndBlockHeight)));
+            queryable = queryable.Where(f=>f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<SymbolBidInfoIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
+        var result = queryable.Skip(0).Take(QueryCurrentSize).OrderBy(o => o.BlockHeight).ToList();
+        var symbolBidInfoIndices = result;
+        if (symbolBidInfoIndices.IsNullOrEmpty())
+        {
+            return new List<SymbolBidInfoDto>();
+        }
 
-        var result = await repository.GetListAsync(Filter, skip: 0, limit: QueryCurrentSize, sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
-        var symbolBidInfoIndices = result.Item2;
-        
         return objectMapper.Map<List<SymbolBidInfoIndex>, List<SymbolBidInfoDto>>(symbolBidInfoIndices);
     }
 }

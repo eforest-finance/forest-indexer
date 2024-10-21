@@ -1,6 +1,6 @@
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.enums;
-using Volo.Abp.Application.Dtos;
+using Forest.Indexer.Plugin.GraphQLL;
 
 namespace Forest.Indexer.Plugin.GraphQL;
 
