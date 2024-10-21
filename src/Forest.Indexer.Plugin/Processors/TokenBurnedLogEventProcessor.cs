@@ -1,3 +1,4 @@
+using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using AElf.Contracts.MultiToken;
@@ -15,17 +16,18 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
     private readonly IObjectMapper _objectMapper;
     private readonly ILogger<TokenBurnedLogEventProcessor> _logger;
     private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
-    private readonly INFTOfferProvider _nftOfferProvider;
+    private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
 
     public TokenBurnedLogEventProcessor(ILogger<TokenBurnedLogEventProcessor> logger
         , IObjectMapper objectMapper
         ,IAElfClientServiceProvider aElfClientServiceProvider,
-        INFTOfferProvider nftOfferProvider)
+        IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository)
     {
         _logger = logger;
         _objectMapper = objectMapper;
         _aElfClientServiceProvider = aElfClientServiceProvider;
-        _nftOfferProvider = nftOfferProvider;
+        _nftOfferIndexRepository = nftOfferIndexRepository;
+        
     }
 
     public override string GetContractAddress(string chainId)
@@ -40,7 +42,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         if (eventValue == null) return;
         if (context == null) return;
         var needRecordBalance =
-            await _nftOfferProvider.NeedRecordBalance(eventValue.Symbol, eventValue.Burner.ToBase58(),
+            await NeedRecordBalance(eventValue.Symbol, eventValue.Burner.ToBase58(),
                 context.ChainId);
         if (!needRecordBalance)
         {
@@ -49,7 +51,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol,
             eventValue.Burner.ToBase58(),
             -eventValue.Amount, context);
-        await _nftOfferProvider.UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context);
+        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context);
         
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
@@ -72,6 +74,113 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         
         await HandleForSeedTokenAsync(eventValue, context);
         
+    }
+    public async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
+    {
+        if (!SymbolHelper.CheckSymbolIsELF(symbol))
+        {
+            return true;
+        }
+
+        if (ForestIndexerConstants.NeedRecordBalanceOptionsAddressList.Contains(offerFrom))
+        {
+            return true;
+        } 
+
+        var num = 0;
+        var offerNumId = IdGenerateHelper.GetOfferNumId(chainId, offerFrom);
+        var nftOfferNumIndex =
+            await GetEntityAsync<UserNFTOfferNumIndex>(offerNumId);
+        if (nftOfferNumIndex == null)
+        {
+            num = 0;
+        }
+
+        num = nftOfferNumIndex.OfferNum;
+        if (num > 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    private async Task UpdateOfferRealQualityAsync(string symbol, long balance, string offerFrom,
+        LogEventContext context)
+    {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+        if (!SymbolHelper.CheckSymbolIsELF(symbol))
+        {
+            return;
+        }
+        int skip = 0;
+        int limit = 80;
+        
+        {
+            var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
+            var utcNow = DateTime.UtcNow;
+            
+            queryable = queryable.Where(i => i.ExpireTime > utcNow);
+            queryable = queryable.Where(i => i.PurchaseToken.Symbol == symbol);
+            queryable = queryable.Where(i => i.ChainId == context.ChainId);
+            queryable = queryable.Where(i => i.OfferFrom == offerFrom);
+
+            var result = queryable.OrderByDescending(i => i.Price)
+                .Skip(skip)
+                .Take(limit)
+                .ToList();
+
+            if (result.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            var tokenIndexId = IdGenerateHelper.GetId(context.ChainId, symbol);
+            var tokenIndex = await GetEntityAsync<TokenInfoIndex>(tokenIndexId);
+            if (tokenIndex == null)
+            {
+                return;
+            }
+
+            //update RealQuantity
+            foreach (var offerInfoIndex in result)
+            {
+                if (symbol.Equals(offerInfoIndex!.PurchaseToken.Symbol))
+                {
+                    var symbolTokenIndexId = IdGenerateHelper.GetId(context.ChainId, offerInfoIndex.BizSymbol);
+                    var symbolTokenInfo =
+                        await GetEntityAsync<TokenInfoIndex>(symbolTokenIndexId);
+                    
+                    var canBuyNum = Convert.ToInt64(Math.Floor(Convert.ToDecimal(balance) /
+                                                               (offerInfoIndex.Price *
+                                                                (decimal)Math.Pow(10,
+                                                                    tokenIndex.Decimals))));
+                    canBuyNum = (long)(canBuyNum * (decimal)Math.Pow(10, symbolTokenInfo.Decimals));
+                    _logger.LogInformation(
+                        "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
+                        offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
+                    
+                    var realQuantity = Math.Min(offerInfoIndex.Quantity,
+                        canBuyNum);
+                    if (realQuantity != offerInfoIndex.RealQuantity)
+                    {
+                        offerInfoIndex.RealQuantity = realQuantity;
+                        _objectMapper.Map(context, offerInfoIndex);
+                        var research = GetEntityAsync<OfferInfoIndex>(offerInfoIndex.Id);
+                        if (research == null)
+                        {
+                            _logger.LogInformation(
+                                "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
+                                offerInfoIndex.Id);
+                            continue;
+                        }
+                        await SaveEntityAsync(offerInfoIndex);
+                    }
+                }
+            }
+        } 
     }
 
     private async Task SaveNFTOfferChangeIndexAsync(LogEventContext context, string symbol, EventType eventType)

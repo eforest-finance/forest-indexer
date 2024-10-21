@@ -323,11 +323,40 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
 
         _objectMapper.Map(context, seedCollectionIndex);
 
-        // seedCollectionIndex = await _proxyAccountProvider.FillProxyAccountInfoForNFTCollectionIndexAsync
-        //     (seedCollectionIndex, context.ChainId); todo v2
+        seedCollectionIndex = await FillProxyAccountInfoForNFTCollectionIndexAsync
+            (seedCollectionIndex, context.ChainId);
         
         await SaveEntityAsync(seedCollectionIndex);
     }
+    
+    private async Task<CollectionIndex> FillProxyAccountInfoForNFTCollectionIndexAsync(
+        CollectionIndex collectionIndex,
+        string chainId)
+    {
+        if (collectionIndex == null || chainId.IsNullOrEmpty())
+            return collectionIndex;
+        if (collectionIndex.Owner.IsNullOrEmpty())
+            collectionIndex.Owner = collectionIndex.Issuer;
+        var proxyAccountId = IdGenerateHelper.GetProxyAccountIndexId(collectionIndex.Owner);
+        var proxyAccount = await GetEntityAsync<ProxyAccountIndex>(proxyAccountId);
+
+        return FillNFTCollectionIndex(collectionIndex, proxyAccount);
+    }
+    private CollectionIndex FillNFTCollectionIndex(CollectionIndex collectionIndex,
+        ProxyAccountIndex proxyAccountIndex)
+    {
+        if (collectionIndex == null) return collectionIndex;
+
+        if (proxyAccountIndex != null)
+            collectionIndex.OwnerManagerSet = proxyAccountIndex.ManagersSet;
+        else
+            collectionIndex.OwnerManagerSet = new HashSet<string> { collectionIndex.Owner };
+
+        collectionIndex.RandomOwnerManager = collectionIndex.OwnerManagerSet?.FirstOrDefault("");
+
+        return collectionIndex;
+    }
+
 
     private async Task HandleForSeedSymbolCreateAsync(TokenCreated eventValue, LogEventContext context,
         TsmSeedSymbolIndex tsmSeedSymbolIndex)
