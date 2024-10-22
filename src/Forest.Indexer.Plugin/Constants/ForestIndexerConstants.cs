@@ -87,7 +87,7 @@ public static partial class ForestIndexerConstants
     public const string AuctionContractAddressTDVV = "";
     public const string AuctionContractAddressTDVW = "1EFmvua5WQiv15N3xF4egEUvkvLGNWHdoYLMcbXdaXxzrGmA";
     //test
-    public const string SymbolRegistrarContractAddressAELF = "SRVEHfZoiifcHYfnTagJvtW3QtkGnVo1rEEssKk8hirHX8xed";\
+    public const string SymbolRegistrarContractAddressAELF = "SRVEHfZoiifcHYfnTagJvtW3QtkGnVo1rEEssKk8hirHX8xed";
     //prod
     //public const string SymbolRegistrarContractAddressAELF = "";
 
