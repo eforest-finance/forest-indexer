@@ -11,6 +11,7 @@ public class ForestIndexerPluginModule: AbpModule
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         Configure<AbpAutoMapperOptions>(options => { options.AddMaps<ForestIndexerPluginModule>(); });
+
         context.Services.AddSingleton<ISchema, ForestIndexerPluginSchema>();
         
         // Add your LogEventProcessor implementation.

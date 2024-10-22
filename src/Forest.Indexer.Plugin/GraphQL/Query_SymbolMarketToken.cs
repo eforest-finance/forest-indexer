@@ -2,7 +2,6 @@ using AeFinder.Sdk;
 using AElf;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Nest;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -27,7 +26,7 @@ public partial class Query
         var queryable = await symbolMarketTokenIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(f => f.SameChainFlag == true);
         
-        var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolMarketTokenIndex>, QueryContainer>>();
+        //var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolMarketTokenIndex>, QueryContainer>>();
         //todo V2, need test q.Exists(exists => exists.Field(f => f.Symbol))
         /*mustQuery.Add(q => q.Exists(exists => exists
                                .Field(f => f.Symbol))

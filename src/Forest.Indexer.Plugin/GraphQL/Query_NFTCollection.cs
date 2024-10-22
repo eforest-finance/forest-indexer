@@ -3,7 +3,6 @@ using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors.Provider;
 using GraphQL;
-using Nest;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -274,7 +273,7 @@ public partial class Query
         queryable = queryable.Where(f=>f.ChainId == dto.ChainId && f.CollectionSymbol == dto.Symbol);
         
         //todo V2 use script ,code:undo
-        var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
+        // var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
         //Exclude 1.Burned All NFT ( supply = 0 and issued = totalSupply) 2.Create Failed (supply=0 and issued=0)
         queryable = queryable.Where(f => !(f.Supply ==0  && f.Issued == f.TotalSupply) && !(f.Supply==0 && f.Issued == 0));
         queryable = queryable.Where(f => f.Supply/Math.Pow(10, f.Decimals) >=1);

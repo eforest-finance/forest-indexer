@@ -5,7 +5,6 @@ using AElf.CSharp.Core.Extension;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
 using Newtonsoft.Json;
-using Volo.Abp;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
@@ -47,11 +46,17 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
         {
             var listingNftInfoIndex = await GetEntityAsync<NFTListingInfoIndex>(listedNftIndexId);
             if (listingNftInfoIndex != null)
-                throw new UserFriendlyException("listingInfo EXISTS");
+            {
+                Logger.LogError("listingInfo EXISTS");
+                return;
+            }
 
             var tokenIndex = await GetEntityAsync<TokenInfoIndex>(purchaseTokenId);
             if (tokenIndex == null)
-                throw new UserFriendlyException($"purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND");
+            {
+                Logger.LogError($"purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND");
+                return;
+            }
 
             listingNftInfoIndex = _objectMapper.Map<ListedNFTAdded, NFTListingInfoIndex>(eventValue);
             listingNftInfoIndex.Id = listedNftIndexId;
@@ -103,7 +108,6 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
                 Timestamp = context.Block.BlockTime,
                 NftInfoId = updateListedInfoResponse.NftInfoId
             });
-            if (!activitySaved) throw new UserFriendlyException("Activity SAVE FAILED");
         }
         catch (Exception e)
         {

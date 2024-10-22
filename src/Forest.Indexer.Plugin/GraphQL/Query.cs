@@ -1,9 +1,7 @@
-using AeFinder.App;
 using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using GraphQL;
-using Nest;
 using Volo.Abp.ObjectMapping;
 using DateTime = System.DateTime;
 
@@ -14,27 +12,27 @@ public partial class Query
     private const string SortTypeNumber = "number";
     private const string SortScriptSourceValueLength = "doc['seedOwnedSymbol'].value.length()";
     
-    [Name("syncState")]
-    public static async Task<SyncStateDto> SyncState(
-        [FromServices] IClusterClient clusterClient, [FromServices] IAppInfoProvider clientInfoProvider,
-        [FromServices] IObjectMapper objectMapper, GetSyncStateDto dto)
-    {
-        // var version = clientInfoProvider.Version;
-        // var clientId = clientInfoProvider.AppId;
-        // var blockStateSetInfoGrain =
-        //     clusterClient.GetGrain<IBlockStateSetInfoGrain>(
-        //         GrainIdHelper.GenerateGrainId("BlockStateSetInfo", clientId, dto.ChainId, version));
-        // var confirmedHeight = await blockStateSetInfoGrain.GetConfirmedBlockHeight(dto.FilterType);
-        // return new SyncStateDto
-        // {
-        //     ConfirmedBlockHeight = confirmedHeight todo v2
-        // };
-        return new SyncStateDto
-        {
-            ConfirmedBlockHeight = 0
-        };
-
-    }
+    // [Name("syncState")]
+    // public static async Task<SyncStateDto> SyncState(
+    //     [FromServices] IClusterClient clusterClient, [FromServices] IAppInfoProvider clientInfoProvider,
+    //     [FromServices] IObjectMapper objectMapper, GetSyncStateDto dto)
+    // {
+    //     var version = clientInfoProvider.Version;
+    //     var clientId = clientInfoProvider.AppId;
+    //     var blockStateSetInfoGrain =
+    //         clusterClient.GetGrain<IBlockStateSetInfoGrain>(
+    //             GrainIdHelper.GenerateGrainId("BlockStateSetInfo", clientId, dto.ChainId, version));
+    //     var confirmedHeight = await blockStateSetInfoGrain.GetConfirmedBlockHeight(dto.FilterType);
+    //     return new SyncStateDto
+    //     {
+    //         ConfirmedBlockHeight = confirmedHeight todo v2
+    //     };
+    //     return new SyncStateDto
+    //     {
+    //         ConfirmedBlockHeight = 0
+    //     };
+    //
+    // }
 
     [Name("nftOffers")]
     public static async Task<NftOfferPageResultDto> NftOffers(

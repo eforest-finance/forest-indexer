@@ -1,7 +1,6 @@
 using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Nest;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -112,7 +111,7 @@ public partial class Query
     {
         var queryable = await userBalanceRepo.GetQueryableAsync();
 
-        var userBalanceQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
+        // var userBalanceQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
         if (!input.ChainId.IsNullOrEmpty())
         {
             queryable = queryable.Where(q=>q.ChainId == input.ChainId);

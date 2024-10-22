@@ -1,6 +1,5 @@
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
-using Drop.Indexer.Plugin.Processors;
 using Forest.Contracts.Auction;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;

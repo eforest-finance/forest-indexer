@@ -1,5 +1,4 @@
 using AeFinder.App.TestBase;
-using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Modularity;
 
 namespace Forest.Indexer.Plugin;

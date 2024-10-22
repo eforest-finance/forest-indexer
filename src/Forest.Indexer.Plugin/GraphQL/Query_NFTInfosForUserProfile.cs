@@ -2,7 +2,6 @@ using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Nest;
 
 namespace Forest.Indexer.Plugin.GraphQL;
 
@@ -202,7 +201,7 @@ public partial class Query
         var queryable = await userBalanceAppService.GetQueryableAsync();
 
         var nftIds = new List<string>();
-        var userBalanceMustNotQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
+        // var userBalanceMustNotQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
         queryable = queryable.Where(f => f.Address == dto.Address && f.Amount > 0);
         queryable = queryable.Where(f=>f.ChainId != ForestIndexerConstants.MainChain);
         queryable = queryable.Where(f => !f.Symbol.StartsWith("SGR-"));

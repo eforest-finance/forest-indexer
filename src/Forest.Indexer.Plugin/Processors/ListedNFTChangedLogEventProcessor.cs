@@ -42,13 +42,18 @@ public class ListedNFTChangedLogEventProcessor : LogEventProcessorBase<ListedNFT
         {
             var listedNFTIndex = await GetEntityAsync<NFTListingInfoIndex>(listedNftIndexId);
             if (listedNFTIndex == null)
-                throw new UserFriendlyException("nftInfo NOT FOUND");
-            
-            
+            {
+                Logger.LogError("nftInfo NOT FOUND");
+                return;
+            }
+
             var purchaseTokenId = IdGenerateHelper.GetId(context.ChainId, eventValue.Price.Symbol);
             var tokenIndex = await GetEntityAsync<TokenInfoIndex>(purchaseTokenId);
             if (tokenIndex == null)
-                throw new UserFriendlyException($"Purchase token {context.ChainId}-{eventValue.Price.Symbol} NOT FOUND");
+            {
+                Logger.LogError($"Purchase token {context.ChainId}-{eventValue.Price.Symbol} NOT FOUND");
+                return;
+            }
                                 
             listedNFTIndex.Prices = eventValue.Price.Amount / (decimal)Math.Pow(10, tokenIndex.Decimals);
             listedNFTIndex.PurchaseToken = tokenIndex;

@@ -64,9 +64,12 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
         var purchaseTokenId = IdGenerateHelper.GetId(context.ChainId, symbolAuctionInfoIndex.FinishPrice.Symbol);
         
         var tokenIndex = await GetEntityAsync<TokenInfoIndex>(purchaseTokenId);
-        if (tokenIndex == null) 
-            throw new UserFriendlyException("ClaimedProcessor purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND",context.ChainId,purchaseTokenId);
-        
+        if (tokenIndex == null)
+        {
+            Logger.LogError("ClaimedProcessor purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND",context.ChainId,purchaseTokenId);
+            return;
+        }
+
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, seedSymbolIndex.Symbol, NFTActivityType.PlaceBid.ToString(), context.Transaction.TransactionId);
         var activitySaved = await AddNFTActivityAsync(context, new NFTActivityIndex

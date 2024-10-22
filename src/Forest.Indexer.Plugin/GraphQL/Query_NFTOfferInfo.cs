@@ -3,7 +3,6 @@ using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors;
 using GraphQL;
-using Nest;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -82,13 +81,13 @@ public partial class Query
     {
         var queryable = await repository.GetQueryableAsync();
 
-        var mustQuery = new List<Func<QueryContainerDescriptor<NFTOfferChangeIndex>, QueryContainer>>
-        {
-            q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.BlockHeight)),
-            q => q.Term(i 
-                => i.Field(f => f.ChainId).Value(dto.ChainId))
-        };
+        // var mustQuery = new List<Func<QueryContainerDescriptor<NFTOfferChangeIndex>, QueryContainer>>
+        // {
+        //     q => q.Range(i
+        //         => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.BlockHeight)),
+        //     q => q.Term(i 
+        //         => i.Field(f => f.ChainId).Value(dto.ChainId))
+        // };
         queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
         queryable = queryable.Where(f => f.ChainId == dto.ChainId);
         queryable = queryable.Where(index => index.NftId != IdGenerateHelper.GetNFTInfoId(dto.ChainId, ForestIndexerConstants.TokenSimpleElf));
