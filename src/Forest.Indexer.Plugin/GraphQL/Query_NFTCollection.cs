@@ -1,13 +1,7 @@
-using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
-using Forest.Indexer.Plugin.Processors.Provider;
 using GraphQL;
-using IdentityServer4.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Nest;
 using Volo.Abp.ObjectMapping;
 
@@ -283,26 +277,18 @@ public partial class Query
         //todo V2 use script ,code:undo
         var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
         //Exclude 1.Burned All NFT ( supply = 0 and issued = totalSupply) 2.Create Failed (supply=0 and issued=0)
-        mustNotQuery.Add(q => q
-            .Script(sc => sc
-                .Script(script =>
-                    script.Source(
-                        $"{ForestIndexerConstants.BurnedAllNftScript} || {ForestIndexerConstants.CreateFailedANftScript} || {ForestIndexerConstants.IssuedLessThenOneANftScript}")
-                )
-            )
-        );
-        QueryContainer Filter(QueryContainerDescriptor<NFTInfoIndex> f) =>
-            f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
+        queryable = queryable.Where(f => !(f.Supply ==0  && f.Issued == f.TotalSupply) && !(f.Supply==0 && f.Issued == 0));
+        queryable = queryable.Where(f => f.Supply/Math.Pow(10, f.Decimals) >=1);
+        
         var itemTotal = 0;
         var nftIdsSet = new HashSet<string>();
         var dataList = new List<NFTInfoIndex>();
         do
         {
-            var result = await nftInfoRepository.GetListAsync(Filter, skip: itemTotal, limit: QuerySize,
-                sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
-            _logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",
-                result.Item1);
-            dataList = result.Item2;
+            var result = queryable.Skip(itemTotal).Take(QuerySize).OrderBy(o => o.BlockHeight).ToList();
+            var count = result.IsNullOrEmpty() ? 0 : result.Count;
+            _logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",count);
+            dataList = result;
             if (dataList.IsNullOrEmpty())
             {
                 break;
@@ -370,31 +356,18 @@ public partial class Query
     {
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f => f.IsDeleteFlag == false && f.ChainId == chainId);
-        var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>
-        {
-        };
-        
-        //todo V2 use script,code:undo
-        var mustNotQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>();
         //Exclude 1.Burned All NFT ( supply = 0 and issued = totalSupply) 2.Create Failed (supply=0 and issued=0)
-        mustNotQuery.Add(q => q
-            .Script(sc => sc
-                .Script(script =>
-                    script.Source($"{ForestIndexerConstants.BurnedAllNftScript} || {ForestIndexerConstants.CreateFailedANftScript}")
-                )
-            )
-        );
-        
-        QueryContainer Filter(QueryContainerDescriptor<SeedSymbolIndex> f) =>
-            f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
+        queryable = queryable.Where(f => !(f.Supply ==0  && f.Issued == f.TotalSupply) && !(f.Supply==0 && f.Issued == 0));
+
         var itemTotal = 0;
         var nftIdsSet = new HashSet<string>();
         List<SeedSymbolIndex> dataList;
         do
         {
-            var result = await repository.GetListAsync(Filter, skip: itemTotal, limit: QuerySize);
-            _logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", result.Item1);
-            dataList = result.Item2;
+            var result = queryable.Skip(itemTotal).Take(QuerySize).ToList();
+            var count = result.IsNullOrEmpty() ? 0 : result.Count;
+            _logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", count);
+            dataList = result;
             if (dataList.IsNullOrEmpty())
             {
                 break;
