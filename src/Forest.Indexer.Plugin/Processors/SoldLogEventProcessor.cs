@@ -1,3 +1,4 @@
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
@@ -11,18 +12,15 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
 
 {
     private readonly ILogger<SoldLogEventProcessor> _logger;
-    private readonly INFTInfoProvider _nftInfoProvider;
     private readonly IObjectMapper _objectMapper;
 
 
     public SoldLogEventProcessor(
         ILogger<SoldLogEventProcessor> logger,
-        IObjectMapper objectMapper,
-        INFTInfoProvider nftInfoProvider)
+        IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
         _logger = logger;
-        _nftInfoProvider = nftInfoProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -126,7 +124,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
         // NFT activity
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, eventValue.NftSymbol, "SOLD", soldIndexId);
-        var activitySaved = await _nftInfoProvider.AddNFTActivityAsync(context, new NFTActivityIndex
+        var activitySaved = await AddNFTActivityAsync(context, new NFTActivityIndex
             {
                 Id = nftActivityIndexId,
                 Type = NFTActivityType.Sale,
@@ -176,6 +174,29 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
                 await SaveEntityAsync(nftInfo);
             }
         }
+    }
+    
+    private async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
+    {
+        // NFT activity
+        var nftActivityIndexExists = await GetEntityAsync<NFTActivityIndex>(nftActivityIndex.Id);
+        if (nftActivityIndexExists != null)
+        {
+            Logger.LogDebug("[AddNFTActivityAsync] FAIL: activity EXISTS, nftActivityIndexId={Id}", nftActivityIndex.Id);
+            return false;
+        }
+
+        var from = nftActivityIndex.From;
+        var to = nftActivityIndex.To;
+        _objectMapper.Map(context, nftActivityIndex);
+        nftActivityIndex.From = FullAddressHelper.ToFullAddress(from, context.ChainId);
+        nftActivityIndex.To = FullAddressHelper.ToFullAddress(to, context.ChainId);
+
+        Logger.LogDebug("[AddNFTActivityAsync] SAVE: activity SAVE, nftActivityIndexId={Id}", nftActivityIndex.Id);
+        await SaveEntityAsync(nftActivityIndex);
+
+        Logger.LogDebug("[AddNFTActivityAsync] SAVE: activity FINISH, nftActivityIndexId={Id}", nftActivityIndex.Id);
+        return true;
     }
 
     private async Task CalculateMarketData(string nftInfoId, int quantity, decimal totalPrice, LogEventContext context)

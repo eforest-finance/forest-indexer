@@ -18,7 +18,6 @@ public class ProxyAccountManagementAddressRemovedLogEventProcessor : LogEventPro
 
     public ProxyAccountManagementAddressRemovedLogEventProcessor(
         ILogger<ProxyAccountManagementAddressRemovedLogEventProcessor> logger,
-        IProxyAccountProvider proxyAccountProvider,
         IObjectMapper objectMapper,
         IReadOnlyRepository<CollectionIndex> collectionIndexRepository,
         IReadOnlyRepository<NFTInfoIndex> nftInfoIndexRepository)
