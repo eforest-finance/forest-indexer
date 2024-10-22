@@ -1,11 +1,6 @@
 using AeFinder.Sdk;
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Orleans.Runtime;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.ObjectMapping;
 
@@ -13,15 +8,15 @@ namespace Forest.Indexer.Plugin.Processors;
 
 public interface INFTInfoProvider
 {
-    public Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId);
+    //public Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId);
 
-    public Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId, string excludeListingId, NFTListingInfoIndex current);
+   // public Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId, string excludeListingId, NFTListingInfoIndex current);
     
     public Task<OfferInfoIndex> GetMaxOfferInfoAsync(string nftInfoId);
     
-    public Task<OfferInfoIndex> GetMaxOfferInfoAsync(string nftInfoId, string excludeOfferId, OfferInfoIndex current);
+   // public Task<OfferInfoIndex> GetMaxOfferInfoAsync(string nftInfoId, string excludeOfferId, OfferInfoIndex current);
 
-    public Task<int> QueryDecimal(string chainId, string symbol);
+    //public Task<int> QueryDecimal(string chainId, string symbol);
 }
 
 public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
@@ -34,8 +29,6 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
 
     private readonly ILogger<NFTInfoProvider> _logger;
     private readonly IObjectMapper _objectMapper;
-    private readonly IUserBalanceProvider _userBalanceProvider;
-    private readonly INFTListingInfoProvider _listingInfoProvider;
     private readonly INFTOfferProvider _nftOfferInfoProvider;
 
     public NFTInfoProvider(
@@ -43,16 +36,12 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         IReadOnlyRepository<TokenInfoIndex> tokenInfoIndexRepository,
         IReadOnlyRepository<NFTActivityIndex> nftActivityIndexRepository,
         IReadOnlyRepository<NFTListingInfoIndex> listedNftIndexRepository,
-        IUserBalanceProvider userBalanceProvider,
-        INFTListingInfoProvider listingInfoProvider,
         IReadOnlyRepository<SeedSymbolIndex> seedSymbolIndexRepository,
         INFTOfferProvider nftOfferInfoProvider,
         IObjectMapper objectMapper, ILogger<NFTInfoProvider> logger)
     {
         _nftInfoIndexRepository = nftInfoIndexRepository;
         _tokenInfoIndexRepository = tokenInfoIndexRepository;
-        _userBalanceProvider = userBalanceProvider;
-        _listingInfoProvider = listingInfoProvider;
         _seedSymbolIndexRepository = seedSymbolIndexRepository;
         _nftOfferInfoProvider = nftOfferInfoProvider;
         _objectMapper = objectMapper;
@@ -61,7 +50,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         _nftActivityIndexRepository = nftActivityIndexRepository;
     }
     
-    public async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId)
+    /*public async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId)
     {
         //After the listing and the transaction is recorded, listing will be deleted first, but the transfer can query it.
         //So add check data in memory 
@@ -70,14 +59,14 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
             var listingInfo = await _listedNftIndexRepository.GetFromBlockStateSetAsync(info.Id, info.ChainId);
             return listingInfo != null;
         });
-    }
+    }*/
     
-    public async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId, string excludeListingId, NFTListingInfoIndex current)
+    /*public async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId, string excludeListingId, NFTListingInfoIndex current)
     {
         return await GetMinListingNftAsync(nftInfoId, excludeListingId, current, info => Task.FromResult(true));
-    }
+    }*/
     
-    private async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId, string excludeListingId, NFTListingInfoIndex current, 
+    /*private async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId, string excludeListingId, NFTListingInfoIndex current, 
         Func<NFTListingInfoIndex, Task<bool>> additionalConditionAsync)
     {
         var excludeListingIds = new HashSet<string>();
@@ -125,7 +114,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
             "GetMinNftListingAsync nftInfoId:{nftInfoId} minNftListing id:{id} minListingPrice:{minListingPrice}",
             nftInfoId, minNftListing?.Id, minNftListing?.Prices);
         return minNftListing;
-    }
+    }*/
 
     public async Task<OfferInfoIndex> GetMaxOfferInfoAsync(string nftInfoId)
     {
@@ -154,6 +143,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         return maxOfferInfo;
     }
 
+    /*
     public async Task<int> QueryDecimal(string chainId,string symbol)
     {
         var decimals = 0;
@@ -172,8 +162,9 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
 
         return decimals;
     }
+    */
 
-    private async Task<bool> CheckOtherListExistAsync(string bizId, string noListingOwner, string excludeListingId)
+    /*private async Task<bool> CheckOtherListExistAsync(string bizId, string noListingOwner, string excludeListingId)
     {
         if (noListingOwner.IsNullOrEmpty()) return false;
         var result = await
@@ -187,7 +178,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         var result = await
             _listingInfoProvider.QueryMinPriceExcludeSpecialListingIdAsync(bizId, excludeListingId);
         return result?.Prices ?? 0;
-    }
+    }*/
     
     private async Task<decimal> QueryMaxPriceExcludeSpecialOfferIdAsync(string bizId, string excludeOfferId)
     {

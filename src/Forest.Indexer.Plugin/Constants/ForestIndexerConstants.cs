@@ -56,7 +56,7 @@ public static partial class ForestIndexerConstants
     public const int IntZero = 0;
     public const int IntOne = 0;
     public const int IntTen = 10;
-    public const string SGRCollection = "SGR-0";
+    public const string SGRCollection = "SGR-0";//todo V2 test config is not SGR-0,need modify
     public const int SGRDecimal = 8;
     public const int QueryUserBalanceListDefaultSize = 3000;
     

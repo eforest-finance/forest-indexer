@@ -1,5 +1,6 @@
 using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
+using Forest.Indexer.Plugin.Processors.Provider;
 using GraphQL;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -393,7 +394,6 @@ public partial class Query
             OwnerTotal = userSet.Count
         };
         return resultDto;
-         
     }
     
     private static async Task<List<HashSet<T>>> SplitHashSetAsync<T>(HashSet<T> source, int chunkSize)
