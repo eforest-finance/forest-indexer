@@ -134,19 +134,19 @@ public partial class Query
             Data = objectMapper.Map<List<UserBalanceIndex>, List<UserBalanceDto>>(result)
         };
     }
-    private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalanceByBolockHeight()
+    /*private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalanceByBolockHeight()
     {
         SortDescriptor<UserBalanceIndex> sortDescriptor = new SortDescriptor<UserBalanceIndex>();
         sortDescriptor.Ascending(a=>a.BlockHeight);
         IPromise<IList<ISort>> promise = sortDescriptor;
         return s => promise;
-    }
-    private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalance()
+    }*/
+    /*private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalance()
     {
         SortDescriptor<UserBalanceIndex> sortDescriptor = new SortDescriptor<UserBalanceIndex>();
         sortDescriptor.Descending(a=>a.Amount);
         sortDescriptor.Ascending(a=>a.Address);
         IPromise<IList<ISort>> promise = sortDescriptor;
         return s => promise;
-    }
+    }*/
 }

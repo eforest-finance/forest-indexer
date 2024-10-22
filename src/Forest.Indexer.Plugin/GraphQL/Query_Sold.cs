@@ -47,11 +47,11 @@ public partial class Query
         return pageResult;
     }
 
-    private static Func<SortDescriptor<SoldIndex>, IPromise<IList<ISort>>> GetSortFunc()
+    /*private static Func<SortDescriptor<SoldIndex>, IPromise<IList<ISort>>> GetSortFunc()
     {
         SortDescriptor<SoldIndex> sortDescriptor = new SortDescriptor<SoldIndex>();
         sortDescriptor.Descending(a => a.DealTime)
             .Descending(a => a.PurchaseAmount);
         return s => sortDescriptor;
-    }
+    }*/
 }

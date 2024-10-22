@@ -134,7 +134,7 @@ public partial class Query
         return new NftListingPageResultDto(result.Count, dataList);
     }
     
-    private static Func<SortDescriptor<NFTListingInfoIndex>, IPromise<IList<ISort>>> GetSortForListingInfos()
+    /*private static Func<SortDescriptor<NFTListingInfoIndex>, IPromise<IList<ISort>>> GetSortForListingInfos()
     {
         SortDescriptor<NFTListingInfoIndex> sortDescriptor = new SortDescriptor<NFTListingInfoIndex>();
         sortDescriptor.Ascending(a=>a.Prices);
@@ -142,15 +142,15 @@ public partial class Query
         sortDescriptor.Ascending(a => a.ExpireTime);
         IPromise<IList<ISort>> promise = sortDescriptor;
         return s => promise;
-    }
+    }*/
     
-    private static Func<SortDescriptor<NFTListingInfoIndex>, IPromise<IList<ISort>>> GetSortForListingInfosByBlockHeight()
+    /*private static Func<SortDescriptor<NFTListingInfoIndex>, IPromise<IList<ISort>>> GetSortForListingInfosByBlockHeight()
     {
         SortDescriptor<NFTListingInfoIndex> sortDescriptor = new SortDescriptor<NFTListingInfoIndex>();
         sortDescriptor.Ascending(a=>a.BlockHeight);
         IPromise<IList<ISort>> promise = sortDescriptor;
         return s => promise;
-    }
+    }*/
 
     /*[Obsolete("todo V2 not use")]
     [Name("getMinListingNft")]
