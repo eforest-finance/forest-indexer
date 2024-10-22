@@ -140,7 +140,7 @@ public partial class Query
         return objectMapper.Map<NFTInfoIndex, NFTInfoSyncDto>(result.FirstOrDefault());
     }
 
-    private static Tuple<SortOrder, Expression<Func<NFTInfoIndex, object>>> GetSorting(string sorting)
+    /*private static Tuple<SortOrder, Expression<Func<NFTInfoIndex, object>>> GetSorting(string sorting)
     {
         if (string.IsNullOrWhiteSpace(sorting)) throw new NotSupportedException();
 
@@ -171,9 +171,9 @@ public partial class Query
 
 
         return result;
-    }
+    }*/
 
-    private static Tuple<SortOrder, Expression<Func<UserBalanceIndex, object>>> GetSortingForUserBalance(
+    /*private static Tuple<SortOrder, Expression<Func<UserBalanceIndex, object>>> GetSortingForUserBalance(
         string sorting)
     {
         if (string.IsNullOrWhiteSpace(sorting)) throw new NotSupportedException();
@@ -203,5 +203,5 @@ public partial class Query
         }
 
         return result;
-    }
+    }*/
 }

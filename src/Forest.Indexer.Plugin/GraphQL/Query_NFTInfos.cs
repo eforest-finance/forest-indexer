@@ -24,9 +24,9 @@ public partial class Query
         var status2Count = 0L;
         var repositoryQueryable = await repository.GetQueryableAsync();
         
-        var sorting = GetSorting(dto.Sorting);
+        //var sorting = GetSorting(dto.Sorting);
 
-        var sortingForUserBalance = GetSortingForUserBalance(dto.Sorting);
+        //var sortingForUserBalance = GetSortingForUserBalance(dto.Sorting);
         var sortingArray = dto.Sorting.Split(" ");
 
         if (dto.Status == ForestIndexerConstants.NFTInfoQueryStatusBuy)
@@ -337,7 +337,7 @@ public partial class Query
         };
     }
 
-    private static void AddQueryForMinListingPrice(
+    /*private static void AddQueryForMinListingPrice(
         List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>> mustQuery,
         GetNFTBriefInfosDto dto)
     {
@@ -358,5 +358,5 @@ public partial class Query
             mustQuery.Add(q =>
                 q.Range(i => i.Field(f => f.MinListingPrice).LessThanOrEquals(Convert.ToDouble(dto.PriceHigh))));
         }
-    }
+    }*/
 }
