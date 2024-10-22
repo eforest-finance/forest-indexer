@@ -3,7 +3,7 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class WhitelistBase : AeFinderEntity, IAeFinderEntity
+public class WhitelistBase 
 {
-    [Keyword] public override string Id { get; set; }
+   // [Keyword] public override string Id { get; set; }
 }

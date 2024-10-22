@@ -1,8 +1,9 @@
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class WhitelistIndex : WhitelistBase
+public class WhitelistIndex : AeFinderEntity, IAeFinderEntity
 {
     public bool IsAvailable { get; set; }
     public bool IsCloneable { get; set; }

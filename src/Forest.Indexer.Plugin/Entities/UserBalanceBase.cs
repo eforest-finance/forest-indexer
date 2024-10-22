@@ -3,9 +3,9 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class UserBalanceBase : AeFinderEntity, IAeFinderEntity
+public class UserBalanceBase 
 {
-    [Keyword] public override string Id { get; set; }
+   // [Keyword] public override string Id { get; set; }
     
     //userAccount Address
     [Keyword] public string Address { get; set; }

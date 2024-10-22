@@ -3,7 +3,7 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class NFTOfferBase: AeFinderEntity, IAeFinderEntity
+/*public class NFTOfferBase: AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     
@@ -23,4 +23,4 @@ public class NFTOfferBase: AeFinderEntity, IAeFinderEntity
     public string ChainId { get; set; }
     
     public string BlockHeight { get; set; }
-}
+}*/

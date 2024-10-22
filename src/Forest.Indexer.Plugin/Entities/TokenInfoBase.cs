@@ -3,9 +3,9 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class TokenInfoBase : AeFinderEntity, IAeFinderEntity
+public class TokenInfoBase 
 {
-    [Keyword] public override string Id { get; set; }
+   // [Keyword] public override string Id { get; set; }
     
     [Keyword] public string Symbol { get; set; }
 

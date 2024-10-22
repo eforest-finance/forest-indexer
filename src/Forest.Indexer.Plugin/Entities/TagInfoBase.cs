@@ -3,9 +3,8 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class TagInfoBase : AeFinderEntity, IAeFinderEntity
+public class TagInfoBase 
 {
-    [Keyword] public override string Id { get; set; }
     [Keyword] public string TagHash { get; set; }
     [Keyword] public string Name { get; set; }
     [Keyword] public string Info { get; set; }

@@ -1,8 +1,9 @@
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class SoldIndex : SoldBase
+public class SoldIndex : AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public string NftFrom { get; set; }
     [Keyword] public string NftTo { get; set; }

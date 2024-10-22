@@ -3,7 +3,7 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class NFTListingInfoIndex : NFTListingBase
+public class NFTListingInfoIndex : AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     public TokenInfoIndex PurchaseToken { get; set; }
