@@ -337,26 +337,26 @@ public partial class Query
         };
     }
 
-    private static void AddQueryForMinListingPrice(
-        List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>> mustQuery,
-        GetNFTBriefInfosDto dto)
-    {
-        if (dto == null)
-        {
-            return;
-        }
-
-        if (dto.PriceLow != null)
-        {
-            mustQuery.Add(q =>
-                q.Range(i => i.Field(f => f.MinListingPrice).GreaterThanOrEquals(Convert.ToDouble(dto.PriceLow))));
-        }
-
-        if (dto.PriceHigh != null)
-        {
-            mustQuery.Add(q => q.Range(i => i.Field(f => f.MinListingPrice).GreaterThanOrEquals(0)));
-            mustQuery.Add(q =>
-                q.Range(i => i.Field(f => f.MinListingPrice).LessThanOrEquals(Convert.ToDouble(dto.PriceHigh))));
-        }
-    }
+    // private static void AddQueryForMinListingPrice(
+    //     List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>> mustQuery,
+    //     GetNFTBriefInfosDto dto)
+    // {
+    //     if (dto == null)
+    //     {
+    //         return;
+    //     }
+    //
+    //     if (dto.PriceLow != null)
+    //     {
+    //         mustQuery.Add(q =>
+    //             q.Range(i => i.Field(f => f.MinListingPrice).GreaterThanOrEquals(Convert.ToDouble(dto.PriceLow))));
+    //     }
+    //
+    //     if (dto.PriceHigh != null)
+    //     {
+    //         mustQuery.Add(q => q.Range(i => i.Field(f => f.MinListingPrice).GreaterThanOrEquals(0)));
+    //         mustQuery.Add(q =>
+    //             q.Range(i => i.Field(f => f.MinListingPrice).LessThanOrEquals(Convert.ToDouble(dto.PriceHigh))));
+    //     }
+    // }
 }
