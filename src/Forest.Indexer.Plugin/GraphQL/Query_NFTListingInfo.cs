@@ -1,13 +1,10 @@
-using AElf.Contracts.Whitelist;
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors;
 using GraphQL;
 using Microsoft.Extensions.Logging;
 using Nest;
 using Newtonsoft.Json;
-using Orleans.Runtime;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -16,8 +13,8 @@ public partial class Query
 {
     [Name("nftListingInfo")]
     public static async Task<NftListingPageResultDto> NFTListingInfo(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
+        [FromServices] IReadOnlyRepository<NFTListingInfoIndex> nftListingRepo,
+        [FromServices] IReadOnlyRepository<TokenInfoIndex> tokenIndexRepository,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] ILogger<NFTListingInfoIndex> _logger,
         GetNFTListingDto input)
@@ -25,7 +22,7 @@ public partial class Query
         if (input.Symbol.IsNullOrWhiteSpace() || input.ChainId.IsNullOrWhiteSpace())
             return new NftListingPageResultDto("invalid input param");
 
-        _logger.Debug($"[NFTListingInfo] INPUT: chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}");
+        _logger.LogDebug($"[NFTListingInfo] INPUT: chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}");
         
         var decimals = 0;
         var tokenId = IdGenerateHelper.GetTokenInfoId(input.ChainId, input.Symbol);
@@ -63,7 +60,7 @@ public partial class Query
         QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f) => f.Bool(b => b.Must(listingQuery).MustNot(listingNotQuery));
         
         var result = await nftListingRepo.GetSortListAsync(Filter,sortFunc: GetSortForListingInfos(), skip: input.SkipCount, limit: input.MaxResultCount);
-        _logger.Debug(
+        _logger.LogDebug(
             $"[NFTListingInfo] SETP: query Pager chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}, count={result.Item1}");
         
         var dataList = result.Item2.Select(i =>
@@ -72,8 +69,8 @@ public partial class Query
             var item = objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(i);
             
            
-            _logger.Debug("listing quantity={Quantity} after quantity {AQuantity} decimal {Decimals} ",item.Quantity,TokenHelper.GetIntegerDivision(item.Quantity, decimals),decimals);
-            _logger.Debug("listing quantity real={Quantity} after quantity {AQuantity} decimal {Decimals}",item.RealQuantity,TokenHelper.GetIntegerDivision(item.RealQuantity, decimals),decimals);
+            _logger.LogDebug("listing quantity={Quantity} after quantity {AQuantity} decimal {Decimals} ",item.Quantity,TokenHelper.GetIntegerDivision(item.Quantity, decimals),decimals);
+            _logger.LogDebug("listing quantity real={Quantity} after quantity {AQuantity} decimal {Decimals}",item.RealQuantity,TokenHelper.GetIntegerDivision(item.RealQuantity, decimals),decimals);
             
             item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
             item.Quantity = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
@@ -81,14 +78,14 @@ public partial class Query
             return item;
         }).ToList();
 
-        _logger.Debug(
+        _logger.LogDebug(
             $"[NFTListingInfo] SETP: Convert Data chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}, count={result.Item1}");
         return new NftListingPageResultDto(result.Item1, dataList);
     }
     
     [Name("collectedNFTListingInfo")]
     public static async Task<NftListingPageResultDto> CollectedNFTListingInfo(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
+        [FromServices] IReadOnlyRepository<NFTListingInfoIndex> nftListingRepo,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] ILogger<NFTListingInfoIndex> _logger,
         GetCollectedNFTListingDto dto)
@@ -156,8 +153,8 @@ public partial class Query
     [Name("getMinListingNft")]
     public static async Task<NFTListingInfoDto> GetMinListingNftAsync(
         [FromServices] IObjectMapper objectMapper,
-        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository,
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository,
+        [FromServices] IReadOnlyRepository<NFTListingInfoIndex> _listedNftIndexRepository,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> _userBalanceIndexRepository,
         GetMinListingNftDto dto)
     {
         var listingInfo = await GetMinListingNftAsync(dto.NftInfoId, async info =>
@@ -170,8 +167,8 @@ public partial class Query
 
     private static async Task<NFTListingInfoIndex> GetMinListingNftAsync(string nftInfoId,
         Func<NFTListingInfoIndex, Task<bool>> additionalConditionAsync,
-        IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository,
-        IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> _userBalanceIndexRepository)
+        IReadOnlyRepository<NFTListingInfoIndex> _listedNftIndexRepository,
+        IReadOnlyRepository<UserBalanceIndex> _userBalanceIndexRepository)
     {
         //Get Effective NftListingInfos
         var nftListingInfos =
@@ -202,7 +199,7 @@ public partial class Query
         return minNftListing;
     }
 
-    private static async Task<List<NFTListingInfoIndex>> GetEffectiveNftListingInfos(string nftInfoId, IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository)
+    private static async Task<List<NFTListingInfoIndex>> GetEffectiveNftListingInfos(string nftInfoId, IReadOnlyRepository<NFTListingInfoIndex, LogEventInfo> _listedNftIndexRepository)
     {
         var mustQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
 
@@ -220,11 +217,11 @@ public partial class Query
     
     [Name("getExpiredNftMinPrice")]
     public static async Task<List<ExpiredNftMinPriceDto>> GetNftMinPriceAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
+        [FromServices] IReadOnlyRepository<NFTListingInfoIndex> nftListingRepo,
         [FromServices] ILogger<NFTListingInfoIndex> logger,
         GetExpiredNFTMinPriceDto input)
     {
-        logger.Debug($"[getMinPriceNft] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
+        logger.LogDebug($"[getMinPriceNft] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
         
         var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
         listingQuery.Add(q => q.Term(i => i.Field(index => index.ChainId).Value(input.ChainId)));
@@ -283,7 +280,7 @@ public partial class Query
 
     [Name("getExpiredListingNft")]
     public static async Task<List<NFTListingInfoResult>> GetExpiredListingNftAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
+        [FromServices] IReadOnlyRepository<NFTListingInfoIndex> nftListingRepo,
         [FromServices] IObjectMapper objectMapper,
         GetExpiredListingNftDto dto)
     {
@@ -293,7 +290,7 @@ public partial class Query
     }
 
     private static async Task<List<NFTListingInfoIndex>> GetExpiredListingNftAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
+        [FromServices] IReadOnlyRepository<NFTListingInfoIndex> nftListingRepo,
         string chainId,
         long expireTimeGt)
     {
@@ -319,7 +316,7 @@ public partial class Query
 
     [Name("nftListingChange")]
     public static async Task<NFTListingChangeDtoPageResultDto> NFTListingChangeAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTListingChangeIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<NFTListingChangeIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetSeedMainChainChangeDto dto)
     {
@@ -345,8 +342,8 @@ public partial class Query
     }
    [Name("nftListingInfoAll")]
     public static async Task<NftListingPageResultDto> NFTListingInfoAll(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTListingInfoIndex, LogEventInfo> nftListingRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
+        [FromServices] IReadOnlyRepository<NFTListingInfoIndex> nftListingRepo,
+        [FromServices] IReadOnlyRepository<TokenInfoIndex> tokenIndexRepository,
         [FromServices] IObjectMapper objectMapper,
         [FromServices] ILogger<NFTListingInfoIndex> _logger,
         GetNFTListingDto input)
@@ -354,7 +351,7 @@ public partial class Query
         if (input.ChainId.IsNullOrWhiteSpace())
             return new NftListingPageResultDto("invalid input param");
 
-        _logger.Debug($"[NFTListingInfoAll] INPUT: chainId={input.ChainId}, blockHeight={input.BlockHeight}");
+        _logger.LogDebug($"[NFTListingInfoAll] INPUT: chainId={input.ChainId}, blockHeight={input.BlockHeight}");
         
         // query listing info
         var listingQuery = new List<Func<QueryContainerDescriptor<NFTListingInfoIndex>, QueryContainer>>();
@@ -374,7 +371,7 @@ public partial class Query
         QueryContainer Filter(QueryContainerDescriptor<NFTListingInfoIndex> f) => f.Bool(b => b.Must(listingQuery));
         
         var result = await nftListingRepo.GetSortListAsync(Filter,sortFunc: GetSortForListingInfosByBlockHeight(), skip: input.SkipCount, limit: input.MaxResultCount);
-        _logger.Debug(
+        _logger.LogDebug(
             $"[NFTListingInfoAll] SETP: query Pager chainId={input.ChainId}, height={input.BlockHeight}, count={result.Item1}");
         
         var dataList = result.Item2.Select(i =>
@@ -386,7 +383,7 @@ public partial class Query
             return item;
         }).ToList();
 
-        _logger.Debug(
+        _logger.LogDebug(
             $"[NFTListingInfoAll] SETP: Convert Data chainId={input.ChainId}, height={input.BlockHeight}, count={dataList.Count}");
         return new NftListingPageResultDto(result.Item1, dataList);
     }
