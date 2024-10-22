@@ -1,7 +1,5 @@
-using System.Linq.Expressions;
+using AeFinder.Sdk;
 using AElf;
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
 using Nest;
@@ -13,8 +11,8 @@ public partial class Query
 {
     [Name("nftInfos")]
     public static async Task<NFTInfoPageResultDto> NFTInfos(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> repository,
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceAppService,
+        [FromServices] IReadOnlyRepository<NFTInfoIndex> repository,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceAppService,
         [FromServices] IObjectMapper objectMapper,
         GetNFTInfosDto dto)
     {
@@ -25,62 +23,89 @@ public partial class Query
                 Data = new List<NFTInfoDto>()
             };
         var status2Count = 0L;
-        var mustQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
-        var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
+        var repositoryQueryable = await repository.GetQueryableAsync();
+        
         var sorting = GetSorting(dto.Sorting);
 
         var sortingForUserBalance = GetSortingForUserBalance(dto.Sorting);
+        var sortingArray = dto.Sorting.Split(" ");
 
         if (dto.Status == ForestIndexerConstants.NFTInfoQueryStatusBuy)
         {
-            if (dto.PriceLow !=null && dto.PriceLow != 0)
-                mustQuery.Add(q => q.Range(i => i.Field(f => f.ListingPrice).GreaterThanOrEquals(dto.PriceLow)));
-
+            if (dto.PriceLow != null && dto.PriceLow != 0)
+            {
+                repositoryQueryable = repositoryQueryable.Where(f => f.ListingPrice >= (decimal)dto.PriceLow);
+            }
+            
             if (dto.PriceHigh !=null && dto.PriceHigh != 0)
             {
-                mustQuery.Add(q => q.Range(i => i.Field(f => f.ListingPrice).GreaterThanOrEquals(0)));
-                mustQuery.Add(q => q.Range(i => i.Field(f => f.ListingPrice).LessThanOrEquals(dto.PriceHigh)));
+                repositoryQueryable = repositoryQueryable.Where(f => f.ListingPrice >= 0);
+                repositoryQueryable = repositoryQueryable.Where(f => f.ListingPrice <= (decimal)dto.PriceHigh);
             }
 
             if (!dto.Address.IsNullOrEmpty())
-                mustNotQuery.Add(q => q.Term(i => i.Field(f => f.ListingAddress).Value(dto.Address)));
+                repositoryQueryable = repositoryQueryable.Where(f => f.ListingAddress != dto.Address);
         }
         else if (dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf)
         {
-            var userBalanceMustQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
-            userBalanceMustQuery.Add(q => q.Term(i => i.Field(f => f.Address).Value(dto.Address)));
-            userBalanceMustQuery.Add(q => q.Range(i => i.Field(f => f.Amount).GreaterThan(0)));
-            userBalanceMustQuery.Add(q=>q.Script(scriptDescriptor => scriptDescriptor
-                .Script(script => script
-                    .Source(ForestIndexerConstants.UserBalanceScriptForNft)
-                    .Lang(ForestIndexerConstants.Painless))));
+            var userBalanceQueryable= await userBalanceAppService.GetQueryableAsync();
+            userBalanceQueryable = userBalanceQueryable.Where(f => f.Address == dto.Address);
+            userBalanceQueryable = userBalanceQueryable.Where(f => f.Amount > 0);
+            userBalanceQueryable = userBalanceQueryable.Where(f => !f.Symbol.StartsWith("SEED-"));
+            
 
             if (dto.PriceLow !=null && dto.PriceLow != 0)
-                userBalanceMustQuery.Add(q =>
-                    q.Range(i => i.Field(f => f.ListingPrice).GreaterThanOrEquals(dto.PriceLow)));
+                userBalanceQueryable = userBalanceQueryable.Where(f => f.ListingPrice >= (decimal)dto.PriceLow);
 
             if (dto.PriceHigh !=null && dto.PriceHigh != 0)
             {
-                userBalanceMustQuery.Add(q => q.Range(i => i.Field(f => f.ListingPrice).GreaterThanOrEquals(0)));
-                userBalanceMustQuery.Add(
-                    q =>
-                        q.Range(i => i.Field(f => f.ListingPrice).LessThanOrEquals(dto.PriceHigh)));
+                userBalanceQueryable = userBalanceQueryable.Where(f => f.ListingPrice >=0 && f.ListingPrice <= (decimal)dto.PriceHigh);
             }
 
-            QueryContainer FilterForUserBalance(QueryContainerDescriptor<UserBalanceIndex> f)
+            List<UserBalanceIndex> resultUserBalanceIndex;
+            switch (sortingArray[0])
             {
-                return f.Bool(b => b.Must(userBalanceMustQuery));
-            }
+                case "ListingTime":
+                    if (sortingArray[1] == "ASC")
+                    {
+                        resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
+                            .OrderBy(o => o.ListingTime).ToList();
+                    }
+                    else
+                    {
+                        resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
+                            .OrderByDescending(o => o.ListingTime).ToList();
+                    }
+                    break;
+                case "ListingPrice":
+                    if (sortingArray[1] == "ASC")
+                    {
+                        resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
+                            .OrderBy(o => o.ListingPrice).ToList();
+                    }
+                    else
+                    {
+                        resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
+                            .OrderByDescending(o => o.ListingPrice).ToList();
+                    }
+                    break;
 
-            var resultUserBalanceIndex = await userBalanceAppService.GetListAsync(FilterForUserBalance,
-                sortType: sortingForUserBalance.Item1,
-                sortExp: sortingForUserBalance.Item2, skip: dto.SkipCount, limit: dto.MaxResultCount);
-            if (resultUserBalanceIndex?.Item2 != null
-                && resultUserBalanceIndex.Item2.Count > 0)
+                default:
+                    resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
+                        .OrderByDescending(o => o.ListingTime).ToList();
+                    break;
+            }
+            
+            if (!resultUserBalanceIndex.IsNullOrEmpty()
+                && resultUserBalanceIndex.Count > 0)
             {
-                status2Count = resultUserBalanceIndex.Item1;
-                var nftIds = resultUserBalanceIndex.Item2.Select(o => o.NFTInfoId).ToList();
-                if (nftIds != null && nftIds.Count != 0) mustQuery.Add(q => q.Ids(i => i.Values(nftIds)));
+                status2Count = resultUserBalanceIndex.Count;
+                var nftIds = resultUserBalanceIndex.Select(o => o.NFTInfoId).ToList();
+                if (nftIds != null && nftIds.Count != 0)
+                {
+                    repositoryQueryable = repositoryQueryable.Where(f => nftIds.Contains(f.Id));
+
+                }
             }
             else
             {
@@ -94,49 +119,76 @@ public partial class Query
         else
         {
             if (!dto.IssueAddress.IsNullOrEmpty())
-                mustQuery.Add(q => q.Terms(i => i.Field(f => f.IssueManagerSet).Terms(dto.IssueAddress)));
+                repositoryQueryable = repositoryQueryable.Where(f => f.IssueManagerSet.Contains(dto.IssueAddress));
+            
             if (dto.PriceLow != null && dto.PriceLow != 0)
-                mustQuery.Add(q => q.Range(i => i.Field(f => f.ListingPrice).GreaterThanOrEquals(dto.PriceLow)));
+                repositoryQueryable = repositoryQueryable.Where(f => f.ListingPrice >= (decimal)(dto.PriceLow));
 
             if (dto.PriceHigh != null && dto.PriceHigh != 0)
             {
-                mustQuery.Add(q => q.Range(i => i.Field(f => f.ListingPrice).GreaterThanOrEquals(0)));
-                mustQuery.Add(q => q.Range(i => i.Field(f => f.ListingPrice).LessThanOrEquals(dto.PriceHigh)));
+                repositoryQueryable = repositoryQueryable.Where(f => f.ListingPrice >= 0 && f.ListingPrice <= (decimal)dto.PriceHigh);
             }
         }
 
-        if (dto.NFTInfoIds != null) mustQuery.Add(q => q.Terms(i => i.Field(f => f.Id).Terms(dto.NFTInfoIds)));
+        if (dto.NFTInfoIds != null) 
+            repositoryQueryable = repositoryQueryable.Where(f => dto.NFTInfoIds.Contains(f.Id) );
 
         if (!dto.NftCollectionId.IsNullOrEmpty())
-            mustQuery.Add(q => q.Term(i => i.Field(f => f.CollectionId).Value(dto.NftCollectionId)));
+            repositoryQueryable = repositoryQueryable.Where(f => f.CollectionId == dto.NftCollectionId );
 
-        QueryContainer Filter(QueryContainerDescriptor<NFTInfoIndex> f)
+        List<NFTInfoIndex> result = null;
+        switch (sortingArray[0])
         {
-            return f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
-        }
+            case "ListingTime":
+                if (sortingArray[1] == "ASC")
+                {
+                    result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
+                        .OrderBy(o => o.LatestListingTime).ToList();
+                }
+                else
+                {
+                    result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
+                        .OrderByDescending(o => o.LatestListingTime).ToList();
+                }
+                break;
+            case "ListingPrice":
+                if (sortingArray[1] == "ASC")
+                {
+                    result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
+                        .OrderBy(o => o.ListingPrice).ToList();
+                }
+                else
+                {
+                    result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
+                        .OrderByDescending(o => o.ListingPrice).ToList();
+                }
+                break;
 
-        var result = await repository.GetListAsync(Filter, sortType: sorting.Item1,
-            sortExp: sorting.Item2,
-            skip: dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount,
-            limit: dto.MaxResultCount);
-        if (result == null || result.Item2 == null)
+            default:
+                result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
+                    .OrderByDescending(o => o.LatestListingTime).ToList();
+                break;
+        }
+        
+        if (result.IsNullOrEmpty())
             return new NFTInfoPageResultDto
             {
                 TotalRecordCount = 0,
                 Data = new List<NFTInfoDto>()
             };
-        var resultList = result?.Item2;
+        var resultList = result;
         var dataList = resultList?.Select(item => objectMapper.Map<NFTInfoIndex, NFTInfoDto>(item)).ToList();
 
         var pageResult = new NFTInfoPageResultDto
         {
             TotalRecordCount =
-                dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? status2Count : result.Item1,
+                dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? status2Count : result.Count,
             Data = dataList
         };
         return pageResult;
     }
     
+    /*[Obsolete("todo V2, unuse")]
     [Name("nftBriefInfos")]
     public static async Task<NFTBriefInfoPageResultDto> NFTBriefInfos(
         [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> repository,
@@ -209,7 +261,7 @@ public partial class Query
             Data = dataList
         };
         return pageResult;
-    }
+    }*/
 
     private static Func<SortDescriptor<NFTInfoIndex>, IPromise<IList<ISort>>> GetSortForNFTBrife(string sorting)
     {

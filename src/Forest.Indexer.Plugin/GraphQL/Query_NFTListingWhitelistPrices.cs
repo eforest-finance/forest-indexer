@@ -14,7 +14,7 @@ namespace Forest.Indexer.Plugin.GraphQL;
 
 public partial class Query
 {
-    /*[Obsolete("")]
+    /*[Obsolete("todo V2, unuse")]
     [Name("nftListingWhitelistPrices")]
     public static async Task<NFTListingWhitelistPricePageResultDto> NftListingWhitelistPrices(
         [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftRepo,

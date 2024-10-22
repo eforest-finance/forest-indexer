@@ -1,8 +1,5 @@
 using System.Linq.Expressions;
-using AElf;
-using AElf.Types;
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using GraphQL;
@@ -15,18 +12,47 @@ public partial class Query
 {
     [Name("nftInfo")]
     public static async Task<NFTInfoDto> NFTInfo(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolRepo,
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepo,
+        [FromServices] IReadOnlyRepository<NFTInfoIndex> nftInfoRepo,
+        [FromServices] IReadOnlyRepository<SeedSymbolIndex> seedSymbolRepo,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepo,
         [FromServices] IObjectMapper objectMapper,
         GetNFTInfoDto dto)
     {
         if (dto == null || dto.Id.IsNullOrWhiteSpace()) return null;
+        var nftInfoQueryable = await nftInfoRepo.GetQueryableAsync();
+        var seedSymbolQueryable = await seedSymbolRepo.GetQueryableAsync();
+        var userBalanceQueryable = await userBalanceRepo.GetQueryableAsync();
 
         var isSeed = dto.Id.Match(ForestIndexerConstants.SeedIdPattern);
-        var res = isSeed
-            ? objectMapper.Map<SeedSymbolIndex, NFTInfoDto>(await seedSymbolRepo.GetAsync(dto.Id))
-            : objectMapper.Map<NFTInfoIndex, NFTInfoDto>(await nftInfoRepo.GetAsync(dto.Id));
+        var res = new NFTInfoDto();
+        if (isSeed)
+        {
+            seedSymbolQueryable = seedSymbolQueryable.Where(i => i.Id == dto.Id);
+            var result = seedSymbolQueryable.ToList();
+            if (result.IsNullOrEmpty())
+            {
+                res = null;
+            }
+            else
+            {
+                res = objectMapper.Map<SeedSymbolIndex, NFTInfoDto>(result.FirstOrDefault());
+            }
+        }
+        else
+        {
+            nftInfoQueryable = nftInfoQueryable.Where(i => i.Id == dto.Id);
+            var result = nftInfoQueryable.ToList();
+            if (result.IsNullOrEmpty())
+            {
+                res = null;
+            }
+            else
+            {
+                res = objectMapper.Map<NFTInfoIndex, NFTInfoDto>(result.FirstOrDefault());
+
+            }
+        }
+        
         if (res == null) return null;
 
         if (isSeed)
@@ -35,19 +61,13 @@ public partial class Query
                 TokenCreatedExternalInfoEnum.SeedOwnedSymbol, res.TokenName);
         }
 
-        var userBalanceQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>
-        {
-            q => q.Term(i => i.Field(index => index.NFTInfoId).Value(res.Id)),
-            q => q.Range(i => i.Field(index => index.Amount).GreaterThan(0))
-        };
+        userBalanceQueryable = userBalanceQueryable.Where(index => index.NFTInfoId == res.Id);
+        userBalanceQueryable = userBalanceQueryable.Where(index => index.Amount > 0);
 
-        QueryContainer UserBalanceFilter(QueryContainerDescriptor<UserBalanceIndex> f) =>
-            f.Bool(b => b.Must(userBalanceQuery));
+        var userBalanceIndexList = userBalanceQueryable.Skip(0).Take(1).ToList();
 
-        var userBalanceIndexList = await userBalanceRepo.GetListAsync(UserBalanceFilter, limit: 1);
-
-        res.Owner = userBalanceIndexList?.Item1 > 0 ? userBalanceIndexList.Item2[0].Address : string.Empty;
-        res.OwnerCount = userBalanceIndexList?.Item1 == null ? 0 : userBalanceIndexList.Item1;
+        res.Owner = userBalanceIndexList?.Count > 0 ? userBalanceIndexList.FirstOrDefault().Address : string.Empty;
+        res.OwnerCount = userBalanceIndexList.IsNullOrEmpty() ? 0 : userBalanceIndexList.Count;
         if (dto.Address.IsNullOrEmpty()) return res;
 
         return res;
@@ -55,72 +75,69 @@ public partial class Query
 
     [Name("nftSymbol")]
     public static async Task<SymbolDto> NFTSymbol(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<NFTInfoIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         string symbol)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
+        var queryable = await repository.GetQueryableAsync();
         if (symbol.IsNullOrWhiteSpace()) return new SymbolDto();
 
-        mustQuery.Add(q => q.Term(i => i.Field(f => f.Symbol).Value(symbol)));
+        queryable = queryable.Where(f => f.Symbol == symbol);
 
-        QueryContainer Filter(QueryContainerDescriptor<NFTInfoIndex> f)
-            => f.Bool(b => b.Must(mustQuery));
-
-        var result = await repository.GetListAsync(Filter, skip: 0, limit: 1);
-        if (result == null) return new SymbolDto();
+        var result = queryable.Skip(0).Take(1).ToList();
+        if (result.IsNullOrEmpty()) return new SymbolDto();
 
         return new SymbolDto
         {
-            Symbol = result.Item2?.FirstOrDefault(new NFTInfoIndex())?.Symbol
+            Symbol = result?.FirstOrDefault(new NFTInfoIndex())?.Symbol
         };
     }
 
     [Name("getSyncNftInfoRecords")]
     public static async Task<List<NFTInfoSyncDto>> GetSyncNftInfoRecordsAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<NFTInfoIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetChainBlockHeightDto dto)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Term(i
-            => i.Field(f => f.ChainId).Value(dto.ChainId)));
-
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.ChainId == dto.ChainId);
+        
         if (dto.StartBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.StartBlockHeight)));
+            queryable = queryable.Where(f => f.BlockHeight >= dto.StartBlockHeight);
         }
 
         if (dto.EndBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).LessThanOrEquals(dto.EndBlockHeight)));
+            queryable = queryable.Where(f => f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<NFTInfoIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
+        var result = queryable.OrderBy(o => o.BlockHeight).ToList();
+        if (result.IsNullOrEmpty())
+        {
+            return new List<NFTInfoSyncDto>();
+        }
 
-        var result = await repository.GetListAsync(Filter, 
-            sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
-        return objectMapper.Map<List<NFTInfoIndex>, List<NFTInfoSyncDto>>(result.Item2);
+        return objectMapper.Map<List<NFTInfoIndex>, List<NFTInfoSyncDto>>(result);
     }
 
     [Name("getSyncNFTInfoRecord")]
     public static async Task<NFTInfoSyncDto> GetSyncNFTInfoRecordAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<NFTInfoIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetSyncNFTInfoRecordDto dto)
     {
         if (dto == null || dto.Id.IsNullOrEmpty() || dto.ChainId.IsNullOrEmpty()) return null;
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.Id == dto.Id);
 
-        var result = await repository.GetAsync(dto.Id);
-        if (result == null)
+        var result = queryable.ToList();
+        if (result.IsNullOrEmpty())
         {
             return null;
         }
 
-        return objectMapper.Map<NFTInfoIndex, NFTInfoSyncDto>(result);
+        return objectMapper.Map<NFTInfoIndex, NFTInfoSyncDto>(result.FirstOrDefault());
     }
 
     private static Tuple<SortOrder, Expression<Func<NFTInfoIndex, object>>> GetSorting(string sorting)

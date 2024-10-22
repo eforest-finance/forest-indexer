@@ -8,7 +8,7 @@ namespace Forest.Indexer.Plugin.GraphQL;
 public partial class Query
 {
     /*
-    [Obsolete("")]
+    [Obsolete("todo V2, unuse")]
      [Name("seedBriefInfos")]
     public static async Task<SeedBriefInfoPageResultDto> SeedBriefInfos(
         [FromServices] IReadOnlyRepository<SeedSymbolIndex> repository,

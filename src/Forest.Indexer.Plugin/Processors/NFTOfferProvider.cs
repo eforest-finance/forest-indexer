@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
 using Microsoft.Extensions.Logging;
@@ -97,32 +98,18 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
     
     public async Task<List<OfferInfoIndex>> GetEffectiveNftOfferInfosAsync(string bizId, string excludeOfferId)
     {
-        // var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-        //
-        // mustQuery.Add(q => q.TermRange(i
-        //     => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime))
-        //         .GreaterThan(DateTime.UtcNow.ToString("O"))));
-        // mustQuery.Add(q => q.Term(i
-        //     => i.Field(index => index.BizInfoId).Value(bizId)));
-        //
-        // mustQuery.Add(q => q.TermRange(i
-        //     => i.Field(index => index.RealQuantity).GreaterThan(0.ToString())));
-        //
-        // var mustNotQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-        //
-        // if (!excludeOfferId.IsNullOrEmpty())
-        // {
-        //     mustNotQuery.Add(q => q.Term(i => i.Field(index => index.Id).Value(excludeOfferId)));
-        // }
-        //
-        // QueryContainer Filter(QueryContainerDescriptor<OfferInfoIndex> f) => f.Bool(b => b.Must(mustQuery)
-        //     .MustNot(mustNotQuery));
-        //
-        // var result = await _nftOfferIndexRepository.GetListAsync(Filter, sortExp: k => k.Price,
-        //     sortType: SortOrder.Descending, skip: 0);
-        //
-        // return result.Item2 ?? new List<OfferInfoIndex>(); todo v2
-        return null;
+        var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) > long.Parse(DateTime.UtcNow.ToString("O") ));
+        queryable = queryable.Where(index => index.BizInfoId == bizId);
+        queryable = queryable.Where(index => index.RealQuantity > 0);
+
+        if (!excludeOfferId.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(index => index.Id != excludeOfferId);
+        }
+
+        var result = queryable.Skip(0).OrderByDescending(k => k.Price).ToList();
+        return result ?? new List<OfferInfoIndex>();
     }
 
     public async Task<int> UpdateOfferNumAsync(string symbol, string offerFrom, int change, LogEventContext context)

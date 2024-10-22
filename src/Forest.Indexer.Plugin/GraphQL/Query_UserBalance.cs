@@ -60,9 +60,12 @@ public partial class Query
         GetNFTInfosDto dto)
     {
         //query match nft
-        var script = dto.IsSeed
+        /*var script = dto.IsSeed
             ? ForestIndexerConstants.UserBalanceScriptForSeed
-            : ForestIndexerConstants.UserBalanceScriptForNft;
+            : ForestIndexerConstants.UserBalanceScriptForNft;*/
+        var script = dto.IsSeed
+            ? "UserBalanceScriptForSeed"
+            : "UserBalanceScriptForNft";
         var result = await GetMatchedNftIdsPageAsync(userBalanceRepository, logger, dto, script);
 
         return new UserMatchedNftIdsPage

@@ -28,27 +28,18 @@ public partial class Query
         GetExpiredNftMaxOfferDto input)
     {
         logger.LogDebug($"[getNftMaxOffer] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
-        
-        var offerQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-
-        offerQuery.Add(q => q.Term(i => i.Field(index => index.ChainId).Value(input.ChainId)));
-        
+        var queryable = await nftOfferRepository.GetQueryableAsync();
+        queryable = queryable.Where(index => index.ChainId == input.ChainId);
         var expiredTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime.ToString("o");
         var nowStr = DateTime.UtcNow.ToString("o");
-            
-        offerQuery.Add(q => q.TermRange(i
-            => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).GreaterThanOrEquals(expiredTimeStr)));
-        
-        offerQuery.Add(q => q.TermRange(i
-            => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)).LessThan(nowStr)));
-        
-        QueryContainer Filter(QueryContainerDescriptor<OfferInfoIndex> f) => f.Bool(b => b.Must(offerQuery));
-        
-        var result = await nftOfferRepository.GetSortListAsync(Filter, skip: 0);
-        logger.LogDebug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result.Item1}");
+        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >= long.Parse(expiredTimeStr));
+        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) < long.Parse(nowStr));
+
+        var result = queryable.Skip(0).ToList();
+        logger.LogDebug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result.Count}");
         
         List<ExpiredNftMaxOfferDto> data = new();
-        foreach (var item in result.Item2)
+        foreach (var item in result)
         {
             var offerInfo = await nftInfoProvider.GetMaxOfferInfoAsync(item.BizInfoId);
             if (offerInfo == null)
