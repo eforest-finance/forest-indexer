@@ -9,11 +9,6 @@ namespace Forest.Indexer.Plugin.Processors;
 
 public interface INFTOfferProvider
 {
-    public Task<Dictionary<string, OfferInfoIndex>> QueryLatestNFTOfferByNFTIdsAsync(List<string> nftInfoIds,
-        string noOfferId);
-
-    public Task<OfferInfoIndex> QueryMaxPriceExcludeSpecialOfferIdAsync(string bizId, string excludeOfferId);
-
     public Task UpdateOfferRealQualityAsync(string symbol, long balance, string offerFrom, LogEventContext context);
     
     public Task<List<OfferInfoIndex>> GetEffectiveNftOfferInfosAsync(string bizId, string excludeOfferId);
@@ -44,45 +39,6 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
         _nftOfferIndexRepository = nftOfferIndexRepository;
         _tokenIndexRepository = tokenIndexRepository;
         _userNFTOfferNumIndexRepository = userNFTOfferNumIndexRepository;
-    }
-
-    public async Task<Dictionary<string, OfferInfoIndex>> QueryLatestNFTOfferByNFTIdsAsync(
-        List<string> nftInfoIds, string noOfferId)
-    {
-        if (nftInfoIds == null) return new Dictionary<string, OfferInfoIndex>();
-        var queryLatestNFTOfferList = new List<Task<OfferInfoIndex>>();
-        foreach (string nftInfoId in nftInfoIds)
-        {
-            queryLatestNFTOfferList.Add(QueryLatestNFTOfferByNFTIdAsync(nftInfoId, noOfferId));
-        }
-
-        var latestNFTOfferList = await Task.WhenAll(queryLatestNFTOfferList);
-        return await TransferToDicAsync(latestNFTOfferList);
-    }
-
-    public async Task<OfferInfoIndex> QueryMaxPriceExcludeSpecialOfferIdAsync(string bizId, string excludeOfferId)
-    {
-        var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-
-        // mustQuery.Add(q => q.TermRange(i
-        //     => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime))
-        //         .GreaterThan(DateTime.UtcNow.ToString("O")))); todo v2
-        mustQuery.Add(q => q.Term(i => i.Field(index => index.BizInfoId).Value(bizId)));
-
-        var mustNotQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-
-        if (!excludeOfferId.IsNullOrEmpty())
-        {
-            mustNotQuery.Add(q => q.Term(i => i.Field(index => index.Id).Value(excludeOfferId)));
-        }
-
-        QueryContainer Filter(QueryContainerDescriptor<OfferInfoIndex> f) => f.Bool(b => b.Must(mustQuery)
-            .MustNot(mustNotQuery));
-
-        // var result = await _nftOfferIndexRepository.GetListAsync(Filter, sortExp: k => k.Price,
-        //     sortType: SortOrder.Descending, skip: 0, limit: 1);
-        // return result?.Item2?.FirstOrDefault(); todo v2
-        return null;
     }
 
 
@@ -176,28 +132,6 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
         }
 
         return false;
-    }
-
-    private async Task<OfferInfoIndex> QueryLatestNFTOfferByNFTIdAsync(string nftInfoId, string noListingId)
-    {
-        var mustQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-        var mustNotQuery = new List<Func<QueryContainerDescriptor<OfferInfoIndex>, QueryContainer>>();
-        // mustQuery.Add(q => q.TermRange(i
-        //     => i.Field(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime))
-        //         .GreaterThan(DateTime.UtcNow.ToString("O")))); todo v2
-        mustQuery.Add(q => q.Term(i => i.Field(index => index.BizInfoId).Value(nftInfoId)));
-        if (!noListingId.IsNullOrEmpty())
-        {
-            mustNotQuery.Add(q => q.Term(i => i.Field(index => index.Id).Value(noListingId)));
-        }
-
-        QueryContainer Filter(QueryContainerDescriptor<OfferInfoIndex> f) =>
-            f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
-
-        // var result = await _nftOfferIndexRepository.GetListAsync(Filter, sortExp: k => k.BlockHeight,
-        //     sortType: SortOrder.Descending, skip: 0, limit: 1);
-        // return result?.Item2?.FirstOrDefault(); todo v2
-        return null;
     }
 
     private async Task<Dictionary<string, OfferInfoIndex>> TransferToDicAsync(

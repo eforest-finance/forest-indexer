@@ -2,7 +2,6 @@ using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Microsoft.Extensions.Logging;
 using Nest;
 
 namespace Forest.Indexer.Plugin.GraphQL;

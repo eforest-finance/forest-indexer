@@ -178,11 +178,4 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
             _listingInfoProvider.QueryMinPriceExcludeSpecialListingIdAsync(bizId, excludeListingId);
         return result?.Prices ?? 0;
     }*/
-    
-    private async Task<decimal> QueryMaxPriceExcludeSpecialOfferIdAsync(string bizId, string excludeOfferId)
-    {
-        var result = await
-            _nftOfferInfoProvider.QueryMaxPriceExcludeSpecialOfferIdAsync(bizId, excludeOfferId);
-        return result?.Price ?? 0;
-    }
 }
