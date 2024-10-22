@@ -1,3 +1,4 @@
+using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using AElf.Contracts.MultiToken;
@@ -13,13 +14,18 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
 {
     private readonly IObjectMapper _objectMapper;
     private readonly ILogger<TokenIssueLogEventProcessor> _logger;
+    private readonly IReadOnlyRepository<NFTListingInfoIndex> _listedNFTIndexRepository;
+    private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
 
     public TokenIssueLogEventProcessor(ILogger<TokenIssueLogEventProcessor> logger
-        , IObjectMapper objectMapper
-        , IUserBalanceProvider userBalanceProvider)
+        , IObjectMapper objectMapper,
+        IReadOnlyRepository<NFTListingInfoIndex> listedNFTIndexRepository,
+        IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository)
     {
         _objectMapper = objectMapper;
         _logger = logger;
+        _listedNFTIndexRepository = listedNFTIndexRepository;
+        _nftOfferIndexRepository = nftOfferIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
@@ -35,10 +41,9 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         await SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
             eventValue.Amount, context);
-        // await _nftOfferProvider.UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(),
-        //     context);
-        // await _nftListingInfoProvider.UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
-        // await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other); todo v2
+        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
+         await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
+        await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
         if (SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;
         if (SymbolHelper.CheckSymbolIsSeedCollection(eventValue.Symbol)) return;
@@ -55,6 +60,166 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
             return;
         }
         await HandleForSymbolMarketTokenAsync(eventValue, context);
+    }
+    private async Task SaveNFTOfferChangeIndexAsync(LogEventContext context, string symbol, EventType eventType)
+    {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+
+        if (symbol.Equals(ForestIndexerConstants.TokenSimpleElf))
+        {
+            return;
+        }
+
+        var nftOfferChangeIndex = new NFTOfferChangeIndex
+        {
+            Id = IdGenerateHelper.GetId(context.ChainId, symbol, Guid.NewGuid()),
+            NftId = IdGenerateHelper.GetNFTInfoId(context.ChainId, symbol),
+            EventType = eventType,
+            CreateTime = context.Block.BlockTime
+        };
+        
+        _objectMapper.Map(context, nftOfferChangeIndex);
+        await SaveEntityAsync(nftOfferChangeIndex);
+    }
+    private async Task UpdateOfferRealQualityAsync(string symbol, long balance, string offerFrom,
+        LogEventContext context)
+    {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+        if (!SymbolHelper.CheckSymbolIsELF(symbol))
+        {
+            return;
+        }
+        int skip = 0;
+        int limit = 80;
+        
+        {
+            var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
+            var utcNow = DateTime.UtcNow;
+            
+            queryable = queryable.Where(i => i.ExpireTime > utcNow);
+            queryable = queryable.Where(i => i.PurchaseToken.Symbol == symbol);
+            queryable = queryable.Where(i => i.ChainId == context.ChainId);
+            queryable = queryable.Where(i => i.OfferFrom == offerFrom);
+
+            var result = queryable.OrderByDescending(i => i.Price)
+                .Skip(skip)
+                .Take(limit)
+                .ToList();
+
+            if (result.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            var tokenIndexId = IdGenerateHelper.GetId(context.ChainId, symbol);
+            var tokenIndex = await GetEntityAsync<TokenInfoIndex>(tokenIndexId);
+            if (tokenIndex == null)
+            {
+                return;
+            }
+
+            //update RealQuantity
+            foreach (var offerInfoIndex in result)
+            {
+                if (symbol.Equals(offerInfoIndex!.PurchaseToken.Symbol))
+                {
+                    var symbolTokenIndexId = IdGenerateHelper.GetId(context.ChainId, offerInfoIndex.BizSymbol);
+                    var symbolTokenInfo =
+                        await GetEntityAsync<TokenInfoIndex>(symbolTokenIndexId);
+                    
+                    var canBuyNum = Convert.ToInt64(Math.Floor(Convert.ToDecimal(balance) /
+                                                               (offerInfoIndex.Price *
+                                                                (decimal)Math.Pow(10,
+                                                                    tokenIndex.Decimals))));
+                    canBuyNum = (long)(canBuyNum * (decimal)Math.Pow(10, symbolTokenInfo.Decimals));
+                    _logger.LogInformation(
+                        "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
+                        offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
+                    
+                    var realQuantity = Math.Min(offerInfoIndex.Quantity,
+                        canBuyNum);
+                    if (realQuantity != offerInfoIndex.RealQuantity)
+                    {
+                        offerInfoIndex.RealQuantity = realQuantity;
+                        _objectMapper.Map(context, offerInfoIndex);
+                        var research = GetEntityAsync<OfferInfoIndex>(offerInfoIndex.Id);
+                        if (research == null)
+                        {
+                            _logger.LogInformation(
+                                "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
+                                offerInfoIndex.Id);
+                            continue;
+                        }
+                        await SaveEntityAsync(offerInfoIndex);
+                    }
+                }
+            }
+        } 
+    }
+    
+    private async Task UpdateListingInfoRealQualityAsync(string symbol, long balance, string ownerAddress, LogEventContext context)
+    {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+        if (SymbolHelper.CheckSymbolIsELF(symbol))
+        {
+            return;
+        }
+        var nftId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, symbol);
+        var queryable = await _listedNFTIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x => DateTimeHelper.ToUnixTimeMilliseconds(x.ExpireTime)>long.Parse(DateTime.UtcNow.ToString("O")));
+        queryable = queryable.Where(x=>x.NftInfoId==nftId);
+        queryable = queryable.Where(x=>x.Owner==ownerAddress);
+
+        int skip = 0;
+        var nftListings = new List<NFTListingInfoIndex>();
+        int queryCount = 0;
+        while (queryCount < ForestIndexerConstants.MaxQueryCount)
+        {
+
+            var result = queryable.Skip(skip).Take(ForestIndexerConstants.MaxQuerySize).OrderByDescending(x=>x.BlockHeight).ToList();
+            if (result.IsNullOrEmpty())
+            {
+                break;
+            }
+            if(result.Count < ForestIndexerConstants.MaxQuerySize)
+            {
+                nftListings.AddRange(result);
+                break;
+            }
+            skip += ForestIndexerConstants.MaxQuerySize;
+            queryCount++;
+        }
+
+        var writeCount = 0;
+        //update RealQuantity
+        foreach (var nftListingInfoIndex in nftListings)
+        {
+            writeCount++;
+            if (writeCount >= ForestIndexerConstants.MaxWriteDBRecord)
+            {
+                Logger.LogInformation("CrossChainReceivedProcessor.UpdateListingInfoRealQualityAsync recordCount:{A} ,limit:{B}, user:{C},symbol:{D}, balance:{E}",
+                    nftListings.Count,ForestIndexerConstants.MaxWriteDBRecord, ownerAddress, symbol, balance);
+                break;
+            }
+            var realNftListingInfoIndex = await GetEntityAsync<NFTListingInfoIndex>(nftListingInfoIndex.Id);
+            if (realNftListingInfoIndex == null) continue;
+            var realQuantity = Math.Min(realNftListingInfoIndex.Quantity, balance);
+            if (realQuantity != realNftListingInfoIndex.RealQuantity)
+            {
+                realNftListingInfoIndex.RealQuantity = realQuantity;
+                _objectMapper.Map(context, realNftListingInfoIndex);
+                await SaveEntityAsync(realNftListingInfoIndex);
+            }
+        }
     }
     
     public async Task<long> SaveUserBalanceAsync(String symbol, String address, long amount, LogEventContext context)

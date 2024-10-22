@@ -92,4 +92,7 @@ public static partial class ForestIndexerConstants
     public const string GenesisContractAddressTDVV = "";
     public const string GenesisContractAddressTDVW = "";
     public const int MaxWriteDBRecord = 80;
+    public const int MaxQueryCount = 5;
+    public const int MaxQuerySize = 10000;
+    public static List<string> NeedRecordBalanceOptionsAddressList = new ();
 }

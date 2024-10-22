@@ -21,4 +21,6 @@ public class NFTOfferBase: AeFinderEntity, IAeFinderEntity
     
     [Keyword]
     public string ChainId { get; set; }
+    
+    public string BlockHeight { get; set; }
 }
