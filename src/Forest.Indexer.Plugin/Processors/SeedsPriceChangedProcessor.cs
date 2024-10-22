@@ -1,9 +1,9 @@
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
@@ -11,14 +11,11 @@ namespace Forest.Indexer.Plugin.Processors;
 public class SeedsPriceChangedProcessor : LogEventProcessorBase<SeedsPriceChanged>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ILogger<SeedsPriceChangedProcessor> _logger;
-
+    
     public SeedsPriceChangedProcessor(
-        ILogger<SeedsPriceChangedProcessor> logger,
         IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _logger = logger;
     }
 
     public override string GetContractAddress(string chainId)
@@ -30,7 +27,7 @@ public class SeedsPriceChangedProcessor : LogEventProcessorBase<SeedsPriceChange
     {
         if (eventValue.FtPriceList != null)
         {
-            _logger.LogDebug("SeedsPriceChanged FtPriceList {Size}", eventValue.FtPriceList.Value.Count);
+            Logger.LogDebug("SeedsPriceChanged FtPriceList {Size}", eventValue.FtPriceList.Value.Count);
             foreach (var priceItem in eventValue.FtPriceList.Value)
             {
                 await SaveSeedPriceIndexAsync(TokenType.FT, priceItem, context);
@@ -40,7 +37,7 @@ public class SeedsPriceChangedProcessor : LogEventProcessorBase<SeedsPriceChange
 
         if (eventValue.NftPriceList != null)
         {
-            _logger.LogDebug("SeedsPriceChanged NftPriceList {Size}", eventValue.FtPriceList.Value.Count);
+            Logger.LogDebug("SeedsPriceChanged NftPriceList {Size}", eventValue.FtPriceList.Value.Count);
             foreach (var priceItem in eventValue.NftPriceList.Value)
             {
                 await SaveSeedPriceIndexAsync(TokenType.NFT, priceItem, context);

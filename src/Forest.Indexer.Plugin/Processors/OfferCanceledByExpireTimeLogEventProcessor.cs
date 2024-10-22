@@ -1,8 +1,8 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -10,14 +10,12 @@ namespace Forest.Indexer.Plugin.Processors;
 
 public class OfferCanceledByExpireTimeLogEventProcessor : LogEventProcessorBase<OfferCanceledByExpireTime>
 {
-    private readonly ILogger<OfferCanceledByExpireTimeLogEventProcessor> _logger;
     private readonly IObjectMapper _objectMapper;
     private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
-    public OfferCanceledByExpireTimeLogEventProcessor(ILogger<OfferCanceledByExpireTimeLogEventProcessor> logger,
+    public OfferCanceledByExpireTimeLogEventProcessor(
         IObjectMapper objectMapper,
         IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository)
     {
-        _logger = logger;
         _objectMapper = objectMapper;
         _nftOfferIndexRepository = nftOfferIndexRepository;
     }
@@ -29,8 +27,8 @@ public class OfferCanceledByExpireTimeLogEventProcessor : LogEventProcessorBase<
 
     public async override Task ProcessAsync(OfferCanceledByExpireTime eventValue, LogEventContext context)
     {
-        _logger.LogDebug("OfferCanceledByExpireTimeLogEventProcessor-1 {context}", JsonConvert.SerializeObject(context));
-        _logger.LogDebug("OfferCanceledByExpireTimeLogEventProcessor-2 {eventValue}",
+        Logger.LogDebug("OfferCanceledByExpireTimeLogEventProcessor-1 {context}", JsonConvert.SerializeObject(context));
+        Logger.LogDebug("OfferCanceledByExpireTimeLogEventProcessor-2 {eventValue}",
             JsonConvert.SerializeObject(eventValue));
 
         var queryable = await _nftOfferIndexRepository.GetQueryableAsync();

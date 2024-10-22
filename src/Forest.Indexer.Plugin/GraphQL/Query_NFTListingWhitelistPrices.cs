@@ -3,7 +3,6 @@ using AElfIndexer.Client;
 using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Microsoft.Extensions.Logging;
 using Nest;
 using Newtonsoft.Json;
 using Orleans.Runtime;

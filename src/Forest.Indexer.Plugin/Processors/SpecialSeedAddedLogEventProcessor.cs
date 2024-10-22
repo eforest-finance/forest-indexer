@@ -3,7 +3,6 @@ using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
@@ -13,7 +12,6 @@ public class  SpecialSeedAddedLogEventProcessor: LogEventProcessorBase<SpecialSe
     private readonly IObjectMapper _objectMapper;
     
     public SpecialSeedAddedLogEventProcessor(
-        ILogger<SpecialSeedAddedLogEventProcessor> logger, 
         IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;

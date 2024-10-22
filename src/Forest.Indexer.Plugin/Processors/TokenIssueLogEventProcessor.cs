@@ -4,7 +4,6 @@ using AeFinder.Sdk.Processor;
 using AElf.Contracts.MultiToken;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -13,17 +12,14 @@ namespace Forest.Indexer.Plugin.Processors;
 public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ILogger<TokenIssueLogEventProcessor> _logger;
     private readonly IReadOnlyRepository<NFTListingInfoIndex> _listedNFTIndexRepository;
     private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
 
-    public TokenIssueLogEventProcessor(ILogger<TokenIssueLogEventProcessor> logger
-        , IObjectMapper objectMapper,
+    public TokenIssueLogEventProcessor(IObjectMapper objectMapper,
         IReadOnlyRepository<NFTListingInfoIndex> listedNFTIndexRepository,
         IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository)
     {
         _objectMapper = objectMapper;
-        _logger = logger;
         _listedNFTIndexRepository = listedNFTIndexRepository;
         _nftOfferIndexRepository = nftOfferIndexRepository;
     }
@@ -35,8 +31,8 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
 
     public async override Task ProcessAsync(Issued eventValue, LogEventContext context)
     {
-        _logger.LogDebug("TokenIssueLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        _logger.LogDebug("TokenIssueLogEventProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("TokenIssueLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("TokenIssueLogEventProcessor-2"+JsonConvert.SerializeObject(context));
         if (eventValue == null || context == null) return;
         await SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
@@ -138,7 +134,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
                                                                 (decimal)Math.Pow(10,
                                                                     tokenIndex.Decimals))));
                     canBuyNum = (long)(canBuyNum * (decimal)Math.Pow(10, symbolTokenInfo.Decimals));
-                    _logger.LogInformation(
+                    Logger.LogInformation(
                         "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
                         offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
                     
@@ -151,7 +147,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
                         var research = GetEntityAsync<OfferInfoIndex>(offerInfoIndex.Id);
                         if (research == null)
                         {
-                            _logger.LogInformation(
+                            Logger.LogInformation(
                                 "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
                                 offerInfoIndex.Id);
                             continue;
@@ -248,7 +244,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         }
 
         _objectMapper.Map(context, userBalanceIndex);
-        _logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
+        Logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
             symbol, userBalanceIndex.Amount);
         await SaveEntityAsync(userBalanceIndex);
         return userBalanceIndex.Amount;
@@ -256,7 +252,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
 
     private async Task HandleForSymbolMarketTokenAsync(Issued eventValue, LogEventContext context)
     {
-        _logger.LogDebug("TokenIssueLogEventProcessor-3-HandleForNoMainChainSeedTokenAsync");
+        Logger.LogDebug("TokenIssueLogEventProcessor-3-HandleForNoMainChainSeedTokenAsync");
         if (eventValue == null || context == null) return;
         
         var symbolMarketTokenIndexId = IdGenerateHelper.GetSymbolMarketTokenId(context.ChainId, eventValue.Symbol);
@@ -280,11 +276,11 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         symbolMarketTokenIndex =
             await FillProxyAccountInfoForSymbolMarketTokenIndexIssuerAsync(symbolMarketTokenIndex,
                 context.ChainId);
-        _logger.LogDebug("TokenIssueLogEventProcessor-31-HandleForNoMainChainSeedTokenAsync"+JsonConvert.SerializeObject(symbolMarketTokenIndex));
+        Logger.LogDebug("TokenIssueLogEventProcessor-31-HandleForNoMainChainSeedTokenAsync"+JsonConvert.SerializeObject(symbolMarketTokenIndex));
         _objectMapper.Map(context, symbolMarketTokenIndex);
-        _logger.LogDebug("TokenIssueLogEventProcessor-32-HandleForNoMainChainSeedTokenAsync"+JsonConvert.SerializeObject(symbolMarketTokenIndex));
+        Logger.LogDebug("TokenIssueLogEventProcessor-32-HandleForNoMainChainSeedTokenAsync"+JsonConvert.SerializeObject(symbolMarketTokenIndex));
         await SaveEntityAsync(symbolMarketTokenIndex);
-        _logger.LogDebug("TokenIssueLogEventProcessor-33-HandleForNoMainChainSeedTokenAsync");
+        Logger.LogDebug("TokenIssueLogEventProcessor-33-HandleForNoMainChainSeedTokenAsync");
         await SaveActivityAsync(eventValue, context, symbolMarketTokenIndex.Id, symbolMarketTokenIndex.Decimals);
     }
 

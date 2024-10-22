@@ -1,4 +1,5 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
 using Microsoft.Extensions.Logging;
@@ -333,13 +334,12 @@ public partial class Query
         [FromServices] IReadOnlyRepository<NFTListingInfoIndex> nftListingRepo,
         [FromServices] IReadOnlyRepository<TokenInfoIndex> tokenIndexRepository,
         [FromServices] IObjectMapper objectMapper,
-        [FromServices] ILogger<NFTListingInfoIndex> _logger,
         GetNFTListingDto input)
     {
         if (input.ChainId.IsNullOrWhiteSpace())
             return new NftListingPageResultDto("invalid input param");
 
-        _logger.LogDebug("[NFTListingInfoAll] INPUT: chainId={A}, blockHeight={B}", input.ChainId, input.BlockHeight);
+        Logger.LogDebug("[NFTListingInfoAll] INPUT: chainId={A}, blockHeight={B}", input.ChainId, input.BlockHeight);
 
         var queryable = await nftListingRepo.GetQueryableAsync();
         // query listing info
@@ -354,7 +354,7 @@ public partial class Query
 
         var result = queryable.Skip(input.SkipCount).Take(input.MaxResultCount).OrderBy(a=>a.BlockHeight).ToList();
         var count = result.IsNullOrEmpty() ? 0 : result.Count;
-        _logger.LogDebug(
+        Logger.LogDebug(
             "[NFTListingInfoAll] SETP: query Pager chainId={A}, height={B}, count={C}", input.ChainId, input.BlockHeight,count);
         
         var dataList = result.Select(i =>
@@ -366,7 +366,7 @@ public partial class Query
             return item;
         }).ToList();
 
-        _logger.LogDebug(
+        Logger.LogDebug(
             "[NFTListingInfoAll] SETP: Convert Data chainId={A}, height={B}, count={C}",input.ChainId, input.BlockHeight,dataList.Count);
         return new NftListingPageResultDto(result.Count, dataList);
     }

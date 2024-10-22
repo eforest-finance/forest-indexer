@@ -2,7 +2,6 @@ using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -11,16 +10,13 @@ namespace Forest.Indexer.Plugin.Processors;
 public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
 
 {
-    private readonly ILogger<SoldLogEventProcessor> _logger;
     private readonly IObjectMapper _objectMapper;
 
 
     public SoldLogEventProcessor(
-        ILogger<SoldLogEventProcessor> logger,
         IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _logger = logger;
     }
 
     public override string GetContractAddress(string chainId)
@@ -37,7 +33,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
     {
         // It's possible to execute multiple identical 'sold' events in a single transaction.
         var soldIndexId = IdGenerateHelper.GetId(context.ChainId, eventValue.NftSymbol, context.Transaction.TransactionId, Guid.NewGuid());
-        _logger.LogDebug("[Sold] START: soldIndexId={soldIndexId}, Event={Event}", soldIndexId,
+        Logger.LogDebug("[Sold] START: soldIndexId={soldIndexId}, Event={Event}", soldIndexId,
             JsonConvert.SerializeObject(eventValue));
 
         var nftInfoIndexId = "";
@@ -53,7 +49,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
 
         if (nftInfoIndexId.IsNullOrEmpty())
         {
-            _logger.LogError("eventValue.NftSymbol is not nft return,symbol={A}", eventValue.NftSymbol);
+            Logger.LogError("eventValue.NftSymbol is not nft return,symbol={A}", eventValue.NftSymbol);
             return;
         }
 
@@ -63,7 +59,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
         var nftTokenIndex = await GetEntityAsync<TokenInfoIndex>(nftTokenIndexId);
         if (nftTokenIndex == null)
         {
-            _logger.LogDebug(
+            Logger.LogDebug(
                 "[Sold] FAIL: nftInfo not found soldIndex not found soldIndexId={soldIndexId}, tokenIndexId={tokenIndexId}",
                 soldIndexId, nftTokenIndexId);
             return;
@@ -78,7 +74,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
 
         if (purchaseTokenIndex == null)
         {
-            _logger.LogDebug(
+            Logger.LogDebug(
                 "[Sold] FAIL: purchaseToken not found soldIndexId={soldIndexId}, purchaseTokenIndexId={purchaseTokenIndexId}",
                 soldIndexId, purchaseTokenIndexId);
             return;
@@ -95,7 +91,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
         var soldIndex = await GetEntityAsync<SoldIndex>(soldIndexId);
         if (soldIndex != null)
         {
-            _logger.LogDebug("[Sold] FAIL: soldIndex exists soldIndexId={soldIndexId}", soldIndexId);
+            Logger.LogDebug("[Sold] FAIL: soldIndex exists soldIndexId={soldIndexId}", soldIndexId);
             return;
         }
 
@@ -106,7 +102,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
         soldIndex.NftInfoId = nftTokenIndexId;
         soldIndex.CollectionSymbol = SymbolHelper.GetNFTCollectionSymbol(eventValue.NftSymbol);
         _objectMapper.Map(context, soldIndex);
-        _logger.LogDebug("[Sold] SAVE: soldIndex, soldIndex={Id}", nftTokenIndexId);
+        Logger.LogDebug("[Sold] SAVE: soldIndex, soldIndex={Id}", nftTokenIndexId);
         await SaveEntityAsync(soldIndex);
         // NFT market
         var nftMarketIndex = _objectMapper.Map<LogEventContext, NFTMarketInfoIndex>(context);
@@ -116,7 +112,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
         nftMarketIndex.Quantity = (int)eventValue.NftQuantity;
         nftMarketIndex.Timestamp = context.Block.BlockTime;
         nftMarketIndex.NFTInfoId = nftTokenIndexId;
-        _logger.LogDebug("[Sold] STEP: save nftMarketIndex, tokenIndexId={Id}, nftMarketIndex={nftMarketIndex}",
+        Logger.LogDebug("[Sold] STEP: save nftMarketIndex, tokenIndexId={Id}, nftMarketIndex={nftMarketIndex}",
             nftTokenIndexId, JsonConvert.SerializeObject(nftMarketIndex));
         await SaveEntityAsync(nftMarketIndex);
 
@@ -139,7 +135,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
             });
         if (!activitySaved)
         {
-            _logger.LogDebug("[Sold] SAVE activity FAILED, nftActivityIndexId={nftActivityIndexId}", nftActivityIndexId);
+            Logger.LogDebug("[Sold] SAVE activity FAILED, nftActivityIndexId={nftActivityIndexId}", nftActivityIndexId);
             return;
         }
         
@@ -152,7 +148,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
             {
                 nftInfo.LatestDealToken = purchaseTokenIndex;
 
-                _logger.LogDebug(
+                Logger.LogDebug(
                     "[Sold] STEP: update nftInfo (seed), tokenIndexId={Id}, LatestDealPrice={LatestDealPrice}, LatestDealTime={LatestDealTime}",
                     nftTokenIndexId, singlePrice, soldIndex.DealTime);
                 _objectMapper.Map(context, nftInfo);
@@ -167,7 +163,7 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
                 nftInfo.LatestDealTime = soldIndex.DealTime;
                 nftInfo.LatestDealToken = purchaseTokenIndex;
 
-                _logger.LogDebug(
+                Logger.LogDebug(
                     "[Sold] STEP: update nftInfo, tokenIndexId={Id}, LatestDealPrice={LatestDealPrice}, LatestDealTime={LatestDealTime}",
                     nftTokenIndexId, nftInfo.LatestDealPrice, nftInfo.LatestDealTime);
                 _objectMapper.Map(context, nftInfo);

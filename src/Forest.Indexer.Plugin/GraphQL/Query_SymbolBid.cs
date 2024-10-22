@@ -1,7 +1,6 @@
 using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Microsoft.Extensions.Logging;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -44,7 +43,6 @@ public partial class Query
     public static async Task<List<SymbolBidInfoDto>> GetSymbolBidInfosAsync(
         [FromServices] IReadOnlyRepository<SymbolBidInfoIndex> repository,
         [FromServices] IObjectMapper objectMapper,
-        [FromServices] ILogger<SymbolBidInfoIndex> logger,
         GetChainBlockHeightDto dto
     )
     {

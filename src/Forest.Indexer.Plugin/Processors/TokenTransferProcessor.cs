@@ -4,7 +4,6 @@ using AeFinder.Sdk.Processor;
 using AElf.Contracts.MultiToken;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -13,17 +12,14 @@ namespace Forest.Indexer.Plugin.Processors;
 public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ILogger<TokenTransferProcessor> _logger;
     private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
     private readonly IReadOnlyRepository<NFTListingInfoIndex> _listedNFTIndexRepository;
 
-    public TokenTransferProcessor(ILogger<TokenTransferProcessor> logger,
-        IObjectMapper objectMapper,
+    public TokenTransferProcessor(IObjectMapper objectMapper,
         IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository,
         IReadOnlyRepository<NFTListingInfoIndex> listedNFTIndexRepository)
     {
         _objectMapper = objectMapper;
-        _logger = logger;
         _nftOfferIndexRepository = nftOfferIndexRepository;
         _listedNFTIndexRepository = listedNFTIndexRepository;
     }
@@ -35,9 +31,9 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
     public async override Task ProcessAsync(Transferred eventValue, LogEventContext context)
     {
-        _logger.LogDebug("TokenTransferProcessor-1"+JsonConvert.SerializeObject
+        Logger.LogDebug("TokenTransferProcessor-1"+JsonConvert.SerializeObject
             (eventValue));
-        _logger.LogDebug("TokenTransferProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("TokenTransferProcessor-2"+JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
         await UpdateUserFromBalanceAsync(eventValue, context);
@@ -47,7 +43,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         if (SymbolHelper.CheckSymbolIsSeedCollection(eventValue.Symbol)) return;
         if (SymbolHelper.CheckSymbolIsSeedSymbol(eventValue.Symbol))
         {
-            _logger.LogDebug("TokenTransferProcessor-3"+JsonConvert.SerializeObject
+            Logger.LogDebug("TokenTransferProcessor-3"+JsonConvert.SerializeObject
                 (eventValue));
             await HandleForSeedSymbolTransferAsync(eventValue, context);
             return;
@@ -66,9 +62,9 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
     private async Task DoHandleForSeedSymbolTransferAsync(Transferred eventValue, LogEventContext context)
     {
-        _logger.LogDebug("TokenTransferProcessor-4"+JsonConvert.SerializeObject
+        Logger.LogDebug("TokenTransferProcessor-4"+JsonConvert.SerializeObject
             (eventValue));
-        _logger.LogDebug("TokenTransferProcessor-5"+JsonConvert.SerializeObject
+        Logger.LogDebug("TokenTransferProcessor-5"+JsonConvert.SerializeObject
             (context));
         var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
         var seedSymbol =
@@ -76,7 +72,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
         if (seedSymbol == null) return;
         if (seedSymbol.IsDeleted) return;
-        _logger.LogDebug("TokenTransferProcessor-8"+JsonConvert.SerializeObject
+        Logger.LogDebug("TokenTransferProcessor-8"+JsonConvert.SerializeObject
             (seedSymbol));
 
         _objectMapper.Map(context, seedSymbol);
@@ -439,7 +435,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
                                                                 (decimal)Math.Pow(10,
                                                                     tokenIndex.Decimals))));
                     canBuyNum = (long)(canBuyNum * (decimal)Math.Pow(10, symbolTokenInfo.Decimals));
-                    _logger.LogInformation(
+                    Logger.LogInformation(
                         "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
                         offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
                     
@@ -452,7 +448,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
                         var research = GetEntityAsync<OfferInfoIndex>(offerInfoIndex.Id);
                         if (research == null)
                         {
-                            _logger.LogInformation(
+                            Logger.LogInformation(
                                 "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
                                 offerInfoIndex.Id);
                             continue;

@@ -1,9 +1,9 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using AElf.Contracts.MultiToken;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -12,16 +12,14 @@ namespace Forest.Indexer.Plugin.Processors;
 public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<TransactionFeeCharged>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ILogger<TransactionFeeChargedLogEventProcessor> _logger;
     private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
     
 
-    public TransactionFeeChargedLogEventProcessor(ILogger<TransactionFeeChargedLogEventProcessor> logger,
+    public TransactionFeeChargedLogEventProcessor(
         IObjectMapper objectMapper,
         IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository)
     {
         _objectMapper = objectMapper;
-        _logger = logger;
         _nftOfferIndexRepository = nftOfferIndexRepository;
     }
 
@@ -32,8 +30,8 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
 
     public async override Task ProcessAsync(TransactionFeeCharged eventValue, LogEventContext context)
     {
-        _logger.LogDebug("TransactionFeeChargedLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        _logger.LogDebug("TransactionFeeChargedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("TransactionFeeChargedLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("TransactionFeeChargedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
         var needRecordBalance =
@@ -131,7 +129,7 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
                                                                 (decimal)Math.Pow(10,
                                                                     tokenIndex.Decimals))));
                     canBuyNum = (long)(canBuyNum * (decimal)Math.Pow(10, symbolTokenInfo.Decimals));
-                    _logger.LogInformation(
+                    Logger.LogInformation(
                         "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
                         offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
                     
@@ -144,7 +142,7 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
                         var research = GetEntityAsync<OfferInfoIndex>(offerInfoIndex.Id);
                         if (research == null)
                         {
-                            _logger.LogInformation(
+                            Logger.LogInformation(
                                 "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
                                 offerInfoIndex.Id);
                             continue;
@@ -181,7 +179,7 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
         }
 
         _objectMapper.Map(context, userBalanceIndex);
-        _logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
+        Logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
             symbol, userBalanceIndex.Amount);
         await SaveEntityAsync(userBalanceIndex);
         return userBalanceIndex.Amount;

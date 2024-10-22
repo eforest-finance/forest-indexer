@@ -1,23 +1,20 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
 public class OfferCanceledLogEventProcessor : LogEventProcessorBase<OfferCanceled>
 {
-    private readonly ILogger<OfferCanceledLogEventProcessor> _logger;
     private readonly IObjectMapper _objectMapper;
     private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
     public OfferCanceledLogEventProcessor(
-        ILogger<OfferCanceledLogEventProcessor> logger,
         IObjectMapper objectMapper,
         IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository)
     {
-        _logger = logger;
         _objectMapper = objectMapper;
         _nftOfferIndexRepository = nftOfferIndexRepository;
     }
@@ -53,7 +50,7 @@ public class OfferCanceledLogEventProcessor : LogEventProcessorBase<OfferCancele
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "[OfferCanceled] ERROR: Symbol={Symbol},index = {Index},size = {Size}",
+                Logger.LogError(e, "[OfferCanceled] ERROR: Symbol={Symbol},index = {Index},size = {Size}",
                     eventValue.Symbol, index, offerIndex.Count);
                 throw;
             }
@@ -171,14 +168,14 @@ public class OfferCanceledLogEventProcessor : LogEventProcessorBase<OfferCancele
             // deal history data
             if (nftOfferNumIndex.OfferNum < 0)
             {
-                _logger.LogWarning(
+                Logger.LogWarning(
                     "UpdateOfferNumAsync has history Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
                     symbol, nftOfferNumIndex.OfferNum);
                 nftOfferNumIndex.OfferNum = 0;
             }
         }
 
-        _logger.LogInformation("UpdateOfferNumAsync Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
+        Logger.LogInformation("UpdateOfferNumAsync Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
             symbol, nftOfferNumIndex.OfferNum);
         _objectMapper.Map(context, nftOfferNumIndex);
         await SaveEntityAsync(nftOfferNumIndex);

@@ -1,4 +1,5 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
 using Microsoft.Extensions.Logging;
@@ -163,7 +164,6 @@ public partial class Query
     
     private static async Task<List<string>> GetMatchedNftIdsAsync(
         [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceAppService,
-        [FromServices] ILogger<UserBalanceIndex> logger,
         GetNFTInfosDto dto,
         string symbolPrefix)
     {
@@ -191,13 +191,12 @@ public partial class Query
             }
         } while (!userBalanceIndexList.IsNullOrEmpty());
 
-        logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
+        Logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
         return nftIds;
     }
     //todo V2 use script ,code:undo
     private static async Task<Tuple<long, List<string>>> GetMatchedNftIdsPageAsync(
         [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceAppService,
-        [FromServices] ILogger<UserBalanceIndex> logger,
         GetNFTInfosDto dto,
         string script)
     {
@@ -254,7 +253,7 @@ public partial class Query
             totalCount = queryable.Count();
         }
 
-        logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
+        Logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
         var count = (long)(totalCount ?? 0);
         return new Tuple<long, List<string>>(count, nftIds);
     }

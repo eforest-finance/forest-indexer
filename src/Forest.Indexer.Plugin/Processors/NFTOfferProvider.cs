@@ -1,10 +1,8 @@
-using System.Linq.Dynamic.Core;
+using AeFinder.Sdk;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
-using Microsoft.Extensions.Logging;
 using Nest;
 using Volo.Abp.DependencyInjection;
-using Volo.Abp.Domain.Repositories;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
@@ -28,7 +26,6 @@ public interface INFTOfferProvider
 
 public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
 {
-    private readonly ILogger<NFTOfferProvider> _logger;
     private readonly IObjectMapper _objectMapper;
     private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
     private readonly IReadOnlyRepository<TokenInfoIndex> _tokenIndexRepository;
@@ -36,14 +33,13 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
     private readonly IReadOnlyRepository<UserNFTOfferNumIndex>
         _userNFTOfferNumIndexRepository;
 
-    public NFTOfferProvider(ILogger<NFTOfferProvider> logger,
+    public NFTOfferProvider(
         IObjectMapper objectMapper,
         IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository,
         IReadOnlyRepository<TokenInfoIndex> tokenIndexRepository,
         IReadOnlyRepository<UserNFTOfferNumIndex> userNFTOfferNumIndexRepository
     )
     {
-        _logger = logger;
         _objectMapper = objectMapper;
         _nftOfferIndexRepository = nftOfferIndexRepository;
         _tokenIndexRepository = tokenIndexRepository;

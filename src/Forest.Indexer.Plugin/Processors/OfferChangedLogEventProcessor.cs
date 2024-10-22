@@ -1,22 +1,18 @@
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
 public class OfferChangedLogEventProcessor : LogEventProcessorBase<OfferChanged>
 {
-    private readonly ILogger<OfferChangedLogEventProcessor> _logger;
     private readonly IObjectMapper _objectMapper;
 
     public OfferChangedLogEventProcessor(
-        ILogger<OfferChangedLogEventProcessor> logger, 
         IObjectMapper objectMapper
     )
     {
-        _logger = logger;
         _objectMapper = objectMapper;
     }
 

@@ -1,8 +1,8 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors.Provider;
 using GraphQL;
-using Microsoft.Extensions.Logging;
 using Nest;
 using Volo.Abp.ObjectMapping;
 
@@ -10,6 +10,7 @@ namespace Forest.Indexer.Plugin.GraphQL;
 
 public partial class Query
 {
+    private static readonly IAeFinderLogger Logger;
     private const int QuerySize = 1000;
     private const int ChunkSize = 100;
     
@@ -217,7 +218,6 @@ public partial class Query
     public static async Task<NFTCollectionPriceResultDto> CalcNFTCollectionPriceAsync(
         [FromServices] ICollectionProvider collectionProvider,
         [FromServices] IObjectMapper objectMapper,
-        [FromServices] ILogger<CollectionIndex> _logger,
         GetNFTCollectionPriceDto dto)
     {
         var floorPrice = await collectionProvider.
@@ -232,7 +232,6 @@ public partial class Query
     public static async Task<NFTCollectionTradeResultDto> CalcNFTCollectionTradeAsync(
         [FromServices] ICollectionProvider collectionProvider,
         [FromServices] IObjectMapper objectMapper,
-        [FromServices] ILogger<CollectionIndex> _logger,
         CalNFTCollectionTradeDto dto)
     {
         var floorPrice =
@@ -263,13 +262,12 @@ public partial class Query
         [FromServices] IReadOnlyRepository<SeedSymbolIndex> seedSymbolRepository,
         [FromServices] IReadOnlyRepository<NFTInfoIndex> nftInfoRepository,
         [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
-        [FromServices] ILogger<CollectionIndex> _logger,
         GetNFTCollectionGenerateDataDto dto)
     {
         if (ForestIndexerConstants.SeedCollectionSymbol.Equals(dto.Symbol))
         { 
             var collectionExtensionResultDto = 
-                await CountSeedSymbolIndexAsync(seedSymbolRepository, userBalanceRepository, _logger, dto.ChainId);
+                await CountSeedSymbolIndexAsync(seedSymbolRepository, userBalanceRepository, dto.ChainId);
             return collectionExtensionResultDto;
         }
         var queryable = await nftInfoRepository.GetQueryableAsync();
@@ -288,7 +286,7 @@ public partial class Query
         {
             var result = queryable.Skip(itemTotal).Take(QuerySize).OrderBy(o => o.BlockHeight).ToList();
             var count = result.IsNullOrEmpty() ? 0 : result.Count;
-            _logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",count);
+            Logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",count);
             dataList = result;
             if (dataList.IsNullOrEmpty())
             {
@@ -306,7 +304,7 @@ public partial class Query
         var userSet = new HashSet<string>();
         foreach (var nftIds in splitList)
         {
-            await GenerateUserCountByNFTIdsAsync(userBalanceRepository, _logger, nftIds, userSet);
+            await GenerateUserCountByNFTIdsAsync(userBalanceRepository, nftIds, userSet);
         }
         var resultDto = new NFTCollectionExtensionResultDto
         {
@@ -323,7 +321,6 @@ public partial class Query
      */
     private static async Task GenerateUserCountByNFTIdsAsync(
         [FromServices] IReadOnlyRepository<UserBalanceIndex> repository,
-        [FromServices] ILogger<CollectionIndex> _logger,
         HashSet<string> nftIds,
         HashSet<string> userSet)
     {
@@ -335,7 +332,7 @@ public partial class Query
         do
         {
             var result = queryable.Skip(skipCount).Take(QuerySize).OrderBy(o => o.BlockHeight).ToList();
-            _logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result?.Count);
+            Logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result?.Count);
             dataList = result;
             if (dataList.IsNullOrEmpty())
             {
@@ -352,7 +349,6 @@ public partial class Query
     private static async Task<NFTCollectionExtensionResultDto> CountSeedSymbolIndexAsync(
         [FromServices] IReadOnlyRepository<SeedSymbolIndex> repository,
         [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
-        [FromServices] ILogger<CollectionIndex> _logger,
         string chainId)
     {
         var queryable = await repository.GetQueryableAsync();
@@ -367,7 +363,7 @@ public partial class Query
         {
             var result = queryable.Skip(itemTotal).Take(QuerySize).ToList();
             var count = result.IsNullOrEmpty() ? 0 : result.Count;
-            _logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", count);
+            Logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", count);
             dataList = result;
             if (dataList.IsNullOrEmpty())
             {
@@ -384,7 +380,7 @@ public partial class Query
         var userSet = new HashSet<string>();
         foreach (var nftIds in splitList)
         {
-            await GenerateUserCountByNFTIdsAsync(userBalanceRepository, _logger, nftIds, userSet);
+            await GenerateUserCountByNFTIdsAsync(userBalanceRepository, nftIds, userSet);
         }
         var resultDto = new NFTCollectionExtensionResultDto
         {

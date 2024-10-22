@@ -260,21 +260,6 @@ public partial class Query
         };
     }
 
-    private static Func<SortDescriptor<NFTActivityIndex>, IPromise<IList<ISort>>> GetSortForNFTActivityIndexs(string sortType)
-    {
-        SortDescriptor<NFTActivityIndex> sortDescriptor = new SortDescriptor<NFTActivityIndex>();
-        if (sortType.IsNullOrEmpty() || sortType.Equals("DESC"))
-        {
-            sortDescriptor.Descending(a=>a.Timestamp);
-        }else
-        {
-            sortDescriptor.Ascending(a=>a.Timestamp);
-        }
-
-        IPromise<IList<ISort>> promise = sortDescriptor;
-        return s => promise;
-    }
-
     [Name("marketData")]
     public static async Task<MarketDataPageResultDto> MarketDataAsync(
         [FromServices] IReadOnlyRepository<NFTMarketDayIndex> _nftMarketDayIndexRepository,

@@ -1,7 +1,7 @@
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -9,13 +9,10 @@ namespace Forest.Indexer.Plugin.Processors;
 
 public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
 {
-    private readonly ILogger<OfferAddedLogEventProcessor> _logger;
     private readonly IObjectMapper _objectMapper;
 
-    public OfferAddedLogEventProcessor(ILogger<OfferAddedLogEventProcessor> logger, 
-        IObjectMapper objectMapper)
+    public OfferAddedLogEventProcessor(IObjectMapper objectMapper)
     {
-        _logger = logger;
         _objectMapper = objectMapper;
     }
 
@@ -26,8 +23,8 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
 
     public async override Task ProcessAsync(OfferAdded eventValue, LogEventContext context)
     {
-        _logger.LogDebug("OfferAddedLogEventProcessor-1 {context}",JsonConvert.SerializeObject(context));
-        _logger.LogDebug("OfferAddedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("OfferAddedLogEventProcessor-1 {context}",JsonConvert.SerializeObject(context));
+        Logger.LogDebug("OfferAddedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
         var offerIndexId = IdGenerateHelper.GetOfferId(context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
             eventValue.OfferTo.ToBase58(), eventValue.ExpireTime.Seconds,eventValue.Price.Amount);
         var offerIndex = await GetEntityAsync<OfferInfoIndex>(offerIndexId);
@@ -216,14 +213,14 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
             // deal history data
             if (nftOfferNumIndex.OfferNum < 0)
             {
-                _logger.LogWarning(
+                Logger.LogWarning(
                     "UpdateOfferNumAsync has history Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
                     symbol, nftOfferNumIndex.OfferNum);
                 nftOfferNumIndex.OfferNum = 0;
             }
         }
 
-        _logger.LogInformation("UpdateOfferNumAsync Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
+        Logger.LogInformation("UpdateOfferNumAsync Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
             symbol, nftOfferNumIndex.OfferNum);
         _objectMapper.Map(context, nftOfferNumIndex);
         await SaveEntityAsync(nftOfferNumIndex);

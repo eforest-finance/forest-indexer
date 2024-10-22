@@ -5,7 +5,6 @@ using AElf.Contracts.MultiToken;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -14,16 +13,13 @@ namespace Forest.Indexer.Plugin.Processors;
 public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ILogger<TokenBurnedLogEventProcessor> _logger;
     private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
     private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
 
-    public TokenBurnedLogEventProcessor(ILogger<TokenBurnedLogEventProcessor> logger
-        , IObjectMapper objectMapper
+    public TokenBurnedLogEventProcessor(IObjectMapper objectMapper
         ,IAElfClientServiceProvider aElfClientServiceProvider,
         IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository)
     {
-        _logger = logger;
         _objectMapper = objectMapper;
         _aElfClientServiceProvider = aElfClientServiceProvider;
         _nftOfferIndexRepository = nftOfferIndexRepository;
@@ -37,8 +33,8 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
 
     public async override Task ProcessAsync(Burned eventValue, LogEventContext context)
     {
-        _logger.LogDebug("TokenBurnedLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        _logger.LogDebug("TokenBurnedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("TokenBurnedLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("TokenBurnedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
         var needRecordBalance =
@@ -158,7 +154,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
                                                                 (decimal)Math.Pow(10,
                                                                     tokenIndex.Decimals))));
                     canBuyNum = (long)(canBuyNum * (decimal)Math.Pow(10, symbolTokenInfo.Decimals));
-                    _logger.LogInformation(
+                    Logger.LogInformation(
                         "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
                         offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
                     
@@ -171,7 +167,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
                         var research = GetEntityAsync<OfferInfoIndex>(offerInfoIndex.Id);
                         if (research == null)
                         {
-                            _logger.LogInformation(
+                            Logger.LogInformation(
                                 "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
                                 offerInfoIndex.Id);
                             continue;
@@ -253,7 +249,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         }
 
         _objectMapper.Map(context, userBalanceIndex);
-        _logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
+        Logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
             symbol, userBalanceIndex.Amount);
         await SaveEntityAsync(userBalanceIndex);
         return userBalanceIndex.Amount;
@@ -277,7 +273,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         var tsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, seedSymbol.SeedOwnedSymbol);
         var tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexId);
         
-        _logger.LogDebug(
+        Logger.LogDebug(
             "[TokenBurned] blockHeight: {BlockHeight} tsmSeedSymbolIndexId: {tsmSeedSymbolIndexId}  tsmSeedSymbolIndex: {tsmSeedSymbolIndex}",
             context.Block.BlockHeight, tsmSeedSymbolIndexId, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
         if (tsmSeedSymbolIndex != null)
@@ -288,7 +284,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
             {
                 tsmSeedSymbolIndex.Status = SeedStatus.REGISTERED;
             }
-            _logger.LogDebug("DoHandleForSeedSymbolBurnedAsync tsmSeedSymbolIndex:{tsmSeedSymbolIndex}", JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+            Logger.LogDebug("DoHandleForSeedSymbolBurnedAsync tsmSeedSymbolIndex:{tsmSeedSymbolIndex}", JsonConvert.SerializeObject(tsmSeedSymbolIndex));
             await SaveEntityAsync(tsmSeedSymbolIndex);
         }
         

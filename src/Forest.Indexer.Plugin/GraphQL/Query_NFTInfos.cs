@@ -2,7 +2,6 @@ using AeFinder.Sdk;
 using AElf;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Nest;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -263,38 +262,38 @@ public partial class Query
         return pageResult;
     }*/
 
-    private static Func<SortDescriptor<NFTInfoIndex>, IPromise<IList<ISort>>> GetSortForNFTBrife(string sorting)
-    {
-        if (string.IsNullOrWhiteSpace(sorting)) throw new NotSupportedException();
-        SortDescriptor<NFTInfoIndex> sortDescriptor = new SortDescriptor<NFTInfoIndex>();
-        
-        var sortingArray = sorting.Split(" ");
-        
-        switch (sortingArray[0])
-        {
-            case "Low":
-                sortDescriptor.Descending(a => a.HasListingFlag);
-                sortDescriptor.Ascending(a => a.MinListingPrice);
-                sortDescriptor.Descending(a => a.CreateTime);
-                break;
-            case "High":
-                sortDescriptor.Descending(a => a.HasListingFlag);
-                sortDescriptor.Descending(a => a.MinListingPrice);
-                sortDescriptor.Descending(a => a.CreateTime);
-                break;
-            case "Recently":
-                sortDescriptor.Descending(a => a.CreateTime);
-                break;
-            default:
-                sortDescriptor.Descending(a => a.LatestListingTime);
-                sortDescriptor.Descending(a => a.BlockHeight);
-                break;
-        }
-        
-        IPromise<IList<ISort>> promise = sortDescriptor;
-
-        return s => promise;
-    }
+    // private static Func<SortDescriptor<NFTInfoIndex>, IPromise<IList<ISort>>> GetSortForNFTBrife(string sorting)
+    // {
+    //     if (string.IsNullOrWhiteSpace(sorting)) throw new NotSupportedException();
+    //     SortDescriptor<NFTInfoIndex> sortDescriptor = new SortDescriptor<NFTInfoIndex>();
+    //     
+    //     var sortingArray = sorting.Split(" ");
+    //     
+    //     switch (sortingArray[0])
+    //     {
+    //         case "Low":
+    //             sortDescriptor.Descending(a => a.HasListingFlag);
+    //             sortDescriptor.Ascending(a => a.MinListingPrice);
+    //             sortDescriptor.Descending(a => a.CreateTime);
+    //             break;
+    //         case "High":
+    //             sortDescriptor.Descending(a => a.HasListingFlag);
+    //             sortDescriptor.Descending(a => a.MinListingPrice);
+    //             sortDescriptor.Descending(a => a.CreateTime);
+    //             break;
+    //         case "Recently":
+    //             sortDescriptor.Descending(a => a.CreateTime);
+    //             break;
+    //         default:
+    //             sortDescriptor.Descending(a => a.LatestListingTime);
+    //             sortDescriptor.Descending(a => a.BlockHeight);
+    //             break;
+    //     }
+    //     
+    //     IPromise<IList<ISort>> promise = sortDescriptor;
+    //
+    //     return s => promise;
+    // }
 
     private static List<NFTBriefInfoDto> ConvertMap(List<NFTInfoIndex> resultList, GetNFTBriefInfosDto dto)
     {

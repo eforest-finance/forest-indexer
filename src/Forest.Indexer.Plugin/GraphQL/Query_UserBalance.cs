@@ -1,7 +1,6 @@
 using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Microsoft.Extensions.Logging;
 using Nest;
 using Volo.Abp.ObjectMapping;
 
@@ -37,14 +36,13 @@ public partial class Query
     [Name("queryUserNftIds")]
     public static async Task<UserMatchedNftIds> QueryUserNftIdsAsync(
         [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
-        [FromServices] ILogger<UserBalanceIndex> logger,
         GetNFTInfosDto dto)
     {
         //query match nft
         var script = dto.IsSeed
             ? ForestIndexerConstants.UserBalanceScriptForSeed
             : ForestIndexerConstants.UserBalanceScriptForNft;
-        var nftIds = await GetMatchedNftIdsAsync(userBalanceRepository, logger, dto, script);
+        var nftIds = await GetMatchedNftIdsAsync(userBalanceRepository, dto, script);
 
         return new UserMatchedNftIds
         {
@@ -56,7 +54,6 @@ public partial class Query
     [Name("queryUserNftIdsPage")]
     public static async Task<UserMatchedNftIdsPage> QueryUserNftIdsPageAsync(
         [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
-        [FromServices] ILogger<UserBalanceIndex> logger,
         GetNFTInfosDto dto)
     {
         //query match nft
@@ -66,7 +63,7 @@ public partial class Query
         var script = dto.IsSeed
             ? "UserBalanceScriptForSeed"
             : "UserBalanceScriptForNft";
-        var result = await GetMatchedNftIdsPageAsync(userBalanceRepository, logger, dto, script);
+        var result = await GetMatchedNftIdsPageAsync(userBalanceRepository, dto, script);
 
         return new UserMatchedNftIdsPage
         {

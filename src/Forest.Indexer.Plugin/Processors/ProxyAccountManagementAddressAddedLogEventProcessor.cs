@@ -3,7 +3,6 @@ using AeFinder.Sdk.Processor;
 using AElf.Contracts.ProxyAccountContract;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
@@ -11,18 +10,15 @@ namespace Forest.Indexer.Plugin.Processors;
 public class
     ProxyAccountManagementAddressAddedLogEventProcessor : LogEventProcessorBase<ProxyAccountManagementAddressAdded>
 {
-    private readonly ILogger<ProxyAccountManagementAddressAddedLogEventProcessor> _logger;
     private readonly IObjectMapper _objectMapper;
     private readonly IReadOnlyRepository<CollectionIndex> _collectionIndexRepository;
     private readonly IReadOnlyRepository<NFTInfoIndex> _nftInfoIndexRepository;
     public ProxyAccountManagementAddressAddedLogEventProcessor(
-        ILogger<ProxyAccountManagementAddressAddedLogEventProcessor> logger,
         IObjectMapper objectMapper,
         IReadOnlyRepository<CollectionIndex> collectionIndexRepository,
         IReadOnlyRepository<NFTInfoIndex> nftInfoIndexRepository)
     {
-        _logger = logger;
-        _objectMapper = objectMapper;
+       _objectMapper = objectMapper;
         _collectionIndexRepository = collectionIndexRepository;
         _nftInfoIndexRepository = nftInfoIndexRepository;
     }

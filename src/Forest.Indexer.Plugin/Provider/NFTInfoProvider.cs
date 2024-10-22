@@ -1,6 +1,6 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
-using Microsoft.Extensions.Logging;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.ObjectMapping;
 
@@ -26,8 +26,8 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
     private readonly IReadOnlyRepository<TokenInfoIndex> _tokenInfoIndexRepository;
     private readonly IReadOnlyRepository<NFTActivityIndex> _nftActivityIndexRepository;
     private readonly IReadOnlyRepository<NFTListingInfoIndex> _listedNftIndexRepository;
-
-    private readonly ILogger<NFTInfoProvider> _logger;
+    
+    private static readonly IAeFinderLogger Logger;
     private readonly IObjectMapper _objectMapper;
     private readonly INFTOfferProvider _nftOfferInfoProvider;
 
@@ -38,14 +38,13 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         IReadOnlyRepository<NFTListingInfoIndex> listedNftIndexRepository,
         IReadOnlyRepository<SeedSymbolIndex> seedSymbolIndexRepository,
         INFTOfferProvider nftOfferInfoProvider,
-        IObjectMapper objectMapper, ILogger<NFTInfoProvider> logger)
+        IObjectMapper objectMapper)
     {
         _nftInfoIndexRepository = nftInfoIndexRepository;
         _tokenInfoIndexRepository = tokenInfoIndexRepository;
         _seedSymbolIndexRepository = seedSymbolIndexRepository;
         _nftOfferInfoProvider = nftOfferInfoProvider;
         _objectMapper = objectMapper;
-        _logger = logger;
         _listedNftIndexRepository = listedNftIndexRepository;
         _nftActivityIndexRepository = nftActivityIndexRepository;
     }
@@ -126,7 +125,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
         var offerInfos = await _nftOfferInfoProvider.GetEffectiveNftOfferInfosAsync(nftInfoId, excludeOfferId);
         if (current != null)
         {
-            _logger.LogDebug(
+            Logger.LogDebug(
                 "GetMaxOfferInfoAsync nftInfoId:{nftInfoId} current id:{id} price:{price}", nftInfoId, current.Id, current.Price);
             offerInfos.Add(current);
         }
@@ -137,7 +136,7 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
             .ThenByDescending(info => DateTimeHelper.ToUnixTimeMilliseconds(info.ExpireTime))
             .ToList();
         var maxOfferInfo = offerInfos.FirstOrDefault();
-        _logger.LogDebug(
+        Logger.LogDebug(
             "GetMaxOfferInfoAsync nftInfoId:{nftInfoId} maxOfferInfo id:{id} maxOfferPrice:{maxOfferPrice}", nftInfoId,
             maxOfferInfo?.Id, maxOfferInfo?.Price);
         return maxOfferInfo;

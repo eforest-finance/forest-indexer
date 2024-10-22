@@ -1,8 +1,8 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors;
 using GraphQL;
-using Microsoft.Extensions.Logging;
 using Nest;
 using Volo.Abp.ObjectMapping;
 
@@ -24,10 +24,9 @@ public partial class Query
     public static async Task<List<ExpiredNftMaxOfferDto>> GetNftMaxOfferAsync(
         [FromServices] IReadOnlyRepository<OfferInfoIndex> nftOfferRepository,
         [FromServices] INFTInfoProvider nftInfoProvider,
-        [FromServices] ILogger<OfferInfoIndex> logger,
         GetExpiredNftMaxOfferDto input)
     {
-        logger.LogDebug($"[getNftMaxOffer] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
+        Logger.LogDebug($"[getNftMaxOffer] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
         var queryable = await nftOfferRepository.GetQueryableAsync();
         queryable = queryable.Where(index => index.ChainId == input.ChainId);
         var expiredTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime.ToString("o");
@@ -36,7 +35,7 @@ public partial class Query
         queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) < long.Parse(nowStr));
 
         var result = queryable.Skip(0).ToList();
-        logger.LogDebug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result.Count}");
+        Logger.LogDebug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result.Count}");
         
         List<ExpiredNftMaxOfferDto> data = new();
         foreach (var item in result)

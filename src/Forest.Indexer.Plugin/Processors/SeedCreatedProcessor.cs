@@ -1,9 +1,9 @@
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -12,15 +12,10 @@ namespace Forest.Indexer.Plugin.Processors;
 public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
 {
     private readonly IObjectMapper _objectMapper;
-    
-    private readonly ILogger<SeedCreatedProcessor> _logger;
-
     public SeedCreatedProcessor(
-        ILogger<SeedCreatedProcessor> logger,
         IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _logger = logger;
     }
     
     public override string GetContractAddress(string chainId)
@@ -30,10 +25,10 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
 
     public async override Task ProcessAsync(SeedCreated eventValue, LogEventContext context)
     {
-        _logger.LogDebug("SeedCreatedProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        _logger.LogDebug("SeedCreatedProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("SeedCreatedProcessor-1"+JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("SeedCreatedProcessor-2"+JsonConvert.SerializeObject(context));
         var seedSymbolIndex = await GetSeedSymbolIndexAsync(context.ChainId, eventValue.OwnedSymbol);
-        _logger.LogDebug("SeedCreatedProcessor ImageUrl:{ImageUrl}", eventValue.ImageUrl);
+        Logger.LogDebug("SeedCreatedProcessor ImageUrl:{ImageUrl}", eventValue.ImageUrl);
         _objectMapper.Map(context, seedSymbolIndex);
         seedSymbolIndex.SeedSymbol = eventValue.Symbol;
         seedSymbolIndex.Symbol = eventValue.OwnedSymbol;
@@ -50,7 +45,7 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
         await SaveEntityAsync(seedSymbolIndex);
         if (seedSymbolIndex.SeedType != SeedType.Unique)
         {
-            _logger.LogDebug("SeedCreatedProcessor-3");
+            Logger.LogDebug("SeedCreatedProcessor-3");
             var seedMainChainChangeIndex = new SeedMainChainChangeIndex
             {
                 Symbol = eventValue.Symbol,
@@ -58,11 +53,11 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
                 TransactionId = context.Transaction.TransactionId,
                 Id = IdGenerateHelper.GetSeedMainChainChangeId(context.ChainId, seedSymbolIndex.SeedSymbol)
             };
-            _logger.LogDebug("SeedCreatedProcessor-4"+JsonConvert.SerializeObject(seedMainChainChangeIndex));
+            Logger.LogDebug("SeedCreatedProcessor-4"+JsonConvert.SerializeObject(seedMainChainChangeIndex));
             _objectMapper.Map(context, seedMainChainChangeIndex);
-            _logger.LogDebug("SeedCreatedProcessor-5"+JsonConvert.SerializeObject(seedMainChainChangeIndex));
+            Logger.LogDebug("SeedCreatedProcessor-5"+JsonConvert.SerializeObject(seedMainChainChangeIndex));
             await SaveEntityAsync(seedMainChainChangeIndex);
-            _logger.LogDebug("SeedCreatedProcessor-6");
+            Logger.LogDebug("SeedCreatedProcessor-6");
         }
         
         //update the same prefix nft or ft seed symbol status
