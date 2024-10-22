@@ -24,9 +24,9 @@ public partial class Query
         var status2Count = 0L;
         var repositoryQueryable = await repository.GetQueryableAsync();
         
-        var sorting = GetSorting(dto.Sorting);
+        //var sorting = GetSorting(dto.Sorting);
 
-        var sortingForUserBalance = GetSortingForUserBalance(dto.Sorting);
+        //var sortingForUserBalance = GetSortingForUserBalance(dto.Sorting);
         var sortingArray = dto.Sorting.Split(" ");
 
         if (dto.Status == ForestIndexerConstants.NFTInfoQueryStatusBuy)
