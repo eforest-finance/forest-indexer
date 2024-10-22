@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using AElf.Contracts.MultiToken;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.GraphQL;
@@ -9,9 +8,35 @@ public class EnumDescriptionHelper
 {
     public static string GetEnumDescription(TokenCreatedExternalInfoEnum value)
     {
-        var fieldInfo = value.GetType().GetField(value.ToString());
-        var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(fieldInfo, typeof(DescriptionAttribute));
-        return attribute?.Description ?? value.ToString();
+        switch (value)
+        {
+            case TokenCreatedExternalInfoEnum.NFTLogoImageUrl:
+                return "__nft_logo_image_url";
+            case TokenCreatedExternalInfoEnum.NFTFeaturedImageLink:
+                return "__nft_featured_image_link";
+            case TokenCreatedExternalInfoEnum.NFTExternalLink:
+                return "__nft_external_link";
+            case TokenCreatedExternalInfoEnum.NFTDescription:
+                return "__nft_description";
+            case TokenCreatedExternalInfoEnum.NFTPaymentTokens:
+                return "__nft_payment_tokens";
+            case TokenCreatedExternalInfoEnum.NFTOther:
+                return "__nft_other";
+            case TokenCreatedExternalInfoEnum.NFTImageUrl:
+                return "__nft_image_url";
+            case TokenCreatedExternalInfoEnum.SeedOwnedSymbol:
+                return "__seed_owned_symbol";
+            case TokenCreatedExternalInfoEnum.SeedExpTime:
+                return "__seed_exp_time";
+            case TokenCreatedExternalInfoEnum.SpecialInscriptionImage:
+                return "inscription_image";
+            case TokenCreatedExternalInfoEnum.NFTImageUri:
+                return "__nft_image_uri";
+            case TokenCreatedExternalInfoEnum.InscriptionImage:
+                return "__inscription_image";
+        }
+
+        return "";
     }
 
     public static string GetExtraInfoValue(ExternalInfo externalInfo, TokenCreatedExternalInfoEnum keyEnum, string defaultValue = null)
