@@ -44,4 +44,15 @@ public class TokenInfo : AeFinderEntity, IAeFinderEntity
     public bool IsDeleted { get; set; }
 
     public List<ExternalInfoDictionary> ExternalInfoDictionary { get; set; }
+    
+
+    [Keyword]
+    public string BlockHash { get; set; }
+
+    public long BlockHeight { get; set; }
+
+    [Keyword]
+    public string PreviousBlockHash { get; set; }
+
+
 }
