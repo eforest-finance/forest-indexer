@@ -33,8 +33,12 @@ public class ProxyAccountCreatedLogEventProcessor : LogEventProcessorBase<ProxyA
         if (eventValue == null || context == null) return;
         var agentId =
             IdGenerateHelper.GetProxyAccountIndexId(eventValue.ProxyAccountAddress.ToBase58());
-        var agentIndex = _objectMapper.Map<ProxyAccountCreated, ProxyAccountIndex>(eventValue);
+        var agentIndex = new ProxyAccountIndex();
+            //_objectMapper.Map<ProxyAccountCreated, ProxyAccountIndex>(eventValue);
         agentIndex.Id = agentId;
+        agentIndex.ProxyAccountAddress = eventValue.ProxyAccountAddress.ToBase58();
+        agentIndex.ManagersSet =
+            new HashSet<string>(eventValue.ManagementAddresses.Value.Select(item => item.Address.ToBase58()));
         _objectMapper.Map(context, agentIndex);
         agentIndex.CreateTime = DateTime.Now;
         await SaveEntityAsync(agentIndex);

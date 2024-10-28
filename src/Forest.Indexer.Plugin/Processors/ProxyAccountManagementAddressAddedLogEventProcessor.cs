@@ -10,7 +10,7 @@ namespace Forest.Indexer.Plugin.Processors;
 public class
     ProxyAccountManagementAddressAddedLogEventProcessor : LogEventProcessorBase<ProxyAccountManagementAddressAdded>
 {
-    private readonly IObjectMapper _objectMapper;
+   private readonly IObjectMapper _objectMapper;
     private readonly IReadOnlyRepository<CollectionIndex> _collectionIndexRepository;
     private readonly IReadOnlyRepository<NFTInfoIndex> _nftInfoIndexRepository;
     public ProxyAccountManagementAddressAddedLogEventProcessor(
