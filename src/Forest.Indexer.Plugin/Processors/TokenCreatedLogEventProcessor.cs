@@ -31,8 +31,8 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
 
     public async override Task ProcessAsync(TokenCreated eventValue, LogEventContext context)
     {
-        Logger.LogDebug("TokenCreatedLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        Logger.LogDebug("TokenCreatedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("TokenCreatedLogEventProcessor-1 {A}",JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("TokenCreatedLogEventProcessor-2 {B}",JsonConvert.SerializeObject(context));
         if (eventValue == null || context == null) return;
         await TokenInfoIndexCreateAsync(eventValue, context);
         if(SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;
@@ -207,7 +207,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
     {
         var noMainTsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
         var noMainTsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(noMainTsmSeedSymbolIndexId);
-        Logger.LogDebug("TokenCreatedLogEventProcessor-10" + "  " + noMainTsmSeedSymbolIndexId + " " +
+        Logger.LogDebug("TokenCreatedLogEventProcessor-10 {A}", noMainTsmSeedSymbolIndexId + " " +
                          JsonConvert.SerializeObject(noMainTsmSeedSymbolIndex));
         if (noMainTsmSeedSymbolIndex != null && noMainTsmSeedSymbolIndex.Status != SeedStatus.REGISTERED)
         {
@@ -222,11 +222,12 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
             noMainSeedSymbolIndex.Status = SeedStatus.REGISTERED;
             await SaveEntityAsync(noMainSeedSymbolIndex);
         }
-        Logger.LogDebug("TokenCreatedLogEventProcessor-11"+"  "+noMainTsmSeedSymbolIndexId+" "+JsonConvert.SerializeObject(noMainTsmSeedSymbolIndex));
+        Logger.LogDebug("TokenCreatedLogEventProcessor-11 {A} {B}",noMainTsmSeedSymbolIndexId,JsonConvert.SerializeObject(noMainTsmSeedSymbolIndex));
         var symbolMarketTokenIndexId = IdGenerateHelper.GetSymbolMarketTokenId(context.ChainId, eventValue.Symbol);
         var symbolMarketTokenIndex = await GetEntityAsync<SeedSymbolMarketTokenIndex>(symbolMarketTokenIndexId);
-        
-        Logger.LogDebug("TokenCreatedLogEventProcessor-12"+"  "+symbolMarketTokenIndexId+" "+JsonConvert.SerializeObject(symbolMarketTokenIndex));
+
+        Logger.LogDebug("TokenCreatedLogEventProcessor-12 {A} {B}", symbolMarketTokenIndexId,
+            JsonConvert.SerializeObject(symbolMarketTokenIndex));
         if (symbolMarketTokenIndex != null) return;
 
         var ownerContractAddress =
@@ -284,7 +285,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         }
 
         _objectMapper.Map(context, symbolMarketTokenIndex);
-        Logger.LogDebug("TokenCreatedLogEventProcessor-13"+JsonConvert.SerializeObject(symbolMarketTokenIndex));
+        Logger.LogDebug("TokenCreatedLogEventProcessor-13 {A}",JsonConvert.SerializeObject(symbolMarketTokenIndex));
         await SaveEntityAsync(symbolMarketTokenIndex);
     }
     
@@ -404,17 +405,17 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         }
 
         _objectMapper.Map(context, seedSymbolIndex);
-        Logger.LogDebug("TokenCreatedLogEventProcessor-41"+JsonConvert.SerializeObject(seedSymbolIndex));
+        Logger.LogDebug("TokenCreatedLogEventProcessor-41 {A}",JsonConvert.SerializeObject(seedSymbolIndex));
         tsmSeedSymbolIndex.RegisterTime = DateTimeHelper.ToUnixTimeMilliseconds(context.Block.BlockTime);
 
         if (sameChainIdFlag)
         {
-            Logger.LogDebug("TokenCreatedLogEventProcessor-41-1"+JsonConvert.SerializeObject(seedSymbolIndex));
+            Logger.LogDebug("TokenCreatedLogEventProcessor-41-1 {A}",JsonConvert.SerializeObject(seedSymbolIndex));
             await SaveEntityAsync(tsmSeedSymbolIndex);
         }
         else if(!sameChainIdFlag && tsmSeedSymbolIndex.ChainId == ForestIndexerConstants.MainChain)
         {
-            Logger.LogDebug("TokenCreatedLogEventProcessor-41-2"+JsonConvert.SerializeObject(seedSymbolIndex));
+            Logger.LogDebug("TokenCreatedLogEventProcessor-41-2 {A}",JsonConvert.SerializeObject(seedSymbolIndex));
             var tsmSeedSymbolIndexIdNoMainChainId =
                 IdGenerateHelper.GetSeedSymbolId(context.ChainId, tsmSeedSymbolIndex.Symbol);
             var tsmSeedSymbolIndexNoMainChain =

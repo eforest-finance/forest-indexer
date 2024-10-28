@@ -33,8 +33,8 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
 
     public async override Task ProcessAsync(Burned eventValue, LogEventContext context)
     {
-        Logger.LogDebug("TokenBurnedLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        Logger.LogDebug("TokenBurnedLogEventProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("TokenBurnedLogEventProcessor-1 {A}",JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("TokenBurnedLogEventProcessor-2 {B}",JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
         var needRecordBalance =

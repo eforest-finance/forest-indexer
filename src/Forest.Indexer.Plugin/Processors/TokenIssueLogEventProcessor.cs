@@ -31,8 +31,8 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
 
     public async override Task ProcessAsync(Issued eventValue, LogEventContext context)
     {
-        Logger.LogDebug("TokenIssueLogEventProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        Logger.LogDebug("TokenIssueLogEventProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("TokenIssueLogEventProcessor-1 {A}",JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("TokenIssueLogEventProcessor-2 {B}",JsonConvert.SerializeObject(context));
         if (eventValue == null || context == null) return;
         await SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
@@ -276,9 +276,9 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         symbolMarketTokenIndex =
             await FillProxyAccountInfoForSymbolMarketTokenIndexIssuerAsync(symbolMarketTokenIndex,
                 context.ChainId);
-        Logger.LogDebug("TokenIssueLogEventProcessor-31-HandleForNoMainChainSeedTokenAsync"+JsonConvert.SerializeObject(symbolMarketTokenIndex));
+        Logger.LogDebug("TokenIssueLogEventProcessor-31-HandleForNoMainChainSeedTokenAsync {A}",JsonConvert.SerializeObject(symbolMarketTokenIndex));
         _objectMapper.Map(context, symbolMarketTokenIndex);
-        Logger.LogDebug("TokenIssueLogEventProcessor-32-HandleForNoMainChainSeedTokenAsync"+JsonConvert.SerializeObject(symbolMarketTokenIndex));
+        Logger.LogDebug("TokenIssueLogEventProcessor-32-HandleForNoMainChainSeedTokenAsync {B}",JsonConvert.SerializeObject(symbolMarketTokenIndex));
         await SaveEntityAsync(symbolMarketTokenIndex);
         Logger.LogDebug("TokenIssueLogEventProcessor-33-HandleForNoMainChainSeedTokenAsync");
         await SaveActivityAsync(eventValue, context, symbolMarketTokenIndex.Id, symbolMarketTokenIndex.Decimals);

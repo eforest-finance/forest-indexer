@@ -328,8 +328,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
             IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
         var nftInfoIndex = await GetEntityAsync<NFTInfoIndex>(nftInfoId);
         
-        Logger.LogDebug("CrossChainReceived-5-nftInfoId"+nftInfoId);
-        Logger.LogDebug("CrossChainReceived-6-nftInfo"+JsonConvert.SerializeObject(nftInfoIndex));
+        Logger.LogDebug("CrossChainReceived-5-nftInfoId {A}", nftInfoId);
+        Logger.LogDebug("CrossChainReceived-6-nftInfo {B}",JsonConvert.SerializeObject(nftInfoIndex));
         if(nftInfoIndex == null) return;
         var minNftListing = await GetMinListingNftAsync(nftInfoIndex.Id);
         nftInfoIndex.OfMinNftListingInfo(minNftListing);

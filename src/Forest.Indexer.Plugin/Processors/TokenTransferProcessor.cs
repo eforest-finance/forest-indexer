@@ -31,9 +31,9 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
     public async override Task ProcessAsync(Transferred eventValue, LogEventContext context)
     {
-        Logger.LogDebug("TokenTransferProcessor-1"+JsonConvert.SerializeObject
+        Logger.LogDebug("TokenTransferProcessor-1 {A}",JsonConvert.SerializeObject
             (eventValue));
-        Logger.LogDebug("TokenTransferProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("TokenTransferProcessor-2 {A}",JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
         await UpdateUserFromBalanceAsync(eventValue, context);
@@ -43,7 +43,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         if (SymbolHelper.CheckSymbolIsSeedCollection(eventValue.Symbol)) return;
         if (SymbolHelper.CheckSymbolIsSeedSymbol(eventValue.Symbol))
         {
-            Logger.LogDebug("TokenTransferProcessor-3"+JsonConvert.SerializeObject
+            Logger.LogDebug("TokenTransferProcessor-3 {A}",JsonConvert.SerializeObject
                 (eventValue));
             await HandleForSeedSymbolTransferAsync(eventValue, context);
             return;
@@ -62,9 +62,9 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
     private async Task DoHandleForSeedSymbolTransferAsync(Transferred eventValue, LogEventContext context)
     {
-        Logger.LogDebug("TokenTransferProcessor-4"+JsonConvert.SerializeObject
+        Logger.LogDebug("TokenTransferProcessor-4 {A}",JsonConvert.SerializeObject
             (eventValue));
-        Logger.LogDebug("TokenTransferProcessor-5"+JsonConvert.SerializeObject
+        Logger.LogDebug("TokenTransferProcessor-5 {A}",JsonConvert.SerializeObject
             (context));
         var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
         var seedSymbol =
@@ -72,7 +72,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
         if (seedSymbol == null) return;
         if (seedSymbol.IsDeleted) return;
-        Logger.LogDebug("TokenTransferProcessor-8"+JsonConvert.SerializeObject
+        Logger.LogDebug("TokenTransferProcessor-8 {A}",JsonConvert.SerializeObject
             (seedSymbol));
 
         _objectMapper.Map(context, seedSymbol);
