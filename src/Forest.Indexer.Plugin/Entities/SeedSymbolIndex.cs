@@ -5,7 +5,7 @@ using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public abstract class SeedSymbolIndex: AeFinderEntity, IAeFinderEntity
+public class SeedSymbolIndex: AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     [Wildcard] public string SeedOwnedSymbol { get; set; }

@@ -132,9 +132,9 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
                                                                 (decimal)Math.Pow(10,
                                                                     tokenIndex.Decimals))));
                     canBuyNum = (long)(canBuyNum * (decimal)Math.Pow(10, symbolTokenInfo.Decimals));
-                    Logger.LogInformation(
-                        "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
-                        offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
+                    // Logger.LogInformation(
+                    //     "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
+                    //     offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
                     
                     var realQuantity = Math.Min(offerInfoIndex.Quantity,
                         canBuyNum);
@@ -145,9 +145,9 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
                         var research = GetEntityAsync<OfferInfoIndex>(offerInfoIndex.Id);
                         if (research == null)
                         {
-                            Logger.LogInformation(
-                                "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
-                                offerInfoIndex.Id);
+                            // Logger.LogInformation(
+                            //     "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
+                            //     offerInfoIndex.Id);
                             continue;
                         }
                         await SaveEntityAsync(offerInfoIndex);
