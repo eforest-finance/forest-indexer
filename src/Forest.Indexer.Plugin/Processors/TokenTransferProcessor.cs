@@ -193,8 +193,11 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         {
             num = 0;
         }
-
-        num = nftOfferNumIndex.OfferNum;
+        else
+        {
+            num = nftOfferNumIndex.OfferNum;
+        }
+        
         if (num > 0)
         {
             return true;
