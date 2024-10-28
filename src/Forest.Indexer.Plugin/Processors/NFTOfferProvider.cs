@@ -51,7 +51,7 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
     public async Task<List<OfferInfoIndex>> GetEffectiveNftOfferInfosAsync(string bizId, string excludeOfferId)
     {
         var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) > long.Parse(DateTime.UtcNow.ToString("O") ));
+        queryable = queryable.Where(index => index.ExpireTime > DateTime.UtcNow);
         queryable = queryable.Where(index => index.BizInfoId == bizId);
         queryable = queryable.Where(index => index.RealQuantity > 0);
 

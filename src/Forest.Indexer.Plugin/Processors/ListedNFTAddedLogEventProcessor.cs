@@ -308,9 +308,9 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
 
         //order by price asc, expireTime desc
         nftListingInfos = nftListingInfos.Where(index =>
-                DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >= DateTime.UtcNow.ToUtcMilliSeconds())
+                index.ExpireTime >= DateTime.UtcNow)
             .OrderBy(info => info.Prices)
-            .ThenByDescending(info => DateTimeHelper.ToUnixTimeMilliseconds(info.ExpireTime))
+            .ThenByDescending(info => info.ExpireTime)
             .ToList();
 
         NFTListingInfoIndex minNftListing = null;
@@ -335,7 +335,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
     private async Task<List<NFTListingInfoIndex>> GetEffectiveNftListingInfos(string nftInfoId, HashSet<string> excludeListingIds)
     {
         var queryable = await _listedNFTIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(index=>DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)>long.Parse(DateTime.UtcNow.ToString("O")));
+        queryable = queryable.Where(index => index.ExpireTime > DateTime.UtcNow);
         queryable = queryable.Where(index => index.NftInfoId == nftInfoId);
         
         if (!excludeListingIds.IsNullOrEmpty())
@@ -381,8 +381,8 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
     private async Task<NFTListingInfoIndex> QueryOtherWhiteListExistAsync(string nftInfoId,string noListingOwner ,string noListingId)
     {
         var queryable = await _listedNFTIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(index=>DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime)>long.Parse(DateTime.UtcNow.ToString("O")));
-        queryable = queryable.Where(index=>index.NftInfoId == nftInfoId);
+        queryable = queryable.Where(index => index.ExpireTime > DateTime.UtcNow);
+        queryable = queryable.Where(index => index.NftInfoId == nftInfoId);
 
         if (!noListingOwner.IsNullOrEmpty())
         {

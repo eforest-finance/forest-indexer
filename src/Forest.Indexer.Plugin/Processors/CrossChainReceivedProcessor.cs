@@ -77,7 +77,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         do
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
-            queryable = queryable.Where(index=>DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) > long.Parse(DateTime.UtcNow.ToString("O")));
+            queryable = queryable.Where(index=>index.ExpireTime > DateTime.UtcNow);
             queryable = queryable.Where(index => index.PurchaseToken.Symbol == symbol);
             queryable = queryable.Where(index =>index.ChainId == context.ChainId);
             queryable = queryable.Where(index => index.OfferFrom == offerFrom);
@@ -270,9 +270,9 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
 
         //order by price asc, expireTime desc
         nftListingInfos = nftListingInfos.Where(index =>
-                DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >= DateTime.UtcNow.ToUtcMilliSeconds())
+                index.ExpireTime >= DateTime.UtcNow)
             .OrderBy(info => info.Prices)
-            .ThenByDescending(info => DateTimeHelper.ToUnixTimeMilliseconds(info.ExpireTime))
+            .ThenByDescending(info => info.ExpireTime)
             .ToList();
 
         NFTListingInfoIndex minNftListing = null;
@@ -307,7 +307,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
      private async Task<List<NFTListingInfoIndex>> GetEffectiveNftListingInfos(string nftInfoId, HashSet<string> excludeListingIds)
      {
          var queryable = await _listedNFTIndexRepository.GetQueryableAsync();
-         queryable = queryable.Where(q=>DateTimeHelper.ToUnixTimeMilliseconds(q.ExpireTime) > long.Parse(DateTime.UtcNow.ToString("0")));
+         queryable = queryable.Where(q => q.ExpireTime > DateTime.UtcNow);
          queryable = queryable.Where(q => q.NftInfoId == nftInfoId);
          if (!excludeListingIds.IsNullOrEmpty())
          {
@@ -373,7 +373,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         }
         var nftId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, symbol);
         var queryable = await _listedNFTIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(x => DateTimeHelper.ToUnixTimeMilliseconds(x.ExpireTime)>long.Parse(DateTime.UtcNow.ToString("O")));
+        queryable = queryable.Where(x => x.ExpireTime > DateTime.UtcNow);
         queryable = queryable.Where(x=>x.NftInfoId==nftId);
         queryable = queryable.Where(x=>x.Owner==ownerAddress);
 

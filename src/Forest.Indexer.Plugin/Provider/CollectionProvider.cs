@@ -126,10 +126,8 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         var queryable = await _nftActivityIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(f => f.ChainId == chainId);
         queryable = queryable.Where(f => (f.Type == NFTActivityType.Sale || f.Type == NFTActivityType.PlaceBid));
-        queryable = queryable.Where(f => DateTimeHelper.ToUnixTimeMilliseconds(f.Timestamp) > long.Parse(DateTimeOffset
-            .FromUnixTimeSeconds(beginUtcStampSecond).ToLocalTime().DateTime.ToString("O")) );
-        queryable = queryable.Where(f => DateTimeHelper.ToUnixTimeMilliseconds(f.Timestamp) < long.Parse(DateTimeOffset
-            .FromUnixTimeSeconds(endUtcStampSecond).ToLocalTime().DateTime.ToString("O")) );
+        queryable = queryable.Where(f => f.Timestamp > DateTimeHelper.FromUnixTimeMilliseconds(beginUtcStampSecond));
+        queryable = queryable.Where(f => f.Timestamp < DateTimeHelper.FromUnixTimeMilliseconds(endUtcStampSecond));
         queryable = queryable.Where(f=>f.NftInfoId.Contains(collectionSymbolPre));
 
         var result = queryable.Skip(skipCount).OrderBy(k => k.Id).ToList();
@@ -184,8 +182,8 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         //add RealQuantity > 0
         queryable = queryable.Where(f => f.RealQuantity >= minQuantity);
         
-        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >= long.Parse(DateTimeOffset.FromUnixTimeSeconds(beginStampSecond).ToLocalTime().DateTime.ToString("O")));
-        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.StartTime) <= long.Parse(DateTimeOffset.FromUnixTimeSeconds(endStampSecond).ToLocalTime().DateTime.ToString("O")));
+        queryable = queryable.Where(index => index.ExpireTime >= DateTimeHelper.FromUnixTimeMilliseconds(beginStampSecond));
+        queryable = queryable.Where(index => index.StartTime <= DateTimeHelper.FromUnixTimeMilliseconds(endStampSecond));
 
         var result = queryable.OrderBy(k => k.Prices).Take(1).ToList();
         return result?.FirstOrDefault();
@@ -210,7 +208,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         queryable = queryable.Where(f => f.CollectionSymbol == symbol);
         queryable = queryable.Where(f => f.ChainId == chainId);
         //Add conditions within effective time
-        queryable = queryable.Where(f => DateTimeHelper.ToUnixTimeMilliseconds(f.ExpireTime) > long.Parse(DateTime.UtcNow.ToString("O")));
+        queryable = queryable.Where(f => f.ExpireTime > DateTime.UtcNow);
 
         //add RealQuantity > 0
         queryable = queryable.Where(index => index.RealQuantity >= minQuantity);

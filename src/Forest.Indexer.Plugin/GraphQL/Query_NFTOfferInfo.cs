@@ -26,12 +26,16 @@ public partial class Query
         GetExpiredNftMaxOfferDto input)
     {
         Logger.LogDebug($"[getNftMaxOffer] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
+        var utcNow = DateTime.UtcNow;
         var queryable = await nftOfferRepository.GetQueryableAsync();
         queryable = queryable.Where(index => index.ChainId == input.ChainId);
-        var expiredTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime.ToString("o");
-        var nowStr = DateTime.UtcNow.ToString("o");
-        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >= long.Parse(expiredTimeStr));
-        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) < long.Parse(nowStr));
+
+        if (input.ExpireTimeGt != null)
+        {
+            var expiredTime = DateTimeHelper.FromUnixTimeMilliseconds((long)input.ExpireTimeGt);
+            queryable = queryable.Where(index => index.ExpireTime >= expiredTime);
+        }
+        queryable = queryable.Where(index => index.ExpireTime < utcNow);
 
         var result = queryable.Skip(0).ToList();
         Logger.LogDebug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result.Count}");

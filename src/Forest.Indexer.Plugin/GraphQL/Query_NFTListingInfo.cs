@@ -31,6 +31,7 @@ public partial class Query
         }
         
         // query listing info
+        var utcNow = DateTime.UtcNow;
         var queryableListing = await nftListingRepo.GetQueryableAsync();
         var minQuantity = (int)(1 * Math.Pow(10, decimals));
 
@@ -42,7 +43,7 @@ public partial class Query
         {
             var utcTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime
                 .ToString("o");
-            queryableListing = queryableListing.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) > long.Parse(utcTimeStr));
+            queryableListing = queryableListing.Where(index => index.ExpireTime > utcNow);
         }
 
         if (!input.Owner.IsNullOrWhiteSpace())
@@ -87,6 +88,7 @@ public partial class Query
         [FromServices] IObjectMapper objectMapper,
         GetCollectedNFTListingDto dto)
     {
+        var utcNow = DateTime.UtcNow;
         var queryable = await nftListingRepo.GetQueryableAsync();
 
         if (!dto.ChainIdList.IsNullOrEmpty())
@@ -101,9 +103,7 @@ public partial class Query
 
         if (dto.ExpireTimeGt != null)
         {
-            var utcTimeStr = long.Parse(DateTimeOffset.FromUnixTimeMilliseconds((long)dto.ExpireTimeGt).UtcDateTime
-                .ToString("o"));
-            queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) > utcTimeStr);
+            queryable = queryable.Where(index => index.ExpireTime > utcNow);
         }
 
         if (!dto.Owner.IsNullOrWhiteSpace())
@@ -221,16 +221,20 @@ public partial class Query
         [FromServices] IReadOnlyRepository<NFTListingInfoIndex> nftListingRepo,
         GetExpiredNFTMinPriceDto input)
     {
+        var utcNow = DateTime.UtcNow;
         var queryable = await nftListingRepo.GetQueryableAsync();
 
         Logger.LogDebug($"[getMinPriceNft] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
         
         queryable = queryable.Where(index => index.ChainId == input.ChainId);
         
-        var expiredTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime.ToString("o");
-        var nowStr = DateTime.UtcNow.ToString("o");
-        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >= long.Parse(expiredTimeStr));
-        queryable = queryable.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) < long.Parse(nowStr));
+        if (input.ExpireTimeGt != null && (long)input.ExpireTimeGt > 0)
+        {
+            queryable = queryable.Where(index =>
+                index.ExpireTime >= DateTimeHelper.FromUnixTimeMilliseconds((long)input.ExpireTimeGt));
+        }
+        
+        queryable = queryable.Where(index => index.ExpireTime < utcNow);
 
         var result = queryable.Skip(0).ToList();
         Logger.LogDebug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result?.Count}");
@@ -291,13 +295,14 @@ public partial class Query
         string chainId,
         long expireTimeGt)
     {
+        var utcNow = DateTime.UtcNow;
         var queryableListing = await nftListingRepo.GetQueryableAsync();
         queryableListing = queryableListing.Where(index => index.ChainId == chainId);
 
-        var expiredTimeStr = DateTimeOffset.FromUnixTimeMilliseconds(expireTimeGt).UtcDateTime.ToString("o");
-        var nowStr = DateTime.UtcNow.ToString("o");
-        queryableListing = queryableListing.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >=long.Parse(expiredTimeStr));
-        queryableListing = queryableListing.Where(index => DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) <long.Parse(nowStr));
+        var expiredTime = DateTimeHelper.FromUnixTimeMilliseconds(expireTimeGt);
+
+        queryableListing = queryableListing.Where(index => index.ExpireTime >= expiredTime);
+        queryableListing = queryableListing.Where(index => index.ExpireTime < utcNow);
 
         var result = queryableListing.ToList();
 
@@ -335,16 +340,14 @@ public partial class Query
             return new NftListingPageResultDto("invalid input param");
 
         Logger.LogDebug("[NFTListingInfoAll] INPUT: chainId={A}, blockHeight={B}", input.ChainId, input.BlockHeight);
-
         var queryable = await nftListingRepo.GetQueryableAsync();
         // query listing info
         queryable = queryable.Where(f=>f.ChainId == input.ChainId);
         queryable = queryable.Where(f=>f.BlockHeight >= input.BlockHeight);
         if (input.ExpireTimeGt != null)
         {
-            var utcTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime
-                .ToString("o");
-            queryable = queryable.Where(index=>DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) > long.Parse(utcTimeStr));
+            var expiredTime = DateTimeHelper.FromUnixTimeMilliseconds((long)input.ExpireTimeGt);
+            queryable = queryable.Where(index=>index.ExpireTime > expiredTime);
         }
 
         var result = queryable.Skip(input.SkipCount).Take(input.MaxResultCount).OrderBy(a=>a.BlockHeight).ToList();

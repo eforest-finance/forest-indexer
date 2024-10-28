@@ -166,7 +166,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
     {
         var queryable = await _listedNFTIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(index =>
-            DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) > long.Parse(DateTime.UtcNow.ToString("O")));
+            index.ExpireTime > DateTime.UtcNow);
         queryable = queryable.Where(index => index.NftInfoId == nftInfoId);
 
         if (!noListingId.IsNullOrEmpty())
@@ -399,7 +399,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
     {
         var queryable = await _listedNFTIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(index =>
-            DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) > long.Parse(DateTime.UtcNow.ToString("O")));
+            index.ExpireTime > DateTime.UtcNow);
         queryable = queryable.Where(index => index.NftInfoId == nftInfoId);
 
         if (!noListingOwner.IsNullOrEmpty())
@@ -468,9 +468,9 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
 
         //order by price asc, expireTime desc
         nftListingInfos = nftListingInfos.Where(index =>
-                DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) >= DateTime.UtcNow.ToUtcMilliSeconds())
+                index.ExpireTime >= DateTime.UtcNow)
             .OrderBy(info => info.Prices)
-            .ThenByDescending(info => DateTimeHelper.ToUnixTimeMilliseconds(info.ExpireTime))
+            .ThenByDescending(info => info.ExpireTime)
             .ToList();
 
         NFTListingInfoIndex minNftListing = null;
@@ -498,7 +498,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
     {
         var queryable = await _listedNFTIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(index =>
-            DateTimeHelper.ToUnixTimeMilliseconds(index.ExpireTime) > long.Parse(DateTime.UtcNow.ToString("O")));
+            index.ExpireTime > DateTime.UtcNow);
         queryable = queryable.Where(index => index.NftInfoId == nftInfoId);
 
         if (!excludeListingIds.IsNullOrEmpty())

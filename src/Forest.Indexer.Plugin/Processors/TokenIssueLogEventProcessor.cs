@@ -171,7 +171,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         }
         var nftId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, symbol);
         var queryable = await _listedNFTIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(x => DateTimeHelper.ToUnixTimeMilliseconds(x.ExpireTime)>long.Parse(DateTime.UtcNow.ToString("O")));
+        queryable = queryable.Where(x => x.ExpireTime>DateTime.UtcNow);
         queryable = queryable.Where(x=>x.NftInfoId==nftId);
         queryable = queryable.Where(x=>x.Owner==ownerAddress);
 
