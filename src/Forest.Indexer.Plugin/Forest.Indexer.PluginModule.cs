@@ -1,4 +1,6 @@
+using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.GraphQL;
+using Forest.Indexer.Plugin.Processors;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.AutoMapper;
@@ -16,5 +18,31 @@ public class ForestIndexerPluginModule: AbpModule
         
         // Add your LogEventProcessor implementation.
         //context.Services.AddSingleton<ILogEventProcessor, MyLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,ContractDeployedProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,OfferAddedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,OfferChangedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,OfferRemovedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,OfferCanceledLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,UniqueSeedsPriceChangedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,OfferCanceledByExpireTimeLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,ListedNFTAddedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,ListedNFTChangedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,ListedNFTRemovedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,TokenBurnedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,TokenCreatedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,TokenIssueLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,TokenTransferProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,SoldLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,CrossChainReceivedProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,TransactionFeeChargedLogEventProcessor>();
+
+        context.Services.AddSingleton<ILogEventProcessor,ProxyAccountCreatedLogEventProcessor>();
+        context.Services
+            .AddSingleton<ILogEventProcessor,ProxyAccountManagementAddressAddedLogEventProcessor>();
+        context.Services
+            .AddSingleton<ILogEventProcessor,
+                ProxyAccountManagementAddressRemovedLogEventProcessor>();
+        context.Services
+            .AddSingleton<ILogEventProcessor,ProxyAccountManagementAddressResetLogEventProcessor>();
     }
 }
