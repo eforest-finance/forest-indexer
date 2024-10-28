@@ -71,7 +71,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         await HandleForSeedTokenAsync(eventValue, context);
         
     }
-    public async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
+    private async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
     {
         if (!SymbolHelper.CheckSymbolIsELF(symbol))
         {
@@ -91,8 +91,11 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         {
             num = 0;
         }
+        else
+        {
+            num = nftOfferNumIndex.OfferNum;
+        }
 
-        num = nftOfferNumIndex.OfferNum;
         if (num > 0)
         {
             return true;

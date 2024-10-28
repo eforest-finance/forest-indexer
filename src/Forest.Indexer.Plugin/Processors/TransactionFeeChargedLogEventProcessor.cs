@@ -46,7 +46,7 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
             -eventValue.Amount, context);
         await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.ChargingAddress.ToBase58(), context);
     }
-    public async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
+    private async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
     {
         if (!SymbolHelper.CheckSymbolIsELF(symbol))
         {
@@ -66,8 +66,11 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
         {
             num = 0;
         }
-
-        num = nftOfferNumIndex.OfferNum;
+        else
+        {
+            num = nftOfferNumIndex.OfferNum;
+        }
+        
         if (num > 0)
         {
             return true;
