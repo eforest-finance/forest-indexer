@@ -25,8 +25,8 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
 
     public async override Task ProcessAsync(SeedCreated eventValue, LogEventContext context)
     {
-        Logger.LogDebug("SeedCreatedProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        Logger.LogDebug("SeedCreatedProcessor-2"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("SeedCreatedProcessor-1 {A}",JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("SeedCreatedProcessor-2 {B}",JsonConvert.SerializeObject(context));
         var seedSymbolIndex = await GetSeedSymbolIndexAsync(context.ChainId, eventValue.OwnedSymbol);
         Logger.LogDebug("SeedCreatedProcessor ImageUrl:{ImageUrl}", eventValue.ImageUrl);
         _objectMapper.Map(context, seedSymbolIndex);
@@ -53,9 +53,9 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
                 TransactionId = context.Transaction.TransactionId,
                 Id = IdGenerateHelper.GetSeedMainChainChangeId(context.ChainId, seedSymbolIndex.SeedSymbol)
             };
-            Logger.LogDebug("SeedCreatedProcessor-4"+JsonConvert.SerializeObject(seedMainChainChangeIndex));
+            Logger.LogDebug("SeedCreatedProcessor-4 {A}",JsonConvert.SerializeObject(seedMainChainChangeIndex));
             _objectMapper.Map(context, seedMainChainChangeIndex);
-            Logger.LogDebug("SeedCreatedProcessor-5"+JsonConvert.SerializeObject(seedMainChainChangeIndex));
+            Logger.LogDebug("SeedCreatedProcessor-5 {A}",JsonConvert.SerializeObject(seedMainChainChangeIndex));
             await SaveEntityAsync(seedMainChainChangeIndex);
             Logger.LogDebug("SeedCreatedProcessor-6");
         }

@@ -35,8 +35,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
 
     public override async Task ProcessAsync(CrossChainReceived eventValue, LogEventContext context)
     {
-        Logger.LogDebug("CrossChainReceived-1-eventValue"+JsonConvert.SerializeObject(eventValue));
-        Logger.LogDebug("CrossChainReceived-2-context"+JsonConvert.SerializeObject(context));
+        Logger.LogDebug("CrossChainReceived-1-eventValue {A}",JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("CrossChainReceived-2-context {A}",JsonConvert.SerializeObject(context));
         if (eventValue == null || context == null) return;
         var needRecordBalance =
             await NeedRecordBalance(eventValue.Symbol, eventValue.To.ToBase58(), context.ChainId);
@@ -205,8 +205,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
             IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
         var seedSymbolIndexToChain = await GetEntityAsync<SeedSymbolIndex>(seedSymbolIndexIdToChainId);
        
-        Logger.LogDebug("CrossChainReceived-3-seedSymbolIndexIdToChainId"+seedSymbolIndexIdToChainId);
-        Logger.LogDebug("CrossChainReceived-4-seedSymbolIndexToChain"+JsonConvert.SerializeObject(seedSymbolIndexToChain));
+        Logger.LogDebug("CrossChainReceived-3-seedSymbolIndexIdToChainId {A}",seedSymbolIndexIdToChainId);
+        Logger.LogDebug("CrossChainReceived-4-seedSymbolIndexToChain {A}",JsonConvert.SerializeObject(seedSymbolIndexToChain));
         if(seedSymbolIndexToChain == null) return;
         
         seedSymbolIndexToChain.IsDeleteFlag = false;
@@ -224,8 +224,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
             IdGenerateHelper.GetSeedSymbolId(context.ChainId, seedSymbolIndexToChain.SeedOwnedSymbol);
         var tsmSeedSymbolIndexToChain = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexIdToChainId);
         
-        Logger.LogDebug("CrossChainReceived-5-tsmSeedSymbolIndexIdToChainId"+tsmSeedSymbolIndexIdToChainId);
-        Logger.LogDebug("CrossChainReceived-6-tsmSeedSymbolIndexToChain"+JsonConvert.SerializeObject(tsmSeedSymbolIndexToChain));
+        Logger.LogDebug("CrossChainReceived-5-tsmSeedSymbolIndexIdToChainId {A}",tsmSeedSymbolIndexIdToChainId);
+        Logger.LogDebug("CrossChainReceived-6-tsmSeedSymbolIndexToChain {A}",JsonConvert.SerializeObject(tsmSeedSymbolIndexToChain));
         if(tsmSeedSymbolIndexToChain == null) return;
         tsmSeedSymbolIndexToChain.IsBurned = false;
         tsmSeedSymbolIndexToChain.ChainId = context.ChainId;
