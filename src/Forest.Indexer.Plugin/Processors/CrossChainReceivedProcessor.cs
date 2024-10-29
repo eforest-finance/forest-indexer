@@ -216,7 +216,11 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         seedSymbolIndexToChain.Supply = eventValue.Amount;
         //add calc minNftListing
         var minNftListing = await GetMinListingNftAsync(seedSymbolIndexIdToChainId);
-        seedSymbolIndexToChain.OfMinNftListingInfo(minNftListing);
+        if (minNftListing != null)
+        {
+            seedSymbolIndexToChain.OfMinNftListingInfo(minNftListing);
+        }
+        
         await SaveEntityAsync(seedSymbolIndexToChain);
 
         //Set the tsm seed symbol index info to the to chain
@@ -268,8 +272,13 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
             nftListingInfos.Add(current);
         }
 
+        if (nftListingInfos.IsNullOrEmpty())
+        {
+            return null;
+        }
+        
         //order by price asc, expireTime desc
-        nftListingInfos = nftListingInfos.Where(index =>
+        nftListingInfos = nftListingInfos.Where(index => index!=null && 
                 index.ExpireTime >= DateTime.UtcNow)
             .OrderBy(info => info.Prices)
             .ThenByDescending(info => info.ExpireTime)

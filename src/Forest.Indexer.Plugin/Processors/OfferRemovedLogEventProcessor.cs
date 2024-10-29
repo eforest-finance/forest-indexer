@@ -30,6 +30,13 @@ public class OfferRemovedLogEventProcessor : LogEventProcessorBase<OfferRemoved>
         Logger.LogDebug("OfferRemovedLogEventProcessor-1 {context}",JsonConvert.SerializeObject(context));
         Logger.LogDebug("OfferRemovedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
 
+        if (eventValue.Price == null)
+        {
+            Logger.LogError("OfferRemovedLogEventProcessor old date Price is null");
+            return;
+        }
+        
+        
         var offerIndexId = IdGenerateHelper.GetOfferId(context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
             eventValue.OfferTo.ToBase58(), eventValue.ExpireTime.Seconds,eventValue.Price.Amount);
         var offerIndex = await GetEntityAsync<OfferInfoIndex>(offerIndexId);
