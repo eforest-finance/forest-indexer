@@ -16,9 +16,9 @@ public partial class Query
         GetMaxOfferInfoDto dto)
     {
         var offerInfo = await nftInfoProvider.GetMaxOfferInfoAsync(dto.NftInfoId);
-        if (offerInfo == null)
+        if (offerInfo == null || offerInfo.BizSymbol.IsNullOrEmpty())
         {
-            return new NFTOfferDto();
+            return null;
         }
         return objectMapper.Map<OfferInfoIndex, NFTOfferDto>(offerInfo);
     }
