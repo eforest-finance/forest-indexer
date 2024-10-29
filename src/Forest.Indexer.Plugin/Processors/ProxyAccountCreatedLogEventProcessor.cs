@@ -1,8 +1,10 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using AElf.Contracts.ProxyAccountContract;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
+using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
@@ -31,14 +33,21 @@ public class ProxyAccountCreatedLogEventProcessor : LogEventProcessorBase<ProxyA
     public async override Task ProcessAsync(ProxyAccountCreated eventValue, LogEventContext context)
     {
         if (eventValue == null || context == null) return;
+        Logger.LogDebug("ProxyAccountCreated {A}",JsonConvert.SerializeObject(eventValue));
         var agentId =
             IdGenerateHelper.GetProxyAccountIndexId(eventValue.ProxyAccountAddress.ToBase58());
         var agentIndex = new ProxyAccountIndex();
             //_objectMapper.Map<ProxyAccountCreated, ProxyAccountIndex>(eventValue);
         agentIndex.Id = agentId;
-        agentIndex.ProxyAccountAddress = eventValue.ProxyAccountAddress.ToBase58();
-        agentIndex.ManagersSet =
-            new HashSet<string>(eventValue.ManagementAddresses.Value.Select(item => item.Address.ToBase58()));
+        if (eventValue.ProxyAccountAddress != null)
+        {
+            agentIndex.ProxyAccountAddress = eventValue.ProxyAccountAddress.ToBase58();
+        }
+        if (eventValue.ManagementAddresses != null && !eventValue.ManagementAddresses.Value.IsNullOrEmpty())
+        {
+            agentIndex.ManagersSet =
+                new HashSet<string>(eventValue.ManagementAddresses.Value.Select(item => item.Address.ToBase58()));
+        }
         _objectMapper.Map(context, agentIndex);
         agentIndex.CreateTime = DateTime.Now;
         await SaveEntityAsync(agentIndex);
