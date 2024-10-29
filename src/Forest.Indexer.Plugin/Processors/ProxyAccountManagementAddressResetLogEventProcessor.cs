@@ -41,7 +41,9 @@ public class
         agentIndex.Id = agentId;
         agentIndex.ProxyAccountAddress = eventValue.ProxyAccountAddress.ToBase58();
         agentIndex.ManagersSet =
-            new HashSet<string>(eventValue.ManagementAddresses.Value.Select(item => item.Address.ToBase58()));
+            new HashSet<string>(eventValue.ManagementAddresses.Value
+                .Where(item => item.Address!=null)
+                .Select(item => item.Address.ToBase58()));
         
         _objectMapper.Map(context, agentIndex);
         await SaveEntityAsync(agentIndex);

@@ -34,6 +34,11 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
         offerIndex.Id = offerIndexId;
         var tokenIndexId = IdGenerateHelper.GetId(context.ChainId, eventValue.Price.Symbol);
         var tokenIndex = await GetEntityAsync<TokenInfoIndex>(tokenIndexId);
+        if (tokenIndex == null)
+        {
+            Logger.LogError("OfferAddedLogEventProcessor token is null tokenIndexId :{A}", tokenIndexId);
+            return;
+        }
         offerIndex.Price = eventValue.Price.Amount / (decimal)Math.Pow(10, tokenIndex.Decimals);
         offerIndex.PurchaseToken = tokenIndex;
         offerIndex.CreateTime = context.Block.BlockTime;

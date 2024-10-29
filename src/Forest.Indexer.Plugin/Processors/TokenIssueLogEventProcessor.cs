@@ -32,7 +32,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
     public async override Task ProcessAsync(Issued eventValue, LogEventContext context)
     {
         Logger.LogDebug("TokenIssueLogEventProcessor-1 {A}",JsonConvert.SerializeObject(eventValue));
-        Logger.LogDebug("TokenIssueLogEventProcessor-2 {B}",JsonConvert.SerializeObject(context));
+        // Logger.LogDebug("TokenIssueLogEventProcessor-2 {B}",JsonConvert.SerializeObject(context));
         if (eventValue == null || context == null) return;
         await SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
@@ -202,8 +202,8 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
             writeCount++;
             if (writeCount >= ForestIndexerConstants.MaxWriteDBRecord)
             {
-                Logger.LogInformation("CrossChainReceivedProcessor.UpdateListingInfoRealQualityAsync recordCount:{A} ,limit:{B}, user:{C},symbol:{D}, balance:{E}",
-                    nftListings.Count,ForestIndexerConstants.MaxWriteDBRecord, ownerAddress, symbol, balance);
+                // Logger.LogInformation("CrossChainReceivedProcessor.UpdateListingInfoRealQualityAsync recordCount:{A} ,limit:{B}, user:{C},symbol:{D}, balance:{E}",
+                //     nftListings.Count,ForestIndexerConstants.MaxWriteDBRecord, ownerAddress, symbol, balance);
                 break;
             }
             var realNftListingInfoIndex = await GetEntityAsync<NFTListingInfoIndex>(nftListingInfoIndex.Id);
@@ -244,8 +244,8 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         }
 
         _objectMapper.Map(context, userBalanceIndex);
-        Logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
-            symbol, userBalanceIndex.Amount);
+        // Logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
+        //     symbol, userBalanceIndex.Amount);
         await SaveEntityAsync(userBalanceIndex);
         return userBalanceIndex.Amount;
     }
@@ -276,9 +276,9 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         symbolMarketTokenIndex =
             await FillProxyAccountInfoForSymbolMarketTokenIndexIssuerAsync(symbolMarketTokenIndex,
                 context.ChainId);
-        Logger.LogDebug("TokenIssueLogEventProcessor-31-HandleForNoMainChainSeedTokenAsync {A}",JsonConvert.SerializeObject(symbolMarketTokenIndex));
+        // Logger.LogDebug("TokenIssueLogEventProcessor-31-HandleForNoMainChainSeedTokenAsync {A}",JsonConvert.SerializeObject(symbolMarketTokenIndex));
         _objectMapper.Map(context, symbolMarketTokenIndex);
-        Logger.LogDebug("TokenIssueLogEventProcessor-32-HandleForNoMainChainSeedTokenAsync {B}",JsonConvert.SerializeObject(symbolMarketTokenIndex));
+        // Logger.LogDebug("TokenIssueLogEventProcessor-32-HandleForNoMainChainSeedTokenAsync {B}",JsonConvert.SerializeObject(symbolMarketTokenIndex));
         await SaveEntityAsync(symbolMarketTokenIndex);
         Logger.LogDebug("TokenIssueLogEventProcessor-33-HandleForNoMainChainSeedTokenAsync");
         await SaveActivityAsync(eventValue, context, symbolMarketTokenIndex.Id, symbolMarketTokenIndex.Decimals);
@@ -413,7 +413,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         var nftActivityIndexExists = await GetEntityAsync<NFTActivityIndex>(nftActivityIndex.Id);
         if (nftActivityIndexExists != null)
         {
-            Logger.LogDebug("[AddNFTActivityAsync] FAIL: activity EXISTS, nftActivityIndexId={Id}", nftActivityIndex.Id);
+            // Logger.LogDebug("[AddNFTActivityAsync] FAIL: activity EXISTS, nftActivityIndexId={Id}", nftActivityIndex.Id);
             return false;
         }
 
@@ -423,10 +423,10 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         nftActivityIndex.From = FullAddressHelper.ToFullAddress(from, context.ChainId);
         nftActivityIndex.To = FullAddressHelper.ToFullAddress(to, context.ChainId);
 
-        Logger.LogDebug("[AddNFTActivityAsync] SAVE: activity SAVE, nftActivityIndexId={Id}", nftActivityIndex.Id);
+        // Logger.LogDebug("[AddNFTActivityAsync] SAVE: activity SAVE, nftActivityIndexId={Id}", nftActivityIndex.Id);
         await SaveEntityAsync(nftActivityIndex);
 
-        Logger.LogDebug("[AddNFTActivityAsync] SAVE: activity FINISH, nftActivityIndexId={Id}", nftActivityIndex.Id);
+        // Logger.LogDebug("[AddNFTActivityAsync] SAVE: activity FINISH, nftActivityIndexId={Id}", nftActivityIndex.Id);
         return true;
     }
     

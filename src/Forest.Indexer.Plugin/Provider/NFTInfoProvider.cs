@@ -123,6 +123,10 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
     public async Task<OfferInfoIndex> GetMaxOfferInfoAsync(string nftInfoId, string excludeOfferId, OfferInfoIndex current)
     {
         var offerInfos = await _nftOfferInfoProvider.GetEffectiveNftOfferInfosAsync(nftInfoId, excludeOfferId);
+        if (offerInfos.IsNullOrEmpty())
+        {
+            return null;
+        }
         if (current != null)
         {
             Logger.LogDebug(

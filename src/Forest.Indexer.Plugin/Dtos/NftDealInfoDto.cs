@@ -20,5 +20,5 @@ public class NftDealInfoDtoPageResultDto
 {
     public long TotalRecordCount { get; set; }
 
-    public List<NftDealInfoDto> Data { get; set; }
+    public List<NftDealInfoDto>? Data { get; set; } = new List<NftDealInfoDto>();
 }
