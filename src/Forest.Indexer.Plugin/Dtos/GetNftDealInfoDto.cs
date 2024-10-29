@@ -17,5 +17,5 @@ public class GetNftDealInfoDto
 
     [CanBeNull] public int SortType { get; set; }
 
-    [CanBeNull] public string Sort { get; set; }
+    public string? Sort { get; set; }
 }

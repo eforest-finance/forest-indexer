@@ -6,7 +6,7 @@ namespace Forest.Indexer.Plugin.GraphQL;
 
 public class MySeedInput : PagedResultRequestDto
 {
-    [CanBeNull] public string ChainId { get; set; }
+    public string? ChainId { get; set; }
     public List<string> AddressList { get; set; }
     public TokenType? TokenType { get; set; }
     public SeedStatus? Status { get; set; }

@@ -31,7 +31,7 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
     public async override Task ProcessAsync(TransactionFeeCharged eventValue, LogEventContext context)
     {
         Logger.LogDebug("TransactionFeeChargedLogEventProcessor-1 {A}",JsonConvert.SerializeObject(eventValue));
-        Logger.LogDebug("TransactionFeeChargedLogEventProcessor-2 {A}",JsonConvert.SerializeObject(context));
+        // Logger.LogDebug("TransactionFeeChargedLogEventProcessor-2 {A}",JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
         var needRecordBalance =
@@ -182,8 +182,8 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
         }
 
         _objectMapper.Map(context, userBalanceIndex);
-        Logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
-            symbol, userBalanceIndex.Amount);
+        // Logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
+        //     symbol, userBalanceIndex.Amount);
         await SaveEntityAsync(userBalanceIndex);
         return userBalanceIndex.Amount;
     }

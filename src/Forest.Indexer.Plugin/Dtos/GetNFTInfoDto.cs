@@ -6,5 +6,5 @@ public class GetNFTInfoDto
 {
     public string Id { get; set; }
     
-    [CanBeNull] public string Address { get; set; }
+    public string? Address { get; set; }
 }

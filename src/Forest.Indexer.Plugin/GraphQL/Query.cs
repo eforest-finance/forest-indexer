@@ -69,19 +69,19 @@ public partial class Query
 
         if (!dto.ChainIdList.IsNullOrEmpty())
         {
-            queryable = queryable.Where(i => dto.ChainIdList.Contains(i.ChainId));
+            queryable = queryable.Where(i => dto.ChainIdList != null && dto.ChainIdList.Contains(i.ChainId));
         }
         
         queryable = queryable.Where(i => i.RealQuantity > 0);
 
         if (!dto.NFTInfoId.IsNullOrEmpty())
         {
-            queryable.Where(i => i.BizInfoId == dto.NFTInfoId);
+            queryable = queryable.Where(i => i.BizInfoId == dto.NFTInfoId);
         }
 
         if (!dto.NFTInfoIdList.IsNullOrEmpty())
         {
-            queryable = queryable.Where(i => dto.NFTInfoIdList.Contains(i.BizInfoId));
+            queryable = queryable.Where(i => dto.NFTInfoIdList != null && dto.NFTInfoIdList.Contains(i.BizInfoId));
         }
 
         if (!dto.Symbol.IsNullOrEmpty())

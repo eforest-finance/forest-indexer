@@ -18,7 +18,7 @@ public class NFTInfoDto
     public string ImageUrl { get; set; }
     public string TokenName { get; set; }
     public long TotalSupply { get; set; }
-    [CanBeNull] public string WhitelistId { get; set; }
+    public string? WhitelistId { get; set; }
 
     public string CollectionSymbol { get; set; }
     public string CollectionName { get; set; }

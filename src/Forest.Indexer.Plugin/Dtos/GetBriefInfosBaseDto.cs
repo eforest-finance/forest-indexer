@@ -10,7 +10,7 @@ public class GetBriefInfosBaseDto : PagedResultRequestDto
     public bool HasListingFlag { get; set; }
     public bool HasAuctionFlag { get; set; }
     public bool HasOfferFlag { get; set; }
-    [CanBeNull] public string SearchParam { get; set; }
+    public string? SearchParam { get; set; }
     public List<string> ChainList { get; set; }
     public List<TokenType> SymbolTypeList { get; set; }
     public decimal? PriceLow { get; set; }

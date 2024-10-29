@@ -149,7 +149,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
             return true;
         }
 
-        if (NeedRecordBalanceOptions.AddressList.Contains(offerFrom))
+        if (ForestIndexerConstants.NeedRecordBalanceOptionsAddressList.Contains(offerFrom))
         {
             return true;
         }
