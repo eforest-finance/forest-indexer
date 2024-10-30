@@ -65,6 +65,11 @@ public class IdGenerateHelper
     {
         return GetId(chainId, seedOwnedSymbol);
     }
+    
+    public static string GetTreePointsAddedRecordId(string chainId,string address, long opTime)
+    {
+        return GetId(chainId, address, opTime);
+    }
 
     public static string GetUserBalanceId(string address, string chainId, string nftInfoId)
     {
