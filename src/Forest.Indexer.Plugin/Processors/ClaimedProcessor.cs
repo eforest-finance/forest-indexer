@@ -72,10 +72,9 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
 
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, seedSymbolIndex.Symbol, NFTActivityType.PlaceBid.ToString(), context.Transaction.TransactionId);
-        var activitySaved = await AddNFTActivityAsync(context, new NFTActivityIndex
+        var activity = new NFTActivityIndex
         {
             Id = nftActivityIndexId,
-            Type = NFTActivityType.PlaceBid,
             From = FullAddressHelper.ToFullAddress(fromOwner, context.ChainId),
             To = FullAddressHelper.ToFullAddress(toOwner, context.ChainId),
             Amount = 1,
@@ -84,7 +83,9 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
             TransactionHash = context.Transaction.TransactionId,
             Timestamp = context.Block.BlockTime,
             NftInfoId = seedSymbolIndex.Id
-        });
+        };
+        activity.OfType(NFTActivityType.PlaceBid);
+        var activitySaved = await AddNFTActivityAsync(context, activity);
        
     }
     public async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
@@ -99,6 +100,7 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
 
         var from = nftActivityIndex.From;
         var to = nftActivityIndex.To;
+        
         _objectMapper.Map(context, nftActivityIndex);
         nftActivityIndex.From = FullAddressHelper.ToFullAddress(from, context.ChainId);
         nftActivityIndex.To = FullAddressHelper.ToFullAddress(to, context.ChainId);

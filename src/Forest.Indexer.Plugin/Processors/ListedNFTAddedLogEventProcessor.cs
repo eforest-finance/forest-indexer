@@ -98,10 +98,9 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
 
             var decimals = await QueryDecimal(context.ChainId, eventValue.Symbol);
 
-            var activitySaved = await AddNFTActivityAsync(context, new NFTActivityIndex
+            var activity = new NFTActivityIndex
             {
                 Id = nftActivityIndexId,
-                Type = NFTActivityType.ListWithFixedPrice,
                 From = FullAddressHelper.ToFullAddress(eventValue.Owner.ToBase58(), context.ChainId),
                 Amount = TokenHelper.GetIntegerDivision(updateListedInfoResponse.ListingQuantity, decimals),
                 Price = updateListedInfoResponse.ListingPrice,
@@ -109,7 +108,9 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
                 TransactionHash = context.Transaction.TransactionId,
                 Timestamp = context.Block.BlockTime,
                 NftInfoId = updateListedInfoResponse.NftInfoId
-            });
+            };
+            activity.OfType(NFTActivityType.ListWithFixedPrice);
+            var activitySaved = await AddNFTActivityAsync(context, activity);
         }
         catch (Exception e)
         {
@@ -202,14 +203,14 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
         LogEventContext context,
         NFTListingInfoIndex listingInfoNftInfoIndex, string excludeListingId)
     {
-        Logger.LogDebug("UpdateListedInfoCommonAsync1" + chainId + " " + symbol + " " + excludeListingId + " " +
-                        JsonConvert.SerializeObject(context));
-        Logger.LogDebug("UpdateListedInfoCommonAsync2" + chainId + " " + symbol + " " + excludeListingId + " " +
-                        JsonConvert.SerializeObject(listingInfoNftInfoIndex));
+        // Logger.LogDebug("UpdateListedInfoCommonAsync1" + chainId + " " + symbol + " " + excludeListingId + " " +
+        //                 JsonConvert.SerializeObject(context));
+        // Logger.LogDebug("UpdateListedInfoCommonAsync2" + chainId + " " + symbol + " " + excludeListingId + " " +
+        //                 JsonConvert.SerializeObject(listingInfoNftInfoIndex));
         UpdateListedInfoResponse response = null;
         if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
         {
-            Logger.LogDebug("UpdateListedInfoCommonAsync3" + chainId + " " + symbol + " " + excludeListingId);
+            // Logger.LogDebug("UpdateListedInfoCommonAsync3" + chainId + " " + symbol + " " + excludeListingId);
             var nftInfoIndex = await UpdateListedInfoForSeedAsync(chainId, symbol, context,
                 listingInfoNftInfoIndex, excludeListingId);
             if (nftInfoIndex == null) return response;
@@ -222,7 +223,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
         }
         else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, chainId))
         {
-            Logger.LogDebug("UpdateListedInfoCommonAsync4" + chainId + " " + symbol + " " + excludeListingId);
+            // Logger.LogDebug("UpdateListedInfoCommonAsync4" + chainId + " " + symbol + " " + excludeListingId);
             var nftInfoIndex = await UpdateListedInfoForCommonNFTAsync(chainId, symbol, context,
                 listingInfoNftInfoIndex, excludeListingId);
             if (nftInfoIndex == null) return response;
@@ -416,10 +417,10 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
         LogEventContext context,
         NFTListingInfoIndex listingInfoNftInfoIndex, string deleteListingId)
     {
-        Logger.LogDebug("UpdateListedInfoCommonAsync-5" + chainId + " " + symbol + " " + deleteListingId + " " +
-                        JsonConvert.SerializeObject(listingInfoNftInfoIndex));
-        Logger.LogDebug("UpdateListedInfoCommonAsync-6" + chainId + " " + symbol + " " + deleteListingId + " " +
-                        JsonConvert.SerializeObject(context));
+        // Logger.LogDebug("UpdateListedInfoCommonAsync-5" + chainId + " " + symbol + " " + deleteListingId + " " +
+        //                 JsonConvert.SerializeObject(listingInfoNftInfoIndex));
+        // Logger.LogDebug("UpdateListedInfoCommonAsync-6" + chainId + " " + symbol + " " + deleteListingId + " " +
+        //                 JsonConvert.SerializeObject(context));
 
         if (symbol.IsNullOrWhiteSpace() || chainId.IsNullOrWhiteSpace() || listingInfoNftInfoIndex == null) return null;
 

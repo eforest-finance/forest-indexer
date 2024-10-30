@@ -74,10 +74,9 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
                 IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, "DELIST", context.Transaction.TransactionId,
                     Guid.NewGuid());
             var decimals = await QueryDecimal(context.ChainId, eventValue.Symbol);
-            var activitySaved = await AddNFTActivityAsync(context, new NFTActivityIndex
+            var activity = new NFTActivityIndex
             {
                 Id = nftActivityIndexId,
-                Type = NFTActivityType.DeList,
                 From = FullAddressHelper.ToFullAddress(eventValue.Owner.ToBase58(), context.ChainId),
                 Amount = TokenHelper.GetIntegerDivision(nftListingInfoIndex.Quantity, decimals),
                 Price = nftListingInfoIndex.Prices,
@@ -85,7 +84,9 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
                 TransactionHash = context.Transaction.TransactionId,
                 Timestamp = context.Block.BlockTime,
                 NftInfoId = nffInfoId
-            });
+            };
+            activity.OfType(NFTActivityType.DeList);
+            var activitySaved = await AddNFTActivityAsync(context, activity);
             
             await SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
             await SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);

@@ -125,7 +125,8 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
                 .FromUnixTimeSeconds(endUtcStampSecond).ToLocalTime().DateTime.ToString("O"));
         var queryable = await _nftActivityIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(f => f.ChainId == chainId);
-        queryable = queryable.Where(f => (f.Type == NFTActivityType.Sale || f.Type == NFTActivityType.PlaceBid));
+        var intTypeList = new List<int> { (int)NFTActivityType.Sale,(int)NFTActivityType.PlaceBid};
+        queryable = queryable.Where(f => intTypeList.Contains(f.IntType));
         queryable = queryable.Where(f => f.Timestamp > DateTimeHelper.FromUnixTimeMilliseconds(beginUtcStampSecond));
         queryable = queryable.Where(f => f.Timestamp < DateTimeHelper.FromUnixTimeMilliseconds(endUtcStampSecond));
         queryable = queryable.Where(f=>f.NftInfoId.Contains(collectionSymbolPre));

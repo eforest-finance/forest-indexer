@@ -31,8 +31,8 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
     public async override Task ProcessAsync(Transferred eventValue, LogEventContext context)
     {
-        Logger.LogDebug("TokenTransferProcessor-1 {A}",JsonConvert.SerializeObject
-            (eventValue));
+        // Logger.LogDebug("TokenTransferProcessor-1 {A}",JsonConvert.SerializeObject
+        //     (eventValue));
         // Logger.LogDebug("TokenTransferProcessor-2 {A}",JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
@@ -139,12 +139,13 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         NFTActivityIndex nftActivityIndex = new NFTActivityIndex
         {
             Id = nftActivityIndexId,
-            Type = NFTActivityType.Transfer,
             Amount = TokenHelper.GetIntegerDivision(eventValue.Amount,decimals),
             TransactionHash = context.Transaction.TransactionId,
             Timestamp = context.Block.BlockTime,
             NftInfoId = bizId
         };
+        nftActivityIndex.OfType(NFTActivityType.Transfer);
+        
         _objectMapper.Map(context, nftActivityIndex);
         nftActivityIndex.From =
             FullAddressHelper.ToFullAddress(eventValue.From.ToBase58(), context.ChainId);

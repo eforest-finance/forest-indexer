@@ -9,7 +9,7 @@ public class NFTListingInfoDto
     public string ChainId { get; set; }
     public decimal Prices { get; set; }
     public decimal? WhitelistPrices { get; set; }
-    public string WhitelistId { get; set; }
+    public string? WhitelistId { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime PublicTime { get; set; }
     public DateTime ExpireTime { get; set; }

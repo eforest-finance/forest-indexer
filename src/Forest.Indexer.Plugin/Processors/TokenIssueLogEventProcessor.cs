@@ -396,16 +396,17 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
     {
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, NFTActivityType.Issue.ToString(), context.Transaction.TransactionId);
-        var activitySaved = await AddNFTActivityAsync(context, new NFTActivityIndex
+        var activity = new NFTActivityIndex
         {
             Id = nftActivityIndexId,
-            Type = NFTActivityType.Issue,
             To = FullAddressHelper.ToFullAddress(eventValue.To.ToBase58(), context.ChainId),
-            Amount = TokenHelper.GetIntegerDivision(eventValue.Amount,decimals),
+            Amount = TokenHelper.GetIntegerDivision(eventValue.Amount, decimals),
             TransactionHash = context.Transaction.TransactionId,
             Timestamp = context.Block.BlockTime,
             NftInfoId = bizId
-        });
+        };
+        activity.OfType(NFTActivityType.Issue);
+        var activitySaved = await AddNFTActivityAsync(context, activity);
     }
     public async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
     {

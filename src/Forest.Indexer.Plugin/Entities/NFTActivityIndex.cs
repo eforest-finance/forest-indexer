@@ -10,6 +10,7 @@ public class NFTActivityIndex : AeFinderEntity, IAeFinderEntity
     [Keyword] public string NftInfoId { get; set; }
     
     public NFTActivityType Type { get; set; }
+    public int IntType { get; set; }
     
     [Keyword] public string From { get; set; }
     
@@ -28,6 +29,12 @@ public class NFTActivityIndex : AeFinderEntity, IAeFinderEntity
     public string ChainId { get; set; }
 
     public long BlockHeight { get; set; }
+
+    public void OfType(NFTActivityType nftActivityType)
+    {
+        Type = nftActivityType;
+        IntType = (int)nftActivityType;
+    }
 }
 
 
@@ -41,5 +48,6 @@ public enum NFTActivityType
     DeList,
     MakeOffer,
     CancelOffer,
-    PlaceBid
+    PlaceBid,
 }
+

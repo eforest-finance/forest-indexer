@@ -358,13 +358,13 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         var nftActivityIndex = new NFTActivityIndex
         {
             Id = nftActivityIndexId,
-            Type = NFTActivityType.Burn,
             From = FullAddressHelper.ToFullAddress(eventValue.Burner.ToBase58(), context.ChainId),
             Amount = TokenHelper.GetIntegerDivision(eventValue.Amount,decimals),
             TransactionHash = context.Transaction.TransactionId,
             Timestamp = context.Block.BlockTime,
             NftInfoId = bizId
         };
+        nftActivityIndex.OfType(NFTActivityType.Burn);
         await AddNFTActivityAsync(context, nftActivityIndex);
     }
     

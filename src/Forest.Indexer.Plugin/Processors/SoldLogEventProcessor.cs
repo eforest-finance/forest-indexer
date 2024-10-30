@@ -120,19 +120,20 @@ public class SoldLogEventProcessor : LogEventProcessorBase<Sold>
         // NFT activity
         var nftActivityIndexId =
             IdGenerateHelper.GetId(context.ChainId, eventValue.NftSymbol, "SOLD", soldIndexId);
-        var activitySaved = await AddNFTActivityAsync(context, new NFTActivityIndex
-            {
-                Id = nftActivityIndexId,
-                Type = NFTActivityType.Sale,
-                From = FullAddressHelper.ToFullAddress(eventValue.NftFrom.ToBase58(), context.ChainId),
-                To = FullAddressHelper.ToFullAddress(eventValue.NftTo.ToBase58(), context.ChainId),
-                Amount = TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftTokenIndex.Decimals),
-                Price = singlePrice,
-                PriceTokenInfo = purchaseTokenIndex,
-                TransactionHash = context.Transaction.TransactionId,
-                Timestamp = context.Block.BlockTime,
-                NftInfoId = nftInfoIndexId
-            });
+        var activity = new NFTActivityIndex
+        {
+            Id = nftActivityIndexId,
+            From = FullAddressHelper.ToFullAddress(eventValue.NftFrom.ToBase58(), context.ChainId),
+            To = FullAddressHelper.ToFullAddress(eventValue.NftTo.ToBase58(), context.ChainId),
+            Amount = TokenHelper.GetIntegerDivision(eventValue.NftQuantity, nftTokenIndex.Decimals),
+            Price = singlePrice,
+            PriceTokenInfo = purchaseTokenIndex,
+            TransactionHash = context.Transaction.TransactionId,
+            Timestamp = context.Block.BlockTime,
+            NftInfoId = nftInfoIndexId
+        };
+        activity.OfType(NFTActivityType.Sale);
+        var activitySaved = await AddNFTActivityAsync(context, activity);
         if (!activitySaved)
         {
             Logger.LogDebug("[Sold] SAVE activity FAILED, nftActivityIndexId={nftActivityIndexId}", nftActivityIndexId);

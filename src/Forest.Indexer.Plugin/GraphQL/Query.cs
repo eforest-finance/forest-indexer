@@ -53,13 +53,13 @@ public partial class Query
             var queryable1 = await tokenIndexRepository.GetQueryableAsync();
             queryable1 = queryable1.Where(i => i.Id == tokenId);
 
-            var tokenInfoIndex = queryable1.ToList().FirstOrDefault();
+            var tokenInfoIndex = queryable1.FirstOrDefault();
             if (tokenInfoIndex != null)
             {
                 decimals = tokenInfoIndex.Decimals;
             }
         }
-        var utcNow = DateTime.UtcNow;
+       
         var queryable = await repository.GetQueryableAsync();
 
         if (!dto.OfferNotFrom.IsNullOrEmpty())
@@ -74,10 +74,8 @@ public partial class Query
 
         if (!dto.ChainIdList.IsNullOrEmpty())
         {
-            queryable = queryable.Where(i => dto.ChainIdList != null && dto.ChainIdList.Contains(i.ChainId));
+            queryable = queryable.Where(i => dto.ChainIdList.Contains(i.ChainId));
         }
-        
-        queryable = queryable.Where(i => i.RealQuantity > 0);
 
         if (!dto.NFTInfoId.IsNullOrEmpty())
         {
@@ -104,18 +102,21 @@ public partial class Query
             queryable = queryable.Where(i => i.OfferTo == dto.OfferTo);
         }
 
-        if (dto.ExpireTimeGt != null)
+        if (dto.ExpireTimeGt != null && dto.ExpireTimeGt > 0)
         {
-            queryable = queryable.Where(i => i.ExpireTime > utcNow);
+            var expireTimeGt = DateTimeHelper.FromUnixTimeMilliseconds((long)dto.ExpireTimeGt);
+            queryable = queryable.Where(i => i.ExpireTime > expireTimeGt);
         }
 
+        queryable = queryable.Where(i => i.RealQuantity > 0);
+        
         var count = queryable.Count();
         var result = queryable
             .OrderByDescending(i => i.Price)
             .ThenBy(i => i.CreateTime)
             .ThenBy(i => i.ExpireTime)
-            .Skip(dto.MaxResultCount)
-            .Take(dto.SkipCount)
+            .Skip(dto.SkipCount)
+            .Take(dto.MaxResultCount)
             .ToList();
 
         if (result.IsNullOrEmpty())
@@ -124,9 +125,8 @@ public partial class Query
                 TotalRecordCount = 0,
                 Data = new List<NFTOfferDto>()
             };
-
-        ;
-        var dataList = result.Select(i =>
+        
+        var dataList = result.Where(i => i != null).Select(i =>
         {
             var item = objectMapper.Map<OfferInfoIndex, NFTOfferDto>(i);
             var quantityNoDecimals = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
@@ -155,7 +155,7 @@ public partial class Query
         
         if (input.Types?.Count > 0)
         {
-            queryable = queryable.Where(i=>input.Types.Contains((int)i.Type));
+            queryable = queryable.Where(i=>input.Types.Contains(i.IntType));
         }
 
         if (input.TimestampMin is > 0)
@@ -173,7 +173,7 @@ public partial class Query
         var count = queryable.Count();
         var list = queryable
             .OrderByDescending(i => i.Timestamp)
-            .ThenBy(i => i.Type)
+            .ThenBy(i => i.IntType)
             .Skip(input.SkipCount)
             .Take(input.MaxResultCount).ToList();
         
@@ -200,7 +200,7 @@ public partial class Query
 
         if (input.Types?.Count > 0)
         {
-            queryable = queryable.Where(i => input.Types.Contains((int)i.Type));
+            queryable = queryable.Where(i => input.Types.Contains(i.IntType));
         }
         
         var collectionSymbolPre = TokenHelper.GetCollectionIdPre(input.CollectionId);
@@ -209,7 +209,7 @@ public partial class Query
         var count = queryable.Count();
         var list = queryable
             .OrderByDescending(i => i.Timestamp)
-            .OrderBy(i => i.Type)
+            .OrderBy(i => i.IntType)
             .Skip(input.SkipCount)
             .Take(input.MaxResultCount)
             .ToList();
@@ -243,7 +243,7 @@ public partial class Query
 
         if (input.Types?.Count > 0)
         {
-            queryable.Where(i => input.Types.Contains((int)i.Type));
+            queryable.Where(i => input.Types.Contains(i.IntType));
         }
 
         var count = queryable.Count();
@@ -494,7 +494,7 @@ public partial class Query
 
         if (input.Types?.Count > 0)
         {
-            queryable = queryable.Where(i => input.Types.Contains((int)i.Type));
+            queryable = queryable.Where(i => input.Types.Contains(i.IntType));
         }
 
         if (input.TimestampMin != null && input.TimestampMin is > 0)

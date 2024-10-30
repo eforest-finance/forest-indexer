@@ -77,11 +77,11 @@ public class OfferCanceledLogEventProcessor : LogEventProcessorBase<OfferCancele
         nftActivityIndex = new NFTActivityIndex
         {
             Id = nftActivityIndexId,
-            Type = activityType,
             TransactionHash = context.Transaction.TransactionId,
             Timestamp = context.Block.BlockTime,
             NftInfoId = nftInfoIndexId
         };
+        nftActivityIndex.OfType(activityType);
         _objectMapper.Map(context, nftActivityIndex);
         nftActivityIndex.From = FullAddressHelper.ToFullAddress(offerFrom, context.ChainId);
         nftActivityIndex.To = FullAddressHelper.ToFullAddress(await TransferAddress(offerTo), context.ChainId);
