@@ -3,6 +3,13 @@ using Forest.Indexer.Plugin.Entities;
 
 namespace Forest.Indexer.Plugin.GraphQL;
 
+
+public class TreePointsChangeRecordPageResultDto
+{
+    public long TotalRecordCount { get; set; }
+    
+    public List<TreePointsChangeRecordDto> Data { get; set; }
+}
 public class TreePointsChangeRecordDto
 {
     public string Id { get; set; }

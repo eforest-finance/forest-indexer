@@ -8,7 +8,7 @@ namespace Forest.Indexer.Plugin.GraphQL;
 public partial class Query
 {
     [Name("getSyncTreePointsRecords")]
-    public static async Task<List<TreePointsChangeRecordDto>> GetSyncTreePointsRecords(
+    public static async Task<TreePointsChangeRecordPageResultDto> GetSyncTreePointsRecords(
         [FromServices] IReadOnlyRepository<TreePointsChangeRecordIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetChainBlockHeightDto dto)
@@ -26,12 +26,20 @@ public partial class Query
             queryable = queryable.Where(f => f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(5000).ToList();
         if (result.IsNullOrEmpty())
         {
-            return new List<TreePointsChangeRecordDto>();
+            return new TreePointsChangeRecordPageResultDto();
         }
+        var count = queryable.Count();
 
-        return objectMapper.Map<List<TreePointsChangeRecordIndex>, List<TreePointsChangeRecordDto>>(result);
+        var dataList = objectMapper.Map<List<TreePointsChangeRecordIndex>, List<TreePointsChangeRecordDto>>(result);
+        var totalCount = count;
+
+        return new TreePointsChangeRecordPageResultDto
+        {
+            Data = dataList,
+            TotalRecordCount = (long)(totalCount == null ? 0 : totalCount),
+        };
     }
 }
