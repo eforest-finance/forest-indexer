@@ -207,14 +207,14 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
         LogEventContext context,
         NFTListingInfoIndex listingInfoNftInfoIndex, string excludeListingId)
     {
-        Logger.LogDebug("UpdateListedInfoCommonAsync1" + chainId + " " + symbol + " " + excludeListingId + " " +
-                        JsonConvert.SerializeObject(context));
-        Logger.LogDebug("UpdateListedInfoCommonAsync2" + chainId + " " + symbol + " " + excludeListingId + " " +
-                        JsonConvert.SerializeObject(listingInfoNftInfoIndex));
+        // Logger.LogDebug("UpdateListedInfoCommonAsync1" + chainId + " " + symbol + " " + excludeListingId + " " +
+        //                 JsonConvert.SerializeObject(context));
+        // Logger.LogDebug("UpdateListedInfoCommonAsync2" + chainId + " " + symbol + " " + excludeListingId + " " +
+        //                 JsonConvert.SerializeObject(listingInfoNftInfoIndex));
         UpdateListedInfoResponse response = null;
         if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
         {
-            Logger.LogDebug("UpdateListedInfoCommonAsync3" + chainId + " " + symbol + " " + excludeListingId);
+            // Logger.LogDebug("UpdateListedInfoCommonAsync3" + chainId + " " + symbol + " " + excludeListingId);
             var nftInfoIndex = await UpdateListedInfoForSeedAsync(chainId, symbol, context,
                 listingInfoNftInfoIndex, excludeListingId);
             if (nftInfoIndex == null) return response;
@@ -227,7 +227,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
         }
         else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, chainId))
         {
-            Logger.LogDebug("UpdateListedInfoCommonAsync4" + chainId + " " + symbol + " " + excludeListingId);
+            // Logger.LogDebug("UpdateListedInfoCommonAsync4" + chainId + " " + symbol + " " + excludeListingId);
             var nftInfoIndex = await UpdateListedInfoForCommonNFTAsync(chainId, symbol, context,
                 listingInfoNftInfoIndex, excludeListingId);
             if (nftInfoIndex == null) return response;
@@ -246,10 +246,10 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
         LogEventContext context,
         NFTListingInfoIndex listingInfoNftInfoIndex, string deleteListingId)
     {
-        Logger.LogDebug("UpdateListedInfoCommonAsync-5" + chainId + " " + symbol + " " + deleteListingId + " " +
-                        JsonConvert.SerializeObject(listingInfoNftInfoIndex));
-        Logger.LogDebug("UpdateListedInfoCommonAsync-6" + chainId + " " + symbol + " " + deleteListingId + " " +
-                        JsonConvert.SerializeObject(context));
+        // Logger.LogDebug("UpdateListedInfoCommonAsync-5" + chainId + " " + symbol + " " + deleteListingId + " " +
+        //                 JsonConvert.SerializeObject(listingInfoNftInfoIndex));
+        // Logger.LogDebug("UpdateListedInfoCommonAsync-6" + chainId + " " + symbol + " " + deleteListingId + " " +
+        //                 JsonConvert.SerializeObject(context));
 
         if (symbol.IsNullOrWhiteSpace() || chainId.IsNullOrWhiteSpace() || listingInfoNftInfoIndex == null) return null;
 
