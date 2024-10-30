@@ -18,6 +18,21 @@ public class ForestIndexerPluginModule: AbpModule
         
         // Add your LogEventProcessor implementation.
         //context.Services.AddSingleton<ILogEventProcessor, MyLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor, ActivityForCreateFTAndNFTProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor, ActivityForIssueFTProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor, ActivityForSymbolMarketBidPlacedProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor, ActivityForSymbolMarketBoughtProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor, AuctionCreatedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor, AuctionTimeUpdatedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor, BidPlacedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor, BoughtProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor, ClaimedProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,ManagerTokenCreatedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,SeedCreatedProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,SeedsPriceChangedProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,SpecialSeedAddedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,SpecialSeedRemovedLogEventProcessor>();
+
         context.Services.AddSingleton<ILogEventProcessor,ContractDeployedProcessor>();
         context.Services.AddSingleton<ILogEventProcessor,OfferAddedLogEventProcessor>();
         context.Services.AddSingleton<ILogEventProcessor,OfferChangedLogEventProcessor>();
