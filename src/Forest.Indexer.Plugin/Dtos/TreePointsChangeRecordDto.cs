@@ -1,13 +1,13 @@
-using AeFinder.Sdk.Entities;
-using Nest;
 
-namespace Forest.Indexer.Plugin.Entities;
+using Forest.Indexer.Plugin.Entities;
 
-public class TreePointsChangeRecordIndex : AeFinderEntity, IAeFinderEntity
+namespace Forest.Indexer.Plugin.GraphQL;
+
+public class TreePointsChangeRecordDto
 {
-    [Keyword] public override string Id { get; set; }
+    public string Id { get; set; }
     
-    [Keyword] public string Address { get; set; }
+    public string Address { get; set; }
 
     public long TotalPoints { get; set; }
     
@@ -21,31 +21,13 @@ public class TreePointsChangeRecordIndex : AeFinderEntity, IAeFinderEntity
     public string ActivityId { get; set; } // optype = claim activity
     public string TreeLevel { get; set; } // optype = updateTree
     
-    [Keyword]
     public string ChainId { get; set; }
 
-    [Keyword]
     public string BlockHash { get; set; }
 
     public long BlockHeight { get; set; }
 
-    [Keyword]
     public string PreviousBlockHash { get; set; }
 
     public bool IsDeleted { get; set; }
 }
-
-public enum OpType
-{
-    Added = 0,
-    UpdateTree = 1,
-    Claim = 2
-}
-
-public enum PointsType
-{
-    NormalOne = 0,
-    NormalTwo = 1,
-    Invite = 2
-}
-
