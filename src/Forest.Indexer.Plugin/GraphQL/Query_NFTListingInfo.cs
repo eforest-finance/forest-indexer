@@ -18,32 +18,30 @@ public partial class Query
         if (input.Symbol.IsNullOrWhiteSpace() || input.ChainId.IsNullOrWhiteSpace())
             return new NftListingPageResultDto("invalid input param");
 
-        Logger.LogDebug($"[NFTListingInfo] INPUT: chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}");
+        // Logger.LogDebug($"[NFTListingInfo] INPUT: chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}");
         
         var decimals = 0;
         var tokenId = IdGenerateHelper.GetTokenInfoId(input.ChainId, input.Symbol);
         var queryableToken = await tokenIndexRepository.GetQueryableAsync();
         queryableToken = queryableToken.Where(i => i.Id == tokenId);
-        var tokenInfoIndex = queryableToken.Skip(0).Take(1).ToList();
-        if (!tokenInfoIndex.IsNullOrEmpty())
+        var tokenInfoIndex = queryableToken.FirstOrDefault();
+        if (tokenInfoIndex != null)
         {
-            decimals = tokenInfoIndex.FirstOrDefault().Decimals;
+            decimals = tokenInfoIndex.Decimals;
         }
-        
+
         // query listing info
-        var utcNow = DateTime.UtcNow;
         var queryableListing = await nftListingRepo.GetQueryableAsync();
         var minQuantity = (int)(1 * Math.Pow(10, decimals));
 
         queryableListing = queryableListing.Where(index => index.ChainId == input.ChainId);
         queryableListing = queryableListing.Where(index => index.Symbol == input.Symbol);
         queryableListing = queryableListing.Where(index => index.RealQuantity >= minQuantity);
-        
-        if (input.ExpireTimeGt != null)
+
+        if (input.ExpireTimeGt != null && input.ExpireTimeGt>0)
         {
-            var utcTimeStr = DateTimeOffset.FromUnixTimeMilliseconds((long)input.ExpireTimeGt).UtcDateTime
-                .ToString("o");
-            queryableListing = queryableListing.Where(index => index.ExpireTime > utcNow);
+            var expireTimeGt = DateTimeHelper.FromUnixTimeMilliseconds((long)input.ExpireTimeGt);
+            queryableListing = queryableListing.Where(index => index.ExpireTime > expireTimeGt);
         }
 
         if (!input.Owner.IsNullOrWhiteSpace())
@@ -55,31 +53,35 @@ public partial class Query
         {
             queryableListing = queryableListing.Where(index => index.Owner != input.ExcludedAddress);
         }
+
         var result = queryableListing
             .Skip(input.SkipCount).Take(input.MaxResultCount)
             .OrderBy(a => a.Prices)
-            .OrderBy(a => a.StartTime)
-            .OrderBy(a => a.ExpireTime)
+            .ThenBy(a => a.StartTime)
+            .ThenBy(a => a.ExpireTime)
             .ToList();
-        Logger.LogDebug(
-            $"[NFTListingInfo] SETP: query Pager chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}, count={result}");
         
-        var dataList = result.Select(i =>
+        // Logger.LogDebug(
+        //     "[NFTListingInfo] SETP: query Pager chainId={A}, symbol={B}, owner={C}, count={D}",input.ChainId,input.Symbol,input.Owner,result);
+
+        var dataList = result.Where(i => i != null).Select(i =>
         {
             var item = objectMapper.Map<NFTListingInfoIndex, NFTListingInfoDto>(i);
            
-            Logger.LogDebug("listing quantity={Quantity} after quantity {AQuantity} decimal {Decimals} ",item.Quantity,TokenHelper.GetIntegerDivision(item.Quantity, decimals),decimals);
-            Logger.LogDebug("listing quantity real={Quantity} after quantity {AQuantity} decimal {Decimals}",item.RealQuantity,TokenHelper.GetIntegerDivision(item.RealQuantity, decimals),decimals);
+            // Logger.LogDebug("listing quantity={Quantity} after quantity {AQuantity} decimal {Decimals} ",item.Quantity,TokenHelper.GetIntegerDivision(item.Quantity, decimals),decimals);
+            // Logger.LogDebug("listing quantity real={Quantity} after quantity {AQuantity} decimal {Decimals}",item.RealQuantity,TokenHelper.GetIntegerDivision(item.RealQuantity, decimals),decimals);
             
             item.PurchaseToken = objectMapper.Map<TokenInfoIndex, TokenInfoDto>(i.PurchaseToken);
+            
             item.Quantity = TokenHelper.GetIntegerDivision(item.Quantity, decimals);
             item.RealQuantity = TokenHelper.GetIntegerDivision(item.RealQuantity, decimals);
             return item;
         }).ToList();
 
-        Logger.LogDebug(
-            $"[NFTListingInfo] SETP: Convert Data chainId={input.ChainId}, symbol={input.Symbol}, owner={input.Owner}, count={result.Count}");
-        return new NftListingPageResultDto(result.Count, dataList);
+        // Logger.LogDebug(
+        //     "[NFTListingInfo] SETP: query Pager chainId={A}, symbol={B}, owner={C}, count={D}", input.ChainId,
+        //     input.Symbol, input.Owner, result);
+        return new NftListingPageResultDto(result.Count, dataList, "success");
     }
     
     [Name("collectedNFTListingInfo")]

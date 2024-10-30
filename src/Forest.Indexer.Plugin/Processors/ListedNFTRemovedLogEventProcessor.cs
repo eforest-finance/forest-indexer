@@ -28,7 +28,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
 
     public override string GetContractAddress(string chainId)
     {
-        return ContractInfoHelper.GetTokenContractAddress(chainId);
+        return ContractInfoHelper.GetNFTForestContractAddress(chainId);
     }
 
     public override async Task ProcessAsync(ListedNFTRemoved eventValue, LogEventContext context)

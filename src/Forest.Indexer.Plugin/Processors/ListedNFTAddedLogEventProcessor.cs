@@ -1,6 +1,7 @@
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
+using AElf;
 using AElf.CSharp.Core.Extension;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
@@ -29,7 +30,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
 
     public override string GetContractAddress(string chainId)
     {
-        return ContractInfoHelper.GetTokenContractAddress(chainId);
+        return ContractInfoHelper.GetNFTForestContractAddress(chainId);
     }
 
     public override async Task ProcessAsync(ListedNFTAdded eventValue, LogEventContext context)
@@ -51,6 +52,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
                 return;
             }
 
+            
             var tokenIndex = await GetEntityAsync<TokenInfoIndex>(purchaseTokenId);
             if (tokenIndex == null)
             {

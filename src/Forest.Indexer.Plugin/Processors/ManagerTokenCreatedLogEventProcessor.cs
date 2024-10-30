@@ -22,7 +22,7 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
 
     public override string GetContractAddress(string chainId)
     {
-        return ContractInfoHelper.GetTokenAdaptorContractAddress(chainId);
+        return ContractInfoHelper.GetNFTForestContractAddress(chainId);
     }
 
     public override async Task ProcessAsync(ManagerTokenCreated eventValue, LogEventContext context)
