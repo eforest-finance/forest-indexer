@@ -33,7 +33,7 @@ public class ActivityForIssueFTProcessor: LogEventProcessorBase<Issued>
         var seedSymbolIndexId = IdGenerateHelper.GetTsmSeedSymbolId(context.ChainId, eventValue.Symbol);
         var seedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(seedSymbolIndexId);
         if (seedSymbolIndex == null) return;
-        if (!seedSymbolIndex.TokenType.Equals(TokenType.FT)) return;
+        if (seedSymbolIndex.IntTokenType!=(int)TokenType.FT) return;
 
         var symbolMarketActivityId = IdGenerateHelper.GetSymbolMarketActivityId(
             SymbolMarketActivityType.Buy.ToString(), context.ChainId, eventValue.Symbol,
@@ -55,18 +55,19 @@ public class ActivityForIssueFTProcessor: LogEventProcessorBase<Issued>
         Issued eventValue,
         LogEventContext context, SeedType seedType)
     {
-        return new SymbolMarketActivityIndex
+        var  symbolMarketActivityIndex = new SymbolMarketActivityIndex
         {
             Id = symbolMarketActivityId,
-            Type = SymbolMarketActivityType.Issue,
             TransactionDateTime = context.Block.BlockTime,
             Symbol = eventValue.Symbol,
             Address = FullAddressHelper.ToFullAddress(eventValue.To.ToBase58(), context.ChainId),
-            SeedType = seedType,
             TransactionFee = GetFeeTypeElfAmount(context.Transaction.ExtraProperties),
             TransactionFeeSymbol = FeeMapTypeElf,
             TransactionId = context.Transaction.TransactionId,
         };
+        symbolMarketActivityIndex.OfType(SymbolMarketActivityType.Issue);
+        symbolMarketActivityIndex.OfType(seedType);
+        return symbolMarketActivityIndex;
     }
     private long GetFeeTypeElfAmount(Dictionary<string, string> extraProperties)
     {

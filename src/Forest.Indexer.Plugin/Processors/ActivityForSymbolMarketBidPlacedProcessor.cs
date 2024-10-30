@@ -67,21 +67,22 @@ public class ActivityForSymbolMarketBidPlacedProcessor : LogEventProcessorBase<F
         Forest.Contracts.Auction.BidPlaced eventValue,
         LogEventContext context, SeedType seedType, string symbol)
     {
-        return new SymbolMarketActivityIndex
+        var symbolMarketActivityIndex = new SymbolMarketActivityIndex
         {
             Id = symbolMarketActivityId,
-            Type = SymbolMarketActivityType.Bid,
             Price = eventValue.Price.Amount,
             PriceSymbol = eventValue.Price.Symbol,
-
             TransactionDateTime = eventValue.BidTime.ToDateTime(),
             Symbol = symbol,
             Address = FullAddressHelper.ToFullAddress(eventValue.Bidder.ToBase58(), context.ChainId),
-            SeedType = seedType,
             TransactionFee = GetFeeTypeElfAmount(context.Transaction.ExtraProperties),
             TransactionFeeSymbol = FeeMapTypeElf,
             TransactionId = context.Transaction.TransactionId,
         };
+
+        symbolMarketActivityIndex.OfType(SymbolMarketActivityType.Bid);
+        symbolMarketActivityIndex.OfType(seedType);
+        return symbolMarketActivityIndex;
     }
     private long GetFeeTypeElfAmount(Dictionary<string, string> extraProperties)
     {

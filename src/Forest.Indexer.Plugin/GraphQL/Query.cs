@@ -388,12 +388,14 @@ public partial class Query
 
         if (input.TokenTypes != null && input.TokenTypes.Any())
         {
-            queryable = queryable.Where(i => input.TokenTypes.Contains(i.TokenType));
+            var intTokenTypes = input.TokenTypes.Select(i => (int)i).ToList();
+            queryable = queryable.Where(i => intTokenTypes.Contains(i.IntTokenType));
         }
 
         if (input.SeedTypes != null && input.SeedTypes.Any())
         {
-            queryable = queryable.Where(i => input.SeedTypes.Contains(i.SeedType));
+            var intSeedTypes = input.SeedTypes.Select(i => (int)i).ToList();
+            queryable = queryable.Where(i => intSeedTypes.Contains(i.IntSeedType));
         }
 
         if (input.SymbolLengthMin > 0)
@@ -569,10 +571,10 @@ public partial class Query
                 {
                     Symbol = symbol,
                     SeedName = IdGenerateHelper.GetSeedName(symbol),
-                    TokenType = TokenHelper.GetTokenType(symbol),
-                    SeedType = SeedType.Regular,
                     Status = SeedStatus.AVALIABLE
                 };
+                seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
+                seedSymbolIndex.OfType(SeedType.Regular);
             }
         }
 
@@ -601,8 +603,9 @@ public partial class Query
 
         var seedInfoDto = objectMapper.Map<TsmSeedSymbolIndex, SeedInfoDto>(seedSymbolIndex);
         Logger.LogDebug("seedInfoDto NotSupportSeedStatus {Status}", seedInfoDto.NotSupportSeedStatus);
-        if (seedSymbolIndex.Status == SeedStatus.AVALIABLE && 
-            (seedSymbolIndex.SeedType == SeedType.Regular|| seedSymbolIndex.SeedType == SeedType.Unique))
+        if (seedSymbolIndex.Status == SeedStatus.AVALIABLE &&
+            (seedSymbolIndex.IntSeedType == (int)SeedType.Regular ||
+             seedSymbolIndex.IntSeedType == (int)SeedType.Unique))
         {
             var seedPriceId = IdGenerateHelper.GetSeedPriceId(input.TokenType, symbol.Length);
 
@@ -617,7 +620,7 @@ public partial class Query
                 var uniqueSeedPriceIndex = uniqueSeedPriceQueryable.FirstOrDefault();
                 
                 seedInfoDto.TokenPrice = seedPriceIndex.TokenPrice;
-                if (uniqueSeedPriceIndex != null && seedSymbolIndex.SeedType == SeedType.Unique)
+                if (uniqueSeedPriceIndex != null && seedSymbolIndex.IntSeedType == (int)SeedType.Unique)
                 {
                     seedInfoDto.TokenPrice.Amount += uniqueSeedPriceIndex.TokenPrice.Amount;
                 }

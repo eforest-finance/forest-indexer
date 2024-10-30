@@ -23,8 +23,10 @@ public class TsmSeedSymbolIndex : AeFinderEntity, IAeFinderEntity
     public long ExpireTime { get; set; }
 
     public TokenType TokenType { get; set; }
+    public int IntTokenType { get; set; }
 
     public SeedType SeedType { get; set; }
+    public int IntSeedType { get; set; }
     
     public AuctionType AuctionType { get; set; }
 
@@ -57,4 +59,14 @@ public class TsmSeedSymbolIndex : AeFinderEntity, IAeFinderEntity
     public string PreviousBlockHash { get; set; }
 
     public bool IsDeleted { get; set; }
+    public void OfType(TokenType tokenType)
+    {
+        TokenType = tokenType;
+        IntTokenType = (int)tokenType;
+    }
+    public void OfType(SeedType seedType)
+    {
+        SeedType = seedType;
+        IntSeedType = (int)seedType;
+    }
 }

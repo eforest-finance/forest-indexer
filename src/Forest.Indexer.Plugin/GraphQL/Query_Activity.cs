@@ -25,7 +25,14 @@ public partial class Query
         }
 
         var queryable = await symbolMarketActivityIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(q => dto.Address.Contains(q.Address) && dto.Types.Contains(q.Type));
+        
+        queryable = queryable.Where(q => dto.Address.Contains(q.Address) );
+        if (!dto.Types.IsNullOrEmpty())
+        {
+            var intTypes = dto.Types.Select(i => (int)i).ToList();
+            queryable = queryable.Where(q => intTypes.Contains(q.IntType));
+            
+        }
         var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount).OrderByDescending(k=>k.TransactionDateTime).ToList();
         
         var dataList = objectMapper.Map<List<SymbolMarketActivityIndex>, List<SymbolMarkerActivityDto>>(result);

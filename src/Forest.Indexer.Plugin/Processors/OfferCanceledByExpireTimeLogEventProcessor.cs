@@ -94,12 +94,14 @@ public class OfferCanceledByExpireTimeLogEventProcessor : LogEventProcessorBase<
         {
             var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, symbol);
             var seedSymbol = await GetEntityAsync<SeedSymbolIndex>(seedSymbolId);
+            if (seedSymbol == null) return decimals;
             decimals = seedSymbol.Decimals;
         }
         else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, chainId))
         {
             var nftIndexId = IdGenerateHelper.GetNFTInfoId(chainId, symbol);
             var nftIndex = await GetEntityAsync<NFTInfoIndex>(nftIndexId);
+            if (nftIndex == null) return decimals;
             decimals = nftIndex.Decimals;
         }
 

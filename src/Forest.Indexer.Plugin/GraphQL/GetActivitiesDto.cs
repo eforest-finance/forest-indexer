@@ -15,7 +15,7 @@ public class GetCollectionActivitiesDto: PagedResultRequestDto
 {
     public string CollectionId { get; set; }
     public List<string>? BizIdList { get; set; } = new List<string>();
-    public List<int>? Types { get; set; }
+    public List<int>? Types { get; set; } = new List<int>();
 }
 
 public class GetMessageActivitiesDto

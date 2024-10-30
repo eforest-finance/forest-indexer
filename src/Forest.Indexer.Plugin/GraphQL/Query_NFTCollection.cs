@@ -35,7 +35,7 @@ public partial class Query
         
         if (!dto.CollectionType.IsNullOrEmpty())
         {
-            queryable = queryable.Where(q => dto.CollectionType.Contains((int)q.CollectionType));
+            queryable = queryable.Where(q => dto.CollectionType.Contains(q.IntCollectionType));
         }
 
         if (!dto.Param.IsNullOrEmpty())
@@ -76,7 +76,7 @@ public partial class Query
         
         if (!dto.CollectionType.IsNullOrEmpty())
         {
-            queryable = queryable.Where(q => dto.CollectionType.Contains((int)q.CollectionType));
+            queryable = queryable.Where(q => dto.CollectionType.Contains(q.IntCollectionType));
             
         }
 

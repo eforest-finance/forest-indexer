@@ -144,7 +144,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         tsmSeedSymbolIndex.Symbol = seedOwnedSymbol;
         tsmSeedSymbolIndex.SeedName = IdGenerateHelper.GetSeedName(seedOwnedSymbol);
         tsmSeedSymbolIndex.SeedSymbol = seedSymbol;
-        tsmSeedSymbolIndex.TokenType = TokenHelper.GetTokenType(seedOwnedSymbol);
+        tsmSeedSymbolIndex.OfType(TokenHelper.GetTokenType(seedOwnedSymbol));
         tsmSeedSymbolIndex.IsBurned = true;
         tsmSeedSymbolIndex.Status = SeedStatus.UNREGISTERED;
         // Logger.LogInformation(
@@ -152,7 +152,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
 
         if (specialSeed != null && specialSeed.SeedType == SeedType.Unique)
         {
-            tsmSeedSymbolIndex.SeedType = specialSeed.SeedType;
+            tsmSeedSymbolIndex.OfType(specialSeed.SeedType);
             tsmSeedSymbolIndex.AuctionType = specialSeed.AuctionType;
             tsmSeedSymbolIndex.TokenPrice = new TokenPriceInfo()
             {
@@ -167,14 +167,14 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         }
         else
         {
-            tsmSeedSymbolIndex.SeedType = SeedType.Regular;
+            tsmSeedSymbolIndex.OfType(SeedType.Regular);
             tsmSeedSymbolIndex.AuctionType = AuctionType.None;
             
             var seedsPrice = await _aElfClientServiceProvider.GetSeedsPriceAsync(ForestIndexerConstants.MainChain,
                 address);
 
             PriceItem tokenPrice = null;
-            if (tsmSeedSymbolIndex.TokenType == TokenType.NFT)
+            if (tsmSeedSymbolIndex.IntTokenType == (int)TokenType.NFT)
             {
                 Logger.LogInformation(
                     "[TokenCreatedLogEventProcessor] mainChain TsmSeed is null TokenType is NFT : {SeedSymbol}",tsmSeedSymbolIndex.SeedSymbol);
@@ -311,7 +311,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         seedCollectionIndex.TokenContractAddress = GetContractAddress(context.ChainId);
         seedCollectionIndex.CreateTime = context.Block.BlockTime;
         seedCollectionIndex.CreatorAddress = eventValue.Issuer.ToBase58();
-        seedCollectionIndex.CollectionType = CollectionType.SeedCollection;
+        seedCollectionIndex.OfType(CollectionType.SeedCollection);
         seedCollectionIndex.LogoImage = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
             TokenCreatedExternalInfoEnum.NFTLogoImageUrl);
         seedCollectionIndex.FeaturedImageLink = EnumDescriptionHelper.GetExtraInfoValue(eventValue.ExternalInfo,
@@ -381,8 +381,8 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         seedSymbolIndex.TokenContractAddress = GetContractAddress(context.ChainId);
         seedSymbolIndex.CreateTime = context.Block.BlockTime;
         seedSymbolIndex.IsDeleteFlag = false;
-        seedSymbolIndex.SeedType = tsmSeedSymbolIndex.SeedType;
-        seedSymbolIndex.TokenType = tsmSeedSymbolIndex.TokenType;
+        seedSymbolIndex.OfType(tsmSeedSymbolIndex.SeedType);
+        seedSymbolIndex.OfType(tsmSeedSymbolIndex.TokenType);
         seedSymbolIndex.SeedImage = tsmSeedSymbolIndex.SeedImage;
         if (tsmSeedSymbolIndex.TokenPrice != null)
         {
@@ -536,7 +536,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         nftCollectionIndex.TokenContractAddress = GetContractAddress(context.ChainId);
         nftCollectionIndex.CreateTime = context.Block.BlockTime;
         nftCollectionIndex.CreatorAddress = eventValue.Issuer.ToBase58();
-        nftCollectionIndex.CollectionType = CollectionType.NftCollection;
+        nftCollectionIndex.OfType(CollectionType.NftCollection);
 
         if (eventValue.ExternalInfo.Value.ContainsKey(
                 EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.NFTLogoImageUrl)))

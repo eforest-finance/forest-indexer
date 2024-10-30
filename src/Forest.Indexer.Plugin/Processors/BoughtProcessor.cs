@@ -46,9 +46,9 @@ public class BoughtProcessor: LogEventProcessorBase<Bought>
             {
                 Id = seedSymbolId,
                 Symbol = symbol,
-                SeedName = IdGenerateHelper.GetSeedName(symbol),
-                TokenType = TokenHelper.GetTokenType(symbol)
+                SeedName = IdGenerateHelper.GetSeedName(symbol)
             };
+            seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
         }
 
         return seedSymbolIndex;

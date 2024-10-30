@@ -58,21 +58,21 @@ public class ActivityForSymbolMarketBoughtProcessor : LogEventProcessorBase<Boug
         Bought eventValue,
         LogEventContext context, SeedType seedType)
     {
-        return new SymbolMarketActivityIndex
+        var symbolMarketActivityIndex = new SymbolMarketActivityIndex
         {
             Id = symbolMarketActivityId,
-            Type = SymbolMarketActivityType.Buy,
             Price = eventValue.Price.Amount,
             PriceSymbol = eventValue.Price.Symbol,
-
             TransactionDateTime = context.Block.BlockTime,
             Symbol = eventValue.Symbol,
             Address = FullAddressHelper.ToFullAddress(eventValue.Buyer.ToBase58(), context.ChainId),
-            SeedType = seedType,
             TransactionFee = GetFeeTypeElfAmount(context.Transaction.ExtraProperties),
             TransactionFeeSymbol = FeeMapTypeElf,
             TransactionId = context.Transaction.TransactionId
         };
+        symbolMarketActivityIndex.OfType(SymbolMarketActivityType.Buy);
+        symbolMarketActivityIndex.OfType(seedType);
+        return symbolMarketActivityIndex;
     }
     private long GetFeeTypeElfAmount(Dictionary<string, string> extraProperties)
     {

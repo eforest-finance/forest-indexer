@@ -39,8 +39,6 @@ public class  SpecialSeedAddedLogEventProcessor: LogEventProcessorBase<SpecialSe
                 SeedName = IdGenerateHelper.GetSeedName(seed.Symbol),
                 Status = SeedStatus.AVALIABLE,
                 AuctionType = seed.AuctionType,
-                TokenType = TokenHelper.GetTokenType(seed.Symbol),
-                SeedType = seed.SeedType,
                 TokenPrice = new TokenPriceInfo()
                 {
                     Symbol = seed.PriceSymbol,
@@ -48,6 +46,8 @@ public class  SpecialSeedAddedLogEventProcessor: LogEventProcessorBase<SpecialSe
                 },
                 IsBurned = false
             };
+            seedSymbolIndex.OfType(TokenHelper.GetTokenType(seed.Symbol));
+            seedSymbolIndex.OfType(seed.SeedType);
             _objectMapper.Map(context, seedSymbolIndex);
             if (seed.SeedType == SeedType.Disable)
             {

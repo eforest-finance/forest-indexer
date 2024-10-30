@@ -23,8 +23,10 @@ public class SeedSymbolIndex: AeFinderEntity, IAeFinderEntity
     public bool IsDeleteFlag { get; set; }
     
     public TokenType TokenType { get; set; }
+    public int IntTokenType { get; set; }
 
     public SeedType SeedType { get; set; }
+    public int IntSeedType { get; set; }
     
     public decimal Price { get; set; }
     
@@ -132,5 +134,16 @@ public class SeedSymbolIndex: AeFinderEntity, IAeFinderEntity
         MaxOfferPrice = maxOfferInfo?.Price ?? 0;
         MaxOfferExpireTime = maxOfferInfo?.ExpireTime;
         MaxOfferId = maxOfferInfo?.Id;
+    }
+    
+    public void OfType(TokenType tokenType)
+    {
+        TokenType = tokenType;
+        IntTokenType = (int)tokenType;
+    }
+    public void OfType(SeedType seedType)
+    {
+        SeedType = seedType;
+        IntSeedType = (int)seedType;
     }
 }

@@ -126,7 +126,7 @@ public class ListedNFTChangedLogEventProcessor : LogEventProcessorBase<ListedNFT
         UpdateListedInfoResponse response = null;
         if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
         {
-            Logger.LogDebug("UpdateListedInfoCommonAsync3"+chainId+" "+symbol+" "+excludeListingId);
+            // Logger.LogDebug("UpdateListedInfoCommonAsync3"+chainId+" "+symbol+" "+excludeListingId);
             var nftInfoIndex = await UpdateListedInfoForSeedAsync(chainId, symbol, context,
                 listingInfoNftInfoIndex, excludeListingId);
             if (nftInfoIndex == null) return response;

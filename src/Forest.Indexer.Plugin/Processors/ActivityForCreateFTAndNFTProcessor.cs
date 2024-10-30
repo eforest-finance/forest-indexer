@@ -38,7 +38,8 @@ public class ActivityForCreateFTAndNFTProcessor: LogEventProcessorBase<ManagerTo
         var seedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(seedSymbolIndexId);
         
         if (seedSymbolIndex == null) return;
-        if (!seedSymbolIndex.TokenType.Equals(TokenType.FT) && !seedSymbolIndex.TokenType.Equals(TokenType.NFT)) return;
+        if (seedSymbolIndex.IntTokenType != (int)TokenType.FT &&
+            seedSymbolIndex.IntTokenType != (int)TokenType.NFT) return;
 
         var symbolMarketActivityId = IdGenerateHelper.GetSymbolMarketActivityId(
             SymbolMarketActivityType.Buy.ToString(), context.ChainId, seedOwnedSymbol,
@@ -60,18 +61,21 @@ public class ActivityForCreateFTAndNFTProcessor: LogEventProcessorBase<ManagerTo
         ManagerTokenCreated eventValue,
         LogEventContext context, SeedType seedType)
     {
-        return new SymbolMarketActivityIndex
+        var symbolMarketActivityIndex = new SymbolMarketActivityIndex
         {
             Id = symbolMarketActivityId,
-            Type = SymbolMarketActivityType.Create,
             TransactionDateTime = context.Block.BlockTime,
             Symbol = eventValue.Symbol,
             Address = FullAddressHelper.ToFullAddress(eventValue.RealOwner.ToBase58(), context.ChainId),
-            SeedType = seedType,
             TransactionFee = GetFeeTypeElfAmount(context.Transaction.ExtraProperties),
             TransactionFeeSymbol = FeeMapTypeElf,
             TransactionId = context.Transaction.TransactionId,
         };
+
+        symbolMarketActivityIndex.OfType(SymbolMarketActivityType.Create);
+        symbolMarketActivityIndex.OfType(seedType);
+        return symbolMarketActivityIndex;
+
     }
     private long GetFeeTypeElfAmount(Dictionary<string, string> extraProperties)
     {
