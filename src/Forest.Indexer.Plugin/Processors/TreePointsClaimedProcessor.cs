@@ -1,14 +1,16 @@
+using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
+using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
+public class TreePointsClaimedProcessor: LogEventProcessorBase<TreePointsClaimed>
 {
     private readonly IObjectMapper _objectMapper;
-    public TreePointsAddedProcessor(IObjectMapper objectMapper)
+    public TreePointsClaimedProcessor(IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
     }
@@ -18,16 +20,17 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
         return ContractInfoHelper.GetNFTForestContractAddress(chainId);
     }
 
-    public override async Task ProcessAsync(TreePointsAdded eventValue, LogEventContext context)
+    public override async Task ProcessAsync(TreePointsClaimed eventValue, LogEventContext context)
     {
+        Logger.LogInformation("TreePointsClaimedProcessor eventValue:{A}", JsonConvert.SerializeObject(eventValue));
+
         if (eventValue == null || context == null) return;
+        var opType = OpType.UpdateTree;
         var recordId = IdGenerateHelper.GetTreePointsAddedRecordId
-            (context.ChainId, eventValue.Owner.ToBase58(), eventValue.OpTime);
+            (context.ChainId, eventValue.Owner.ToBase58(),opType.ToString(), eventValue.OpTime);
         var recordIndex = await GetEntityAsync<TreePointsChangeRecordIndex>(recordId);
         if (recordIndex != null) return;
-
-        var pointsType = GetValueFromEnum<PointsType>(eventValue.PointsType);
-        if (!pointsType.HasValue) return;
+        
         recordIndex = new TreePointsChangeRecordIndex
         {
             Id = recordId,
@@ -35,9 +38,8 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
             TotalPoints = eventValue.TotalPoints,
             Points = eventValue.Points,
             OpTime = eventValue.OpTime,
-            OpType = OpType.Added,
-            PointsType = pointsType.Value,
-            ActivityId = "",
+            OpType = opType,
+            ActivityId = eventValue.ActivityId,
             TreeLevel = ""
         };
         _objectMapper.Map(context, recordIndex);
