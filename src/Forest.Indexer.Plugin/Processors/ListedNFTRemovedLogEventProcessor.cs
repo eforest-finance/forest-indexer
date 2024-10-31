@@ -283,8 +283,8 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             await CheckOtherListExistAsync(nftInfo.Id, nftInfo.ListingAddress, deleteListingId);
 
         //query history listing + current and compare.
-        var minNftListing = await GetMinListingNftAsync(nftInfo.Id, deleteListingId, listingInfoNftInfoIndex);
-        nftInfo.OfMinNftListingInfo(minNftListing);
+        // var minNftListing = await GetMinListingNftAsync(nftInfo.Id, deleteListingId, listingInfoNftInfoIndex);
+        // nftInfo.OfMinNftListingInfo(minNftListing);
 
         _objectMapper.Map(context, nftInfo);
         await SaveEntityAsync(nftInfo);
@@ -363,8 +363,8 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             await CheckOtherListExistAsync(seedSymbolIndex.Id, seedSymbolIndex.ListingAddress, deleteListingId);
 
         //query history listing + current and compare.
-        var minNftListing = await GetMinListingNftAsync(seedSymbolIndex.Id, deleteListingId, listingInfoNftInfoIndex);
-        seedSymbolIndex.OfMinNftListingInfo(minNftListing);
+        // var minNftListing = await GetMinListingNftAsync(seedSymbolIndex.Id, deleteListingId, listingInfoNftInfoIndex);
+        // seedSymbolIndex.OfMinNftListingInfo(minNftListing);
 
         _objectMapper.Map(context, seedSymbolIndex);
         await SaveEntityAsync(seedSymbolIndex);
