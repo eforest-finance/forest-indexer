@@ -30,7 +30,7 @@ public partial class Query
         var result = queryable.Skip(0).Take(QueryCurrentSize).OrderBy(o => o.BlockHeight).ToList();
         if (result.IsNullOrEmpty())
         {
-            return null;
+            return new List<SeedInfoDto>();
         }
 
         var dataList = objectMapper.Map<List<TsmSeedSymbolIndex>, List<SeedInfoDto>>(result);

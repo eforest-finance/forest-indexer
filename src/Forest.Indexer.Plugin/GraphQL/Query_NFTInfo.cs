@@ -129,13 +129,13 @@ public partial class Query
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f => f.Id == dto.Id);
 
-        var result = queryable.ToList();
-        if (result.IsNullOrEmpty())
+        var result = queryable.FirstOrDefault();
+        if (result == null)
         {
             return null;
         }
 
-        return objectMapper.Map<NFTInfoIndex, NFTInfoSyncDto>(result.FirstOrDefault());
+        return objectMapper.Map<NFTInfoIndex, NFTInfoSyncDto>(result);
     }
 
     /*private static Tuple<SortOrder, Expression<Func<NFTInfoIndex, object>>> GetSorting(string sorting)

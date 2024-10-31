@@ -4,17 +4,17 @@ namespace Forest.Indexer.Plugin.GraphQL;
 
 public class SeedSymbolSyncDto
 {
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
-    public string ChainId { get; set; }
+    public string? ChainId { get; set; }
 
-    public string BlockHash { get; set; }
+    public string? BlockHash { get; set; }
 
     public long BlockHeight { get; set; }
     
-    public string Symbol { get; set; }
+    public string? Symbol { get; set; }
     
-    public string TokenContractAddress { get; set; }
+    public string? TokenContractAddress { get; set; }
 
     public int Decimals { get; set; }
 
@@ -22,11 +22,11 @@ public class SeedSymbolSyncDto
 
     public long TotalSupply { get; set; }
 
-    public string TokenName { get; set; }
+    public string? TokenName { get; set; }
 
-    public string Owner { get; set; }
+    public string? Owner { get; set; }
     
-    public string Issuer { get; set; }
+    public string? Issuer { get; set; }
 
     public bool IsBurnable { get; set; }
 
@@ -38,7 +38,7 @@ public class SeedSymbolSyncDto
 
     public List<ExternalInfoDictionaryDto> ExternalInfoDictionary { get; set; }
 
-    public string SeedOwnedSymbol { get; set; }
+    public string? SeedOwnedSymbol { get; set; }
 
     public long SeedExpTimeSecond { get; set; }
 
@@ -48,30 +48,30 @@ public class SeedSymbolSyncDto
 
     public DateTime RegisterTime { get; set; }
 
-    public string IssuerTo { get; set; }
+    public string? IssuerTo { get; set; }
 
     public bool IsDeleteFlag { get; set; }
 
-    public string TokenType { get; set; }
+    public string? TokenType { get; set; }
 
-    public string SeedType { get; set; }
+    public string? SeedType { get; set; }
 
     public decimal Price { get; set; }
 
-    public string PriceSymbol { get; set; }
+    public string? PriceSymbol { get; set; }
 
     public decimal BeginAuctionPrice { get; set; }
 
     public decimal AuctionPrice { get; set; }
 
-    public string AuctionPriceSymbol { get; set; }
+    public string? AuctionPriceSymbol { get; set; }
 
     public DateTime AuctionDateTime { get; set; }
 
     public bool OtherOwnerListingFlag { get; set; }
 
-    public string ListingId { get; set; }
-    public string ListingAddress { get; set; }
+    public string? ListingId { get; set; }
+    public string? ListingAddress { get; set; }
     public decimal ListingPrice { get; set; }
     public long ListingQuantity { get; set; }
     public DateTime? ListingEndTime { get; set; }
@@ -85,9 +85,9 @@ public class SeedSymbolSyncDto
 
     public DateTime? LatestOfferTime { get; set; }
 
-    public TokenInfoDto OfferToken { get; set; }
-    public TokenInfoDto ListingToken { get; set; }
-    public TokenInfoDto LatestDealToken { get; set; }
+    public TokenInfoDto? OfferToken { get; set; }
+    public TokenInfoDto? ListingToken { get; set; }
+    public TokenInfoDto? LatestDealToken { get; set; }
 
     public SeedStatus? SeedStatus { get; set; }
 
@@ -97,7 +97,7 @@ public class SeedSymbolSyncDto
 
     public DateTime? MinListingExpireTime { get; set; }
 
-    public string MinListingId { get; set; }
+    public string? MinListingId { get; set; }
 
     public bool HasAuctionFlag { get; set; }
     
@@ -107,7 +107,7 @@ public class SeedSymbolSyncDto
 
     public DateTime? MaxOfferExpireTime { get; set; }
 
-    public string MaxOfferId { get; set; }
+    public string? MaxOfferId { get; set; }
 
-    public string SeedImage { get; set; }
+    public string? SeedImage { get; set; }
 }
