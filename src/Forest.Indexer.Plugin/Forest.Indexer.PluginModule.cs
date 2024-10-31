@@ -59,5 +59,9 @@ public class ForestIndexerPluginModule: AbpModule
                 ProxyAccountManagementAddressRemovedLogEventProcessor>();
         context.Services
             .AddSingleton<ILogEventProcessor,ProxyAccountManagementAddressResetLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,TreePointsAddedProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,TreePointsClaimedProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,TreeLevelUpdatedProcessor>();
+
     }
 }
