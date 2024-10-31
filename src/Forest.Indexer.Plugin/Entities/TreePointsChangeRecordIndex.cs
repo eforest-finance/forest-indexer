@@ -46,6 +46,7 @@ public enum PointsType
 {
     NormalOne = 0,
     NormalTwo = 1,
-    Invite = 2
+    Invite = 2,
+    Default = 3
 }
 
