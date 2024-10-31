@@ -30,6 +30,7 @@ namespace Forest {
         Symbol = Symbol,
         AllSuccessFlag = AllSuccessFlag,
         FailPriceList = FailPriceList,
+        TotalDealAmountPrice = TotalDealAmountPrice,
       };
     }
   }
@@ -343,6 +344,103 @@ namespace Forest {
     }
   }
 
+  public partial class ArtCreated : aelf::IEvent<ArtCreated>
+  {
+    public global::System.Collections.Generic.IEnumerable<ArtCreated> GetIndexed()
+    {
+      return new List<ArtCreated>
+      {
+      };
+    }
+
+    public ArtCreated GetNonIndexed()
+    {
+      return new ArtCreated
+      {
+        Promt = Promt,
+        NegativePrompt = NegativePrompt,
+        Model = Model,
+        Quality = Quality,
+        Style = Style,
+        Size = Size,
+        Number = Number,
+        CostPrice = CostPrice,
+        PaintingStyle = PaintingStyle,
+      };
+    }
+  }
+
+  public partial class TreePointsAdded : aelf::IEvent<TreePointsAdded>
+  {
+    public global::System.Collections.Generic.IEnumerable<TreePointsAdded> GetIndexed()
+    {
+      return new List<TreePointsAdded>
+      {
+      };
+    }
+
+    public TreePointsAdded GetNonIndexed()
+    {
+      return new TreePointsAdded
+      {
+        Owner = Owner,
+        Points = Points,
+        PointsType = PointsType,
+        OpTime = OpTime,
+        TotalPoints = TotalPoints,
+        RequestHash = RequestHash,
+      };
+    }
+  }
+
+  public partial class TreePointsClaimed : aelf::IEvent<TreePointsClaimed>
+  {
+    public global::System.Collections.Generic.IEnumerable<TreePointsClaimed> GetIndexed()
+    {
+      return new List<TreePointsClaimed>
+      {
+      };
+    }
+
+    public TreePointsClaimed GetNonIndexed()
+    {
+      return new TreePointsClaimed
+      {
+        Owner = Owner,
+        Points = Points,
+        ActivityId = ActivityId,
+        OpTime = OpTime,
+        RewardSymbol = RewardSymbol,
+        RewardAmount = RewardAmount,
+        TotalPoints = TotalPoints,
+        RequestHash = RequestHash,
+      };
+    }
+  }
+
+  public partial class TreeLevelUpgraded : aelf::IEvent<TreeLevelUpgraded>
+  {
+    public global::System.Collections.Generic.IEnumerable<TreeLevelUpgraded> GetIndexed()
+    {
+      return new List<TreeLevelUpgraded>
+      {
+      };
+    }
+
+    public TreeLevelUpgraded GetNonIndexed()
+    {
+      return new TreeLevelUpgraded
+      {
+        Owner = Owner,
+        Points = Points,
+        UpgradeLevel = UpgradeLevel,
+        OpTime = OpTime,
+        TotalPoints = TotalPoints,
+        RequestHash = RequestHash,
+      };
+    }
+  }
+
   #endregion
   public static partial class ForestContractContainer
   {
@@ -358,6 +456,8 @@ namespace Forest {
     static readonly aelf::Marshaller<global::Forest.MakeOfferInput> __Marshaller_Forest_MakeOfferInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.MakeOfferInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.CancelOfferInput> __Marshaller_Forest_CancelOfferInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.CancelOfferInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.CancelOfferListByExpireTimeInput> __Marshaller_Forest_CancelOfferListByExpireTimeInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.CancelOfferListByExpireTimeInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.BatchCancelOfferListInput> __Marshaller_Forest_BatchCancelOfferListInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.BatchCancelOfferListInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.BatchCancelListInput> __Marshaller_Forest_BatchCancelListInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.BatchCancelListInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.BatchBuyNowInput> __Marshaller_Forest_BatchBuyNowInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.BatchBuyNowInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.SetRoyaltyInput> __Marshaller_Forest_SetRoyaltyInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.SetRoyaltyInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.SetTokenWhiteListInput> __Marshaller_Forest_SetTokenWhiteListInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.SetTokenWhiteListInput.Parser.ParseFrom);
@@ -366,6 +466,11 @@ namespace Forest {
     static readonly aelf::Marshaller<global::Forest.StringList> __Marshaller_Forest_StringList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.StringList.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.BizConfig> __Marshaller_Forest_BizConfig = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.BizConfig.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.SetOfferTotalAmountInput> __Marshaller_Forest_SetOfferTotalAmountInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.SetOfferTotalAmountInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.SetAIServiceFeeInput> __Marshaller_Forest_SetAIServiceFeeInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.SetAIServiceFeeInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.CreateArtInput> __Marshaller_Forest_CreateArtInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.CreateArtInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Google.Protobuf.WellKnownTypes.StringValue> __Marshaller_google_protobuf_StringValue = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Google.Protobuf.WellKnownTypes.StringValue.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Google.Protobuf.WellKnownTypes.Int32Value> __Marshaller_google_protobuf_Int32Value = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Google.Protobuf.WellKnownTypes.Int32Value.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.SetCollectionListTotalCountInput> __Marshaller_Forest_SetCollectionListTotalCountInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.SetCollectionListTotalCountInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.GetListedNFTInfoListInput> __Marshaller_Forest_GetListedNFTInfoListInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.GetListedNFTInfoListInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.ListedNFTInfoList> __Marshaller_Forest_ListedNFTInfoList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.ListedNFTInfoList.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.GetWhitelistIdInput> __Marshaller_Forest_GetWhitelistIdInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.GetWhitelistIdInput.Parser.ParseFrom);
@@ -374,7 +479,6 @@ namespace Forest {
     static readonly aelf::Marshaller<global::Forest.AddressList> __Marshaller_Forest_AddressList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.AddressList.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.GetOfferListInput> __Marshaller_Forest_GetOfferListInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.GetOfferListInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.OfferList> __Marshaller_Forest_OfferList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.OfferList.Parser.ParseFrom);
-    static readonly aelf::Marshaller<global::Google.Protobuf.WellKnownTypes.StringValue> __Marshaller_google_protobuf_StringValue = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Google.Protobuf.WellKnownTypes.StringValue.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.GetRoyaltyInput> __Marshaller_Forest_GetRoyaltyInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.GetRoyaltyInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.RoyaltyInfo> __Marshaller_Forest_RoyaltyInfo = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.RoyaltyInfo.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.ServiceFeeInfo> __Marshaller_Forest_ServiceFeeInfo = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.ServiceFeeInfo.Parser.ParseFrom);
@@ -382,6 +486,13 @@ namespace Forest {
     static readonly aelf::Marshaller<global::Forest.GetTotalOfferAmountOutput> __Marshaller_Forest_GetTotalOfferAmountOutput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.GetTotalOfferAmountOutput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.GetTotalEffectiveListedNFTAmountInput> __Marshaller_Forest_GetTotalEffectiveListedNFTAmountInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.GetTotalEffectiveListedNFTAmountInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.GetTotalEffectiveListedNFTAmountOutput> __Marshaller_Forest_GetTotalEffectiveListedNFTAmountOutput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.GetTotalEffectiveListedNFTAmountOutput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.AIServiceFeeInfo> __Marshaller_Forest_AIServiceFeeInfo = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.AIServiceFeeInfo.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.GetCreateArtInfoInput> __Marshaller_Forest_GetCreateArtInfoInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.GetCreateArtInfoInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.CreateArtInfo> __Marshaller_Forest_CreateArtInfo = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.CreateArtInfo.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.AddTreePointsInput> __Marshaller_Forest_AddTreePointsInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.AddTreePointsInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.ClaimTreePointsInput> __Marshaller_Forest_ClaimTreePointsInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.ClaimTreePointsInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.TreeLevelUpgradeInput> __Marshaller_Forest_TreeLevelUpgradeInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.TreeLevelUpgradeInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.TreePointsInfo> __Marshaller_Forest_TreePointsInfo = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.TreePointsInfo.Parser.ParseFrom);
     #endregion
 
     #region Methods
@@ -439,6 +550,20 @@ namespace Forest {
         __ServiceName,
         "CancelOfferListByExpireTime",
         __Marshaller_Forest_CancelOfferListByExpireTimeInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.BatchCancelOfferListInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_BatchCancelOfferList = new aelf::Method<global::Forest.BatchCancelOfferListInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "BatchCancelOfferList",
+        __Marshaller_Forest_BatchCancelOfferListInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.BatchCancelListInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_BatchCancelList = new aelf::Method<global::Forest.BatchCancelListInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "BatchCancelList",
+        __Marshaller_Forest_BatchCancelListInput,
         __Marshaller_google_protobuf_Empty);
 
     static readonly aelf::Method<global::Forest.BatchBuyNowInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_BatchBuyNow = new aelf::Method<global::Forest.BatchBuyNowInput, global::Google.Protobuf.WellKnownTypes.Empty>(
@@ -502,6 +627,55 @@ namespace Forest {
         __ServiceName,
         "SetOfferTotalAmount",
         __Marshaller_Forest_SetOfferTotalAmountInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.SetAIServiceFeeInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetAIServiceFee = new aelf::Method<global::Forest.SetAIServiceFeeInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SetAIServiceFee",
+        __Marshaller_Forest_SetAIServiceFeeInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.CreateArtInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_CreateArt = new aelf::Method<global::Forest.CreateArtInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "CreateArt",
+        __Marshaller_Forest_CreateArtInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Google.Protobuf.WellKnownTypes.Empty> __Method_AddAIImageSize = new aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "AddAIImageSize",
+        __Marshaller_google_protobuf_StringValue,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Google.Protobuf.WellKnownTypes.Empty> __Method_RemoveAIImageSize = new aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "RemoveAIImageSize",
+        __Marshaller_google_protobuf_StringValue,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Int32Value, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetMaxBatchCancelOfferCount = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Int32Value, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SetMaxBatchCancelOfferCount",
+        __Marshaller_google_protobuf_Int32Value,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Int32Value, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetMaxBatchCancelListCount = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Int32Value, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SetMaxBatchCancelListCount",
+        __Marshaller_google_protobuf_Int32Value,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.SetCollectionListTotalCountInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetCollectionListTotalCount = new aelf::Method<global::Forest.SetCollectionListTotalCountInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SetCollectionListTotalCount",
+        __Marshaller_Forest_SetCollectionListTotalCountInput,
         __Marshaller_google_protobuf_Empty);
 
     static readonly aelf::Method<global::Forest.GetListedNFTInfoListInput, global::Forest.ListedNFTInfoList> __Method_GetListedNFTInfoList = new aelf::Method<global::Forest.GetListedNFTInfoListInput, global::Forest.ListedNFTInfoList>(
@@ -588,6 +762,76 @@ namespace Forest {
         __Marshaller_Forest_GetTotalEffectiveListedNFTAmountInput,
         __Marshaller_Forest_GetTotalEffectiveListedNFTAmountOutput);
 
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.AIServiceFeeInfo> __Method_GetAIServiceFee = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.AIServiceFeeInfo>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetAIServiceFee",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_Forest_AIServiceFeeInfo);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.StringList> __Method_GetAIImageSizes = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.StringList>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetAIImageSizes",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_Forest_StringList);
+
+    static readonly aelf::Method<global::Forest.GetCreateArtInfoInput, global::Forest.CreateArtInfo> __Method_GetCreateArtInfo = new aelf::Method<global::Forest.GetCreateArtInfoInput, global::Forest.CreateArtInfo>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetCreateArtInfo",
+        __Marshaller_Forest_GetCreateArtInfoInput,
+        __Marshaller_Forest_CreateArtInfo);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Google.Protobuf.WellKnownTypes.Int32Value> __Method_GetMaxBatchCancelOfferCount = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Google.Protobuf.WellKnownTypes.Int32Value>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetMaxBatchCancelOfferCount",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_google_protobuf_Int32Value);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Google.Protobuf.WellKnownTypes.Int32Value> __Method_GetMaxBatchCancelListCount = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Google.Protobuf.WellKnownTypes.Int32Value>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetMaxBatchCancelListCount",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_google_protobuf_Int32Value);
+
+    static readonly aelf::Method<global::Forest.AddTreePointsInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_AddTreePoints = new aelf::Method<global::Forest.AddTreePointsInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "AddTreePoints",
+        __Marshaller_Forest_AddTreePointsInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.ClaimTreePointsInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_ClaimTreePoints = new aelf::Method<global::Forest.ClaimTreePointsInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "ClaimTreePoints",
+        __Marshaller_Forest_ClaimTreePointsInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.TreeLevelUpgradeInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_TreeLevelUpgrade = new aelf::Method<global::Forest.TreeLevelUpgradeInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "TreeLevelUpgrade",
+        __Marshaller_Forest_TreeLevelUpgradeInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::AElf.Types.Address, global::Forest.TreePointsInfo> __Method_GetTreePoints = new aelf::Method<global::AElf.Types.Address, global::Forest.TreePointsInfo>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetTreePoints",
+        __Marshaller_aelf_Address,
+        __Marshaller_Forest_TreePointsInfo);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetTreePointsHashVerifyKey = new aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SetTreePointsHashVerifyKey",
+        __Marshaller_google_protobuf_StringValue,
+        __Marshaller_google_protobuf_Empty);
+
     #endregion
 
     #region Descriptors
@@ -608,6 +852,306 @@ namespace Forest {
       }
     }
     #endregion
+
+    /// <summary>Base class for the contract of ForestContract</summary>
+    public abstract partial class ForestContractBase : AElf.Sdk.CSharp.CSharpSmartContract<Forest.ForestContractState>
+    {
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty Initialize(global::Forest.InitializeInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty ListWithFixedPrice(global::Forest.ListWithFixedPriceInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty Deal(global::Forest.DealInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty Delist(global::Forest.DelistInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty BatchDeList(global::Forest.BatchDeListInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty MakeOffer(global::Forest.MakeOfferInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty CancelOffer(global::Forest.CancelOfferInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty CancelOfferListByExpireTime(global::Forest.CancelOfferListByExpireTimeInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty BatchCancelOfferList(global::Forest.BatchCancelOfferListInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty BatchCancelList(global::Forest.BatchCancelListInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty BatchBuyNow(global::Forest.BatchBuyNowInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetRoyalty(global::Forest.SetRoyaltyInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetTokenWhiteList(global::Forest.SetTokenWhiteListInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetAdministrator(global::AElf.Types.Address input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetServiceFee(global::Forest.SetServiceFeeInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetGlobalTokenWhiteList(global::Forest.StringList input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetWhitelistContract(global::AElf.Types.Address input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetBizConfig(global::Forest.BizConfig input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetOfferTotalAmount(global::Forest.SetOfferTotalAmountInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetAIServiceFee(global::Forest.SetAIServiceFeeInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty CreateArt(global::Forest.CreateArtInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty AddAIImageSize(global::Google.Protobuf.WellKnownTypes.StringValue input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty RemoveAIImageSize(global::Google.Protobuf.WellKnownTypes.StringValue input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetMaxBatchCancelOfferCount(global::Google.Protobuf.WellKnownTypes.Int32Value input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetMaxBatchCancelListCount(global::Google.Protobuf.WellKnownTypes.Int32Value input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetCollectionListTotalCount(global::Forest.SetCollectionListTotalCountInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.ListedNFTInfoList GetListedNFTInfoList(global::Forest.GetListedNFTInfoListInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.GetWhitelistIdOutput GetWhitelistId(global::Forest.GetWhitelistIdInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.AddressList GetOfferAddressList(global::Forest.GetAddressListInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.OfferList GetOfferList(global::Forest.GetOfferListInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.StringList GetTokenWhiteList(global::Google.Protobuf.WellKnownTypes.StringValue input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.StringList GetGlobalTokenWhiteList(global::Google.Protobuf.WellKnownTypes.Empty input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.RoyaltyInfo GetRoyalty(global::Forest.GetRoyaltyInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.ServiceFeeInfo GetServiceFeeInfo(global::Google.Protobuf.WellKnownTypes.Empty input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::AElf.Types.Address GetAdministrator(global::Google.Protobuf.WellKnownTypes.Empty input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.BizConfig GetBizConfig(global::Google.Protobuf.WellKnownTypes.Empty input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.GetTotalOfferAmountOutput GetTotalOfferAmount(global::Forest.GetTotalOfferAmountInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.GetTotalEffectiveListedNFTAmountOutput GetTotalEffectiveListedNFTAmount(global::Forest.GetTotalEffectiveListedNFTAmountInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.AIServiceFeeInfo GetAIServiceFee(global::Google.Protobuf.WellKnownTypes.Empty input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.StringList GetAIImageSizes(global::Google.Protobuf.WellKnownTypes.Empty input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.CreateArtInfo GetCreateArtInfo(global::Forest.GetCreateArtInfoInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Int32Value GetMaxBatchCancelOfferCount(global::Google.Protobuf.WellKnownTypes.Empty input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Int32Value GetMaxBatchCancelListCount(global::Google.Protobuf.WellKnownTypes.Empty input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty AddTreePoints(global::Forest.AddTreePointsInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty ClaimTreePoints(global::Forest.ClaimTreePointsInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty TreeLevelUpgrade(global::Forest.TreeLevelUpgradeInput input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Forest.TreePointsInfo GetTreePoints(global::AElf.Types.Address input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty SetTreePointsHashVerifyKey(global::Google.Protobuf.WellKnownTypes.StringValue input)
+      {
+        throw new global::System.NotImplementedException();
+      }
+
+    }
+
+    public static aelf::ServerServiceDefinition BindService(ForestContractBase serviceImpl)
+    {
+      return aelf::ServerServiceDefinition.CreateBuilder()
+          .AddDescriptors(Descriptors)
+          .AddMethod(__Method_Initialize, serviceImpl.Initialize)
+          .AddMethod(__Method_ListWithFixedPrice, serviceImpl.ListWithFixedPrice)
+          .AddMethod(__Method_Deal, serviceImpl.Deal)
+          .AddMethod(__Method_Delist, serviceImpl.Delist)
+          .AddMethod(__Method_BatchDeList, serviceImpl.BatchDeList)
+          .AddMethod(__Method_MakeOffer, serviceImpl.MakeOffer)
+          .AddMethod(__Method_CancelOffer, serviceImpl.CancelOffer)
+          .AddMethod(__Method_CancelOfferListByExpireTime, serviceImpl.CancelOfferListByExpireTime)
+          .AddMethod(__Method_BatchCancelOfferList, serviceImpl.BatchCancelOfferList)
+          .AddMethod(__Method_BatchCancelList, serviceImpl.BatchCancelList)
+          .AddMethod(__Method_BatchBuyNow, serviceImpl.BatchBuyNow)
+          .AddMethod(__Method_SetRoyalty, serviceImpl.SetRoyalty)
+          .AddMethod(__Method_SetTokenWhiteList, serviceImpl.SetTokenWhiteList)
+          .AddMethod(__Method_SetAdministrator, serviceImpl.SetAdministrator)
+          .AddMethod(__Method_SetServiceFee, serviceImpl.SetServiceFee)
+          .AddMethod(__Method_SetGlobalTokenWhiteList, serviceImpl.SetGlobalTokenWhiteList)
+          .AddMethod(__Method_SetWhitelistContract, serviceImpl.SetWhitelistContract)
+          .AddMethod(__Method_SetBizConfig, serviceImpl.SetBizConfig)
+          .AddMethod(__Method_SetOfferTotalAmount, serviceImpl.SetOfferTotalAmount)
+          .AddMethod(__Method_SetAIServiceFee, serviceImpl.SetAIServiceFee)
+          .AddMethod(__Method_CreateArt, serviceImpl.CreateArt)
+          .AddMethod(__Method_AddAIImageSize, serviceImpl.AddAIImageSize)
+          .AddMethod(__Method_RemoveAIImageSize, serviceImpl.RemoveAIImageSize)
+          .AddMethod(__Method_SetMaxBatchCancelOfferCount, serviceImpl.SetMaxBatchCancelOfferCount)
+          .AddMethod(__Method_SetMaxBatchCancelListCount, serviceImpl.SetMaxBatchCancelListCount)
+          .AddMethod(__Method_SetCollectionListTotalCount, serviceImpl.SetCollectionListTotalCount)
+          .AddMethod(__Method_GetListedNFTInfoList, serviceImpl.GetListedNFTInfoList)
+          .AddMethod(__Method_GetWhitelistId, serviceImpl.GetWhitelistId)
+          .AddMethod(__Method_GetOfferAddressList, serviceImpl.GetOfferAddressList)
+          .AddMethod(__Method_GetOfferList, serviceImpl.GetOfferList)
+          .AddMethod(__Method_GetTokenWhiteList, serviceImpl.GetTokenWhiteList)
+          .AddMethod(__Method_GetGlobalTokenWhiteList, serviceImpl.GetGlobalTokenWhiteList)
+          .AddMethod(__Method_GetRoyalty, serviceImpl.GetRoyalty)
+          .AddMethod(__Method_GetServiceFeeInfo, serviceImpl.GetServiceFeeInfo)
+          .AddMethod(__Method_GetAdministrator, serviceImpl.GetAdministrator)
+          .AddMethod(__Method_GetBizConfig, serviceImpl.GetBizConfig)
+          .AddMethod(__Method_GetTotalOfferAmount, serviceImpl.GetTotalOfferAmount)
+          .AddMethod(__Method_GetTotalEffectiveListedNFTAmount, serviceImpl.GetTotalEffectiveListedNFTAmount)
+          .AddMethod(__Method_GetAIServiceFee, serviceImpl.GetAIServiceFee)
+          .AddMethod(__Method_GetAIImageSizes, serviceImpl.GetAIImageSizes)
+          .AddMethod(__Method_GetCreateArtInfo, serviceImpl.GetCreateArtInfo)
+          .AddMethod(__Method_GetMaxBatchCancelOfferCount, serviceImpl.GetMaxBatchCancelOfferCount)
+          .AddMethod(__Method_GetMaxBatchCancelListCount, serviceImpl.GetMaxBatchCancelListCount)
+          .AddMethod(__Method_AddTreePoints, serviceImpl.AddTreePoints)
+          .AddMethod(__Method_ClaimTreePoints, serviceImpl.ClaimTreePoints)
+          .AddMethod(__Method_TreeLevelUpgrade, serviceImpl.TreeLevelUpgrade)
+          .AddMethod(__Method_GetTreePoints, serviceImpl.GetTreePoints)
+          .AddMethod(__Method_SetTreePointsHashVerifyKey, serviceImpl.SetTreePointsHashVerifyKey).Build();
+    }
+
   }
 }
 #endregion
