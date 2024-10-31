@@ -25,9 +25,9 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
         Logger.LogInformation("TreePointsAddedProcessor eventValue:{A}", JsonConvert.SerializeObject(eventValue));
         if (eventValue == null || context == null) return;
         
-        var pointsType = GetValueFromEnum<PointsType>(eventValue.PointsType);
-        if (!pointsType.HasValue) return;
-        Logger.LogInformation("TreePointsAddedProcessor pointsType:{A}", pointsType.Value);
+        var pointsType = GetValueFromEnum(eventValue.PointsType);
+        if (pointsType == PointsType.Default) return;
+        Logger.LogInformation("TreePointsAddedProcessor pointsType:{A}", pointsType);
 
         var opType = OpType.Added;
         var recordId = IdGenerateHelper.GetTreePointsAddedRecordId
@@ -45,7 +45,7 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
             Points = eventValue.Points,
             OpTime = eventValue.OpTime,
             OpType = opType,
-            PointsType = pointsType.Value,
+            PointsType = pointsType,
             ActivityId = "",
             TreeLevel = ""
         };
@@ -53,13 +53,20 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
         await SaveEntityAsync(recordIndex);
     }
     
-    public static T? GetValueFromEnum<T>(int value) where T : struct, Enum  
-    {  
-        if (Enum.IsDefined(typeof(T), value))  
-        {  
-            return (T)Enum.ToObject(typeof(T), value);  
-        }  
-        return null;  
-    } 
-    
+    private PointsType GetValueFromEnum(int value)
+    {
+        switch (value)
+        {
+            case (int)PointsType.NormalOne:
+                return PointsType.NormalOne;
+            case (int)PointsType.NormalTwo:
+                return PointsType.NormalTwo;
+            case (int)PointsType.Invite:
+                return PointsType.Invite;
+            default:
+                return PointsType.Default;
+        }
+    }
+
+
 }

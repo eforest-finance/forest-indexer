@@ -47,14 +47,4 @@ public class TreeLevelUpdatedProcessor: LogEventProcessorBase<TreeLevelUpgraded>
         _objectMapper.Map(context, recordIndex);
         await SaveEntityAsync(recordIndex);
     }
-    
-    public static T? GetValueFromEnum<T>(int value) where T : struct, Enum  
-    {  
-        if (Enum.IsDefined(typeof(T), value))  
-        {  
-            return (T)Enum.ToObject(typeof(T), value);  
-        }  
-        return null;  
-    } 
-    
 }
