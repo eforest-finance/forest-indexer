@@ -7,8 +7,7 @@ using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class ProxyAccountManagementAddressRemovedLogEventProcessor : LogEventProcessorBase<
-    ProxyAccountManagementAddressRemoved>
+public class ProxyAccountManagementAddressRemovedLogEventProcessor : LogEventProcessorBase<ProxyAccountManagementAddressRemoved>
 {
     private readonly IObjectMapper _objectMapper;
     private readonly IReadOnlyRepository<CollectionIndex> _collectionIndexRepository;

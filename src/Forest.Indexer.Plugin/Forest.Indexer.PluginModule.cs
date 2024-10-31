@@ -18,10 +18,10 @@ public class ForestIndexerPluginModule: AbpModule
         
         // Add your LogEventProcessor implementation.
         //context.Services.AddSingleton<ILogEventProcessor, MyLogEventProcessor>();
-        context.Services.AddSingleton<ILogEventProcessor, ActivityForCreateFTAndNFTProcessor>();
-        context.Services.AddSingleton<ILogEventProcessor, ActivityForIssueFTProcessor>();
-        context.Services.AddSingleton<ILogEventProcessor, ActivityForSymbolMarketBidPlacedProcessor>();
-        context.Services.AddSingleton<ILogEventProcessor, ActivityForSymbolMarketBoughtProcessor>();
+        // context.Services.AddSingleton<ILogEventProcessor, ActivityForCreateFTAndNFTProcessor>();
+        // context.Services.AddSingleton<ILogEventProcessor, ActivityForIssueFTProcessor>();
+        // context.Services.AddSingleton<ILogEventProcessor, ActivityForSymbolMarketBidPlacedProcessor>();
+        // context.Services.AddSingleton<ILogEventProcessor, ActivityForSymbolMarketBoughtProcessor>();
         context.Services.AddSingleton<ILogEventProcessor, AuctionCreatedLogEventProcessor>();
         context.Services.AddSingleton<ILogEventProcessor, AuctionTimeUpdatedLogEventProcessor>();
         context.Services.AddSingleton<ILogEventProcessor, BidPlacedLogEventProcessor>();

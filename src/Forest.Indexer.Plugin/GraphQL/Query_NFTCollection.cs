@@ -69,9 +69,23 @@ public partial class Query
                 Data = new List<NFTCollectionDto>()
             };
 
+        
+        
         if (!dto.AddressList.IsNullOrEmpty())
         {
-            queryable = queryable.Where(q => q.OwnerManagerSet.Any(i=>dto.AddressList.Contains(i)));
+            var address1 = dto.AddressList.Count >= 1 ? dto.AddressList[0] : "";
+            var address2 = dto.AddressList.Count >= 2 ? dto.AddressList[1] : "";
+            
+            if ((!string.IsNullOrEmpty(address2)) && string.IsNullOrEmpty(address2))
+            {
+                queryable = queryable.Where(q =>
+                    q.OwnerManagerSet.Any(i => i == address1));
+            }
+            else if((!string.IsNullOrEmpty(address2)) && !string.IsNullOrEmpty(address2))
+            {
+                queryable = queryable.Where(q =>
+                    q.OwnerManagerSet.Any(i => i == address1) || q.OwnerManagerSet.Any(i => i == address2));
+            }
         }
         
         if (!dto.CollectionType.IsNullOrEmpty())
