@@ -6,11 +6,11 @@ namespace Forest.Indexer.Plugin.GraphQL;
 
 public class SeedInfoDto
 {
-    public string Id { get; set; }
+    public string? Id { get; set; }
     public string ChainId { get; set; }
     public string Symbol { get; set; }
 
-    public string SeedSymbol { get; set; }
+    public string? SeedSymbol { get; set; }
 
     public string SeedName { get; set; }
 
@@ -26,21 +26,21 @@ public class SeedInfoDto
 
     public AuctionType AuctionType { get; set; }
 
-    public string Owner { get; set; }
+    public string? Owner { get; set; }
 
     public string Memo { get; set; }
 
     public string BlockHeight { get; set; }
-    public TokenPriceInfo TokenPrice { get; set; }
+    public TokenPriceInfo? TokenPrice { get; set; }
 
-    public TokenPriceInfo TopBidPrice { get; set; }
+    public TokenPriceInfo? TopBidPrice { get; set; }
 
     public long AuctionEndTime { get; set; }
 
     public SeedStatus? NotSupportSeedStatus { get; set; }
     
-    public string SeedImage { get; set; }
-    public string CurrentChainId { get; set; }
+    public string? SeedImage { get; set; }
+    public string? CurrentChainId { get; set; }
     
     public bool IsBurned { get; set; }
     

@@ -602,7 +602,7 @@ public partial class Query
         }
 
         var seedInfoDto = objectMapper.Map<TsmSeedSymbolIndex, SeedInfoDto>(seedSymbolIndex);
-        Logger.LogDebug("seedInfoDto NotSupportSeedStatus {Status}", seedInfoDto.NotSupportSeedStatus);
+        // Logger.LogDebug("seedInfoDto NotSupportSeedStatus {Status}", seedInfoDto.NotSupportSeedStatus);
         if (seedSymbolIndex.Status == SeedStatus.AVALIABLE &&
             (seedSymbolIndex.IntSeedType == (int)SeedType.Regular ||
              seedSymbolIndex.IntSeedType == (int)SeedType.Unique))
