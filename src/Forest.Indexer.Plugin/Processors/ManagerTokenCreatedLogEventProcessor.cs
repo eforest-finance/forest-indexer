@@ -22,15 +22,15 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
 
     public override string GetContractAddress(string chainId)
     {
-        return ContractInfoHelper.GetNFTForestContractAddress(chainId);
+        return ContractInfoHelper.GetTokenAdaptorContractAddress(chainId);
     }
 
     public override async Task ProcessAsync(ManagerTokenCreated eventValue, LogEventContext context)
     {
-        Logger.LogDebug("1-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue " +
+        Logger.LogDebug("1-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue {A}",
                         JsonConvert.SerializeObject(eventValue));
-        Logger.LogDebug("2-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue " +
-                        JsonConvert.SerializeObject(context));
+        // Logger.LogDebug("2-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue " +
+        //                 JsonConvert.SerializeObject(context));
 
         if (eventValue == null || context == null) return;
         var tsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
@@ -40,8 +40,7 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
         {
             _objectMapper.Map(context, tsmSeedSymbolIndex);
             tsmSeedSymbolIndex.Status = SeedStatus.REGISTERED;
-            Logger.LogDebug("3-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue tsmSeedSymbolIndex " +
-                            JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+            // Logger.LogDebug("3-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue tsmSeedSymbolIndex {A}", JsonConvert.SerializeObject(tsmSeedSymbolIndex));
 
             await SaveEntityAsync(tsmSeedSymbolIndex);
 
@@ -52,8 +51,8 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
             {
                 _objectMapper.Map(context, seedSymbolIndex);
                 seedSymbolIndex.SeedStatus = SeedStatus.REGISTERED;
-                Logger.LogDebug("3-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue seedSymbolIndex" +
-                                JsonConvert.SerializeObject(seedSymbolIndex));
+                // Logger.LogDebug("3-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue seedSymbolIndex {A}",
+                //                 JsonConvert.SerializeObject(seedSymbolIndex));
                 await SaveEntityAsync(seedSymbolIndex);
             }
         }
@@ -98,11 +97,9 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
                     EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.NFTLogoImageUrl)];
         }
 
-        Logger.LogDebug("9-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue " +
-                        JsonConvert.SerializeObject(symbolMarketTokenIndex));
+        // Logger.LogDebug("9-ManagerTokenCreatedLogEventProcessor");
         _objectMapper.Map(context, symbolMarketTokenIndex);
-        Logger.LogDebug("10-ManagerTokenCreatedLogEventProcessor.HandleEventAsync.eventValue " +
-                        JsonConvert.SerializeObject(symbolMarketTokenIndex));
+        Logger.LogDebug("10-ManagerTokenCreatedLogEventProcessor ");
         await SaveEntityAsync(symbolMarketTokenIndex);
     }
 }
