@@ -25,7 +25,7 @@ public class TreePointsClaimedProcessor: LogEventProcessorBase<TreePointsClaimed
         Logger.LogInformation("TreePointsClaimedProcessor address:{A} eventValue:{B}",eventValue.Owner.ToBase58(), JsonConvert.SerializeObject(eventValue));
 
         if (eventValue == null || context == null) return;
-        var opType = OpType.UpdateTree;
+        var opType = OpType.CLAIM;
         var recordId = IdGenerateHelper.GetTreePointsAddedRecordId
             (context.ChainId, eventValue.Owner.ToBase58(),opType.ToString(), eventValue.OpTime);
         var recordIndex = await GetEntityAsync<TreePointsChangeRecordIndex>(recordId);
@@ -40,7 +40,8 @@ public class TreePointsClaimedProcessor: LogEventProcessorBase<TreePointsClaimed
             OpTime = eventValue.OpTime,
             OpType = opType,
             ActivityId = eventValue.ActivityId,
-            TreeLevel = ""
+            TreeLevel = "",
+            PointsType = PointsType.DEFAULT
         };
         _objectMapper.Map(context, recordIndex);
         recordIndex.BlockHeight = context.Block.BlockHeight;

@@ -37,9 +37,9 @@ public class TreePointsChangeRecordIndex : AeFinderEntity, IAeFinderEntity
 
 public enum OpType
 {
-    Added = 0,
-    UpdateTree = 1,
-    Claim = 2
+    ADDED = 0,
+    UPDATETREE = 1,
+    CLAIM = 2
 }
 
 public enum PointsType
@@ -47,6 +47,6 @@ public enum PointsType
     NORMALONE = 0,
     NORMALTWO = 1,
     INVITE = 2,
-    Default = 3
+    DEFAULT = 3
 }
 

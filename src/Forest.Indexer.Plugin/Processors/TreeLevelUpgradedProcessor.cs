@@ -26,7 +26,7 @@ public class TreeLevelUpdatedProcessor: LogEventProcessorBase<TreeLevelUpgraded>
 
         if (eventValue == null || context == null) return;
 
-        var opType = OpType.Claim;
+        var opType = OpType.UPDATETREE;
 
         var recordId = IdGenerateHelper.GetTreePointsAddedRecordId
             (context.ChainId, eventValue.Owner.ToBase58(),opType.ToString(), eventValue.OpTime);
@@ -42,7 +42,8 @@ public class TreeLevelUpdatedProcessor: LogEventProcessorBase<TreeLevelUpgraded>
             OpTime = eventValue.OpTime,
             OpType = opType,
             ActivityId = "",
-            TreeLevel = eventValue.UpgradeLevel.ToString()
+            TreeLevel = eventValue.UpgradeLevel.ToString(),
+            PointsType = PointsType.DEFAULT
         };
         _objectMapper.Map(context, recordIndex);
         recordIndex.BlockHeight = context.Block.BlockHeight;
