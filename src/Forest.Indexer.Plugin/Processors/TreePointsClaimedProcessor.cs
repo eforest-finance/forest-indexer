@@ -22,7 +22,7 @@ public class TreePointsClaimedProcessor: LogEventProcessorBase<TreePointsClaimed
 
     public override async Task ProcessAsync(TreePointsClaimed eventValue, LogEventContext context)
     {
-        Logger.LogInformation("TreePointsClaimedProcessor eventValue:{A}", JsonConvert.SerializeObject(eventValue));
+        Logger.LogInformation("TreePointsClaimedProcessor address:{A} eventValue:{B}",eventValue.Owner.ToBase58(), JsonConvert.SerializeObject(eventValue));
 
         if (eventValue == null || context == null) return;
         var opType = OpType.UpdateTree;

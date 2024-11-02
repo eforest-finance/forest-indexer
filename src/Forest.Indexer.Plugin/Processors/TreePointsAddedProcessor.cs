@@ -22,7 +22,7 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
 
     public override async Task ProcessAsync(TreePointsAdded eventValue, LogEventContext context)
     {
-        Logger.LogInformation("TreePointsAddedProcessor eventValue:{A}", JsonConvert.SerializeObject(eventValue));
+        Logger.LogInformation("TreePointsAddedProcessor address:{A} eventValue:{B}", eventValue.Owner.ToBase58(),JsonConvert.SerializeObject(eventValue));
         if (eventValue == null || context == null) return;
         
         var pointsType = GetValueFromEnum(eventValue.PointsType);
