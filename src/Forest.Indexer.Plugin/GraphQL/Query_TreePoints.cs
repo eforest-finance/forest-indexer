@@ -25,7 +25,7 @@ public partial class Query
             queryable = queryable.Where(f => f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(2000).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).OrderBy(i=>i.BlockHeight).Skip(0).Take(2000).ToList();
         if (result.IsNullOrEmpty())
         {
             return new TreePointsChangeRecordPageResultDto();
