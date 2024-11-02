@@ -11,18 +11,43 @@ public partial class Query
 {
     [Name("getMaxOfferInfo")]
     public static async Task<NFTOfferDto> GetMaxOfferInfoAsync(
-        [FromServices] INFTInfoProvider nftInfoProvider,
+        [FromServices] IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository,
         [FromServices] IObjectMapper objectMapper,
         GetMaxOfferInfoDto dto)
     {
-        var offerInfo = await nftInfoProvider.GetMaxOfferInfoAsync(dto.NftInfoId);
+        var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(index => index.ExpireTime > DateTime.UtcNow);
+        queryable = queryable.Where(index => index.BizInfoId == dto.NftInfoId);
+        queryable = queryable.Where(index => index.RealQuantity > 0);
+        var result = queryable.OrderByDescending(k => k.Price).ToList();
+        var offerInfos =  result ?? new List<OfferInfoIndex>();
+        if (offerInfos.IsNullOrEmpty())
+        {
+            return new NFTOfferDto();
+        }
+        //order by price desc, expireTime desc
+        offerInfos = offerInfos.Where(i=>i!=null).Where(index =>
+                index.ExpireTime >= DateTime.UtcNow)
+            .OrderByDescending(info => info.Price)
+            .ThenByDescending(info => info.ExpireTime)
+            .Skip(0)
+            .Take(1)
+            .ToList();
+        var maxOfferInfo = offerInfos.FirstOrDefault();
+        // Logger.LogDebug( 
+        //     "GetMaxOfferInfoAsync nftInfoId:{nftInfoId} maxOfferInfo id:{id} maxOfferPrice:{maxOfferPrice}", dto.NftInfoId,
+        //     maxOfferInfo?.Id, maxOfferInfo?.Price);
+        var offerInfo =  maxOfferInfo;
+        
         if (offerInfo == null || offerInfo.BizSymbol.IsNullOrEmpty())
         {
             return null;
         }
+
         return objectMapper.Map<OfferInfoIndex, NFTOfferDto>(offerInfo);
     }
-    
+
+
     [Name("getExpiredNftMaxOffer")]
     public static async Task<List<ExpiredNftMaxOfferDto>> GetNftMaxOfferAsync(
         [FromServices] IReadOnlyRepository<OfferInfoIndex> nftOfferRepository,
