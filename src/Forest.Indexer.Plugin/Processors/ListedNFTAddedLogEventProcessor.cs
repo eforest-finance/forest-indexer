@@ -85,7 +85,6 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
                 context.ChainId, eventValue.Symbol, eventValue.Quantity, listedNftIndexId);
 
             await SaveEntityAsync(listingNftInfoIndex);
-
             Logger.LogDebug("[ListedNFTAdded] FINISH: ChainId={ChainId}, symbol={Symbol}, Quantity={Quantity}, Id={Id}",
                 context.ChainId, eventValue.Symbol, eventValue.Quantity, listedNftIndexId);
 
@@ -111,6 +110,8 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
             };
             activity.OfType(NFTActivityType.ListWithFixedPrice);
             var activitySaved = await AddNFTActivityAsync(context, activity);
+            Logger.LogDebug("[ListedNFTAdded] FINISH2: ChainId={ChainId}, symbol={Symbol}, Quantity={Quantity}, Id={Id}",
+                context.ChainId, eventValue.Symbol, eventValue.Quantity, listedNftIndexId);
         }
         catch (Exception e)
         {
