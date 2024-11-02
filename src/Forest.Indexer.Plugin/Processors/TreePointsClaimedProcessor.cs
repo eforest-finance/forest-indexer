@@ -43,6 +43,11 @@ public class TreePointsClaimedProcessor: LogEventProcessorBase<TreePointsClaimed
             TreeLevel = ""
         };
         _objectMapper.Map(context, recordIndex);
+        recordIndex.BlockHeight = context.Block.BlockHeight;
+        recordIndex.BlockHash = context.Block.BlockHash;
+        recordIndex.PreviousBlockHash = context.Block.PreviousBlockHash;
         await SaveEntityAsync(recordIndex);
+        Logger.LogInformation("TreePointsClaimedProcessor add success address:{A} recordIndex:{B}", eventValue.Owner.ToBase58(),JsonConvert.SerializeObject(recordIndex));
+
     }
 }

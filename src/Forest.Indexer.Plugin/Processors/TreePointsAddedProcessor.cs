@@ -52,8 +52,11 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
             TreeLevel = ""
         };
         _objectMapper.Map(context, recordIndex);
+        recordIndex.BlockHeight = context.Block.BlockHeight;
+        recordIndex.BlockHash = context.Block.BlockHash;
+        recordIndex.PreviousBlockHash = context.Block.PreviousBlockHash;
         await SaveEntityAsync(recordIndex);
-        Logger.LogInformation("TreePointsAddedProcessor add success address:{A} recordId:{B}", eventValue.Owner.ToBase58(),recordId);
+        Logger.LogInformation("TreePointsAddedProcessor add success address:{A} recordIndex:{B}", eventValue.Owner.ToBase58(),JsonConvert.SerializeObject(recordIndex));
 
     }
     
@@ -61,12 +64,12 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
     {
         switch (value)
         {
-            case (int)PointsType.NormalOne:
-                return PointsType.NormalOne;
-            case (int)PointsType.NormalTwo:
-                return PointsType.NormalTwo;
-            case (int)PointsType.Invite:
-                return PointsType.Invite;
+            case (int)PointsType.NORMALONE:
+                return PointsType.NORMALONE;
+            case (int)PointsType.NORMALTWO:
+                return PointsType.NORMALTWO;
+            case (int)PointsType.INVITE:
+                return PointsType.INVITE;
             default:
                 return PointsType.Default;
         }
