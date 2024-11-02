@@ -76,12 +76,12 @@ public partial class Query
             var address1 = dto.AddressList.Count >= 1 ? dto.AddressList[0] : "";
             var address2 = dto.AddressList.Count >= 2 ? dto.AddressList[1] : "";
             
-            if ((!string.IsNullOrEmpty(address2)) && string.IsNullOrEmpty(address2))
+            if ((!string.IsNullOrEmpty(address1)) && string.IsNullOrEmpty(address2))
             {
                 queryable = queryable.Where(q =>
                     q.OwnerManagerSet.Any(i => i == address1));
             }
-            else if((!string.IsNullOrEmpty(address2)) && !string.IsNullOrEmpty(address2))
+            else if((!string.IsNullOrEmpty(address1)) && !string.IsNullOrEmpty(address2))
             {
                 queryable = queryable.Where(q =>
                     q.OwnerManagerSet.Any(i => i == address1) || q.OwnerManagerSet.Any(i => i == address2));
@@ -148,7 +148,7 @@ public partial class Query
         if (dto == null || dto.Id.IsNullOrWhiteSpace()) return null;
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(q => q.Id == dto.Id);
-        var nftCollectionIndex = queryable.ToList();
+        var nftCollectionIndex = queryable.Skip(0).Take(1).ToList();
         if (nftCollectionIndex.IsNullOrEmpty()) return null;
 
         return objectMapper.Map<CollectionIndex, NFTCollectionDto>(nftCollectionIndex.FirstOrDefault());

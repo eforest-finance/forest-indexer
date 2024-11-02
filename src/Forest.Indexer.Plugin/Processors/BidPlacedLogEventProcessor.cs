@@ -46,6 +46,11 @@ public class BidPlacedLogEventProcessor : LogEventProcessorBase<Forest.Contracts
         if (eventValue == null) return;
 
         var auctionInfoIndex = await GetEntityAsync<SymbolAuctionInfoIndex>(eventValue.AuctionId.ToHex());
+        if (auctionInfoIndex == null)
+        {
+            Logger.LogError("BidPlaced eventValue auctionInfoIndex is null {A}",eventValue.AuctionId.ToHex());
+            return;
+        }
         var enDTime = DateTime.UtcNow;
         Logger.LogInformation("BidPlaced eventValue  Symbol: {Symbol} amount:{amount} get symbol end time:{time}", auctionInfoIndex.Symbol, eventValue.Price.Amount,
             enDTime.ToString());

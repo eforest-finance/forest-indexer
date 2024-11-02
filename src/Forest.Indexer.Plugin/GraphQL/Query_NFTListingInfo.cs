@@ -24,7 +24,7 @@ public partial class Query
         var tokenId = IdGenerateHelper.GetTokenInfoId(input.ChainId, input.Symbol);
         var queryableToken = await tokenIndexRepository.GetQueryableAsync();
         queryableToken = queryableToken.Where(i => i.Id == tokenId);
-        var tokenInfoIndex = queryableToken.FirstOrDefault();
+        var tokenInfoIndex = queryableToken.Skip(0).Take(1).ToList().FirstOrDefault();
         if (tokenInfoIndex != null)
         {
             decimals = tokenInfoIndex.Decimals;
@@ -246,7 +246,7 @@ public partial class Query
         {
             var queryableListing = await nftListingRepo.GetQueryableAsync();
             queryableListing = queryableListing.Where(i => i.Id == item.NftInfoId);
-            var listingInfo = queryableListing.ToList();
+            var listingInfo = queryableListing.Skip(0).Take(1).ToList();
             if (listingInfo.IsNullOrEmpty())
             {
                 ExpiredNftMinPriceDto priceDto = new ExpiredNftMinPriceDto()

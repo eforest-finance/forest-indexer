@@ -62,14 +62,20 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
 
         if (symbolMarketTokenIndex != null) return;
 
+        var realOwner = eventValue.RealOwner != null
+            ? eventValue.RealOwner.ToBase58()
+            : eventValue.OwnerManagerList.ToBase58();
+        var realManager = eventValue.RealIssuer != null
+            ? eventValue.RealIssuer.ToBase58()
+            : eventValue.IssuerManagerList.ToBase58();
         symbolMarketTokenIndex = new SeedSymbolMarketTokenIndex()
         {
             Id = symbolMarketTokenIndexId,
             TokenName = eventValue.TokenName,
-            OwnerManagerSet = new HashSet<string> { eventValue.RealOwner.ToBase58() },
-            RandomOwnerManager = eventValue.RealOwner.ToBase58(),
-            IssueManagerSet = new HashSet<string> { eventValue.RealIssuer.ToBase58() },
-            RandomIssueManager = eventValue.RealIssuer.ToBase58(),
+            OwnerManagerSet = new HashSet<string> { realOwner },
+            RandomOwnerManager = realOwner,
+            IssueManagerSet = new HashSet<string> { realManager },
+            RandomIssueManager = realManager,
             Decimals = eventValue.Decimals,
             TotalSupply = eventValue.TotalSupply,
             Supply = eventValue.Amount,
@@ -89,6 +95,7 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
                 }).ToList(),
             CreateTime = context.Block.BlockTime
         };
+
         if (eventValue.ExternalInfo.Value.ContainsKey(
                 EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.NFTLogoImageUrl)))
         {
@@ -99,7 +106,7 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
 
         // Logger.LogDebug("9-ManagerTokenCreatedLogEventProcessor");
         _objectMapper.Map(context, symbolMarketTokenIndex);
-        Logger.LogDebug("10-ManagerTokenCreatedLogEventProcessor ");
+        Logger.LogDebug("10-ManagerTokenCreatedLogEventProcessor {A}",symbolMarketTokenIndex.Id);
         await SaveEntityAsync(symbolMarketTokenIndex);
     }
 }

@@ -8,11 +8,11 @@ public class SeedInfoDto
 {
     public string? Id { get; set; }
     public string ChainId { get; set; }
-    public string Symbol { get; set; }
+    public string? Symbol { get; set; }
 
     public string? SeedSymbol { get; set; }
 
-    public string SeedName { get; set; }
+    public string? SeedName { get; set; }
 
     public SeedStatus Status { get; set; }
 
@@ -20,7 +20,7 @@ public class SeedInfoDto
 
     public long ExpireTime { get; set; }
 
-    public string TokenType { get; set; }
+    public string? TokenType { get; set; }
 
     public SeedType SeedType { get; set; }
 

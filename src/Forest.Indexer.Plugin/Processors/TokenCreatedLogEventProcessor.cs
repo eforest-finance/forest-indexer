@@ -219,11 +219,14 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
                 await SaveEntityAsync(noMainTsmSeedSymbolIndex);
                 var noMainSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, noMainTsmSeedSymbolIndex.SeedSymbol);
                 var noMainSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(noMainSeedSymbolIndexId);
-            
-                if (noMainSeedSymbolIndex == null) return;
-                _objectMapper.Map(context, noMainSeedSymbolIndex);
-                noMainSeedSymbolIndex.Status = SeedStatus.REGISTERED;
-                await SaveEntityAsync(noMainSeedSymbolIndex);
+
+                if (noMainSeedSymbolIndex != null)
+                {
+                    _objectMapper.Map(context, noMainSeedSymbolIndex);
+                    noMainSeedSymbolIndex.Status = SeedStatus.REGISTERED;
+                    await SaveEntityAsync(noMainSeedSymbolIndex);
+                }
+                
             }
             Logger.LogDebug("TokenCreatedLogEventProcessor-11 {A}",noMainTsmSeedSymbolIndexId);
             var symbolMarketTokenIndexId = IdGenerateHelper.GetSymbolMarketTokenId(context.ChainId, eventValue.Symbol);

@@ -397,7 +397,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
             queryable = queryable.Where(index=>index.Id != noListingId);
         }
 
-        var result = queryable.Skip(0).Take(1).OrderByDescending(k => k.BlockHeight);
+        var result = queryable.Skip(0).Take(1).OrderByDescending(k => k.BlockHeight).ToList();
         return result?.FirstOrDefault();
     }
     private async Task<Dictionary<string, NFTListingInfoIndex>> TransferToDicAsync(

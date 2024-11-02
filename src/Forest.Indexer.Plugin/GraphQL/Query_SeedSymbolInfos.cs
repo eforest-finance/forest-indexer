@@ -354,7 +354,7 @@ public partial class Query
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f=>f.Id == dto.Id);
 
-        var result = queryable.ToList();
+        var result = queryable.Skip(0).Take(1).ToList();
         if (result.IsNullOrEmpty())
         {
             return null;

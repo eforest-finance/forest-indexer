@@ -53,7 +53,7 @@ public partial class Query
             var queryable1 = await tokenIndexRepository.GetQueryableAsync();
             queryable1 = queryable1.Where(i => i.Id == tokenId);
 
-            var tokenInfoIndex = queryable1.FirstOrDefault();
+            var tokenInfoIndex = queryable1.Skip(0).Take(1).ToList().FirstOrDefault();
             if (tokenInfoIndex != null)
             {
                 decimals = tokenInfoIndex.Decimals;
@@ -310,7 +310,7 @@ public partial class Query
             symbolAuctionInfoIndexQueryable = symbolAuctionInfoIndexQueryable.Where(i => i.Symbol == seedInfoDto.SeedSymbol);
             
             var symbolAuctionInfoIndex =
-                symbolAuctionInfoIndexQueryable.OrderByDescending(i => i.StartTime).FirstOrDefault();
+                symbolAuctionInfoIndexQueryable.OrderByDescending(i => i.StartTime).Skip(0).Take(1).ToList().FirstOrDefault();
             if (symbolAuctionInfoIndex != null)
             {
                 seedInfoDto.TopBidPrice = symbolAuctionInfoIndex.FinishPrice;
@@ -321,7 +321,7 @@ public partial class Query
             userBalanceIndexQueryable = userBalanceIndexQueryable.Where(i => i.Symbol == seedInfoDto.SeedSymbol);
             userBalanceIndexQueryable = userBalanceIndexQueryable.Where(i => i.Amount > 0);
 
-            var userBalanceIndex = userBalanceIndexQueryable.FirstOrDefault();
+            var userBalanceIndex = userBalanceIndexQueryable.Skip(0).Take(1).ToList().FirstOrDefault();
             if (userBalanceIndex != null)
             {
                 seedInfoDto.Owner = userBalanceIndex.Address;
@@ -343,7 +343,7 @@ public partial class Query
         tsmSeedSymbolIndexQueryable = tsmSeedSymbolIndexQueryable.Where(i => i.Symbol == input.Symbol);
         tsmSeedSymbolIndexQueryable = tsmSeedSymbolIndexQueryable.Where(i => i.IsBurned == false);
 
-        var seedSymbolIndex = tsmSeedSymbolIndexQueryable.FirstOrDefault();
+        var seedSymbolIndex = tsmSeedSymbolIndexQueryable.Skip(0).Take(1).ToList().FirstOrDefault();
         if (seedSymbolIndex == null)
         {
             //while seed is used for create token, it will be burned, so we need to query the seed info from the main chain event it is burned.
@@ -352,7 +352,7 @@ public partial class Query
             tsmSeedSymbolIndexQueryable2 = tsmSeedSymbolIndexQueryable2.Where(i => i.Symbol == input.Symbol);
             tsmSeedSymbolIndexQueryable2 = tsmSeedSymbolIndexQueryable2.Where(i => i.ChainId == ForestIndexerConstants.MainChain);
 
-            seedSymbolIndex = tsmSeedSymbolIndexQueryable2.FirstOrDefault();
+            seedSymbolIndex = tsmSeedSymbolIndexQueryable2.Skip(0).Take(1).ToList().FirstOrDefault();
             if (seedSymbolIndex == null)
             {
                 return new SeedInfoDto();
@@ -555,7 +555,7 @@ public partial class Query
         queryable = queryable.Where(i => i.IsBurned == false);
 
         var symbol = pair.Key;
-        var seedSymbolIndex = queryable.FirstOrDefault();
+        var seedSymbolIndex = queryable.Skip(0).Take(1).ToList().FirstOrDefault();
         if (seedSymbolIndex == null)
         {
             //while seed is used for create token, it will be burned, so we need to query the seed info from the main chain event it is burned.
@@ -564,7 +564,7 @@ public partial class Query
             queryable2 = queryable2.Where(i => i.ChainId == ForestIndexerConstants.MainChain);
 
 
-            seedSymbolIndex = queryable2.FirstOrDefault();
+            seedSymbolIndex = queryable2.Skip(0).Take(1).ToList().FirstOrDefault();
             if (seedSymbolIndex == null)
             {
                 seedSymbolIndex = new TsmSeedSymbolIndex()
@@ -611,13 +611,13 @@ public partial class Query
 
             var seedPriceQueryable = await seedPriceRepository.GetQueryableAsync();
             seedPriceQueryable = seedPriceQueryable.Where(i => i.Id == seedPriceId);
-            var seedPriceIndex = seedPriceQueryable.FirstOrDefault();
+            var seedPriceIndex = seedPriceQueryable.Skip(0).Take(1).ToList().FirstOrDefault();
             
             if (seedPriceIndex != null)
             {
                 var uniqueSeedPriceQueryable = await uniqueSeedPriceRepository.GetQueryableAsync();
                 uniqueSeedPriceQueryable = uniqueSeedPriceQueryable.Where(i => i.Id == seedPriceId);
-                var uniqueSeedPriceIndex = uniqueSeedPriceQueryable.FirstOrDefault();
+                var uniqueSeedPriceIndex = uniqueSeedPriceQueryable.Skip(0).Take(1).ToList().FirstOrDefault();
                 
                 seedInfoDto.TokenPrice = seedPriceIndex.TokenPrice;
                 if (uniqueSeedPriceIndex != null && seedSymbolIndex.IntSeedType == (int)SeedType.Unique)
@@ -654,14 +654,14 @@ public partial class Query
         queryable3 = queryable3.Where(i => i.Symbol == pair.Key);
         queryable3 = queryable3.Where(i => i.IsBurned == false);
         
-        var otherSeedSymbolIndex = queryable3.FirstOrDefault();
+        var otherSeedSymbolIndex = queryable3.Skip(0).Take(1).ToList().FirstOrDefault();
         if (otherSeedSymbolIndex == null)
         {
             var queryable4 = await tsmSeedSymbolRepository.GetQueryableAsync();
             queryable4 = queryable4.Where(i => i.Symbol == pair.Key);
             queryable4 = queryable4.Where(i => i.ChainId == ForestIndexerConstants.MainChain);
 
-            otherSeedSymbolIndex = queryable4.FirstOrDefault();
+            otherSeedSymbolIndex = queryable4.Skip(0).Take(1).ToList().FirstOrDefault();
         }
 
         if (otherSeedSymbolIndex == null)

@@ -26,7 +26,7 @@ public partial class Query
         if (isSeed)
         {
             seedSymbolQueryable = seedSymbolQueryable.Where(i => i.Id == dto.Id);
-            var result = seedSymbolQueryable.ToList();
+            var result = seedSymbolQueryable.Skip(0).Take(1).ToList();
             if (result.IsNullOrEmpty())
             {
                 res = null;
@@ -39,7 +39,7 @@ public partial class Query
         else
         {
             nftInfoQueryable = nftInfoQueryable.Where(i => i.Id == dto.Id);
-            var result = nftInfoQueryable.ToList();
+            var result = nftInfoQueryable.Skip(0).Take(1).ToList();
             if (result.IsNullOrEmpty())
             {
                 res = null;
@@ -129,7 +129,7 @@ public partial class Query
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f => f.Id == dto.Id);
 
-        var result = queryable.FirstOrDefault();
+        var result = queryable.Skip(0).Take(1).ToList().FirstOrDefault();
         if (result == null)
         {
             return null;

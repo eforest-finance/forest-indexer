@@ -32,7 +32,7 @@ public partial class Query
                                .Field(f => f.Symbol))
                            && q.Term(i => i
                                .Field(f => f.SameChainFlag).Value(true)));*/ 
-        //queryable = queryable.Where(f => f.SameChainFlag);
+        queryable = queryable.Where(f => f.SameChainFlag);
         
         var address1 = dto.Address.Count >= 1 ? dto.Address[0] : "";
         var address2 = dto.Address.Count >= 2 ? dto.Address[1] : "";
@@ -92,7 +92,7 @@ public partial class Query
         var SymbolMarketTokenId = IdGenerateHelper.GetSymbolMarketTokenId(issueChainId, dto.TokenSymbol);
         queryable = queryable.Where(f => f.Id == SymbolMarketTokenId);
 
-        var result = queryable.ToList();
+        var result = queryable.Skip(0).Take(1).ToList();
         return new SymbolMarketTokenIssuerDto()
         {
             SymbolMarketTokenIssuer = result.IsNullOrEmpty() ? "" : result.FirstOrDefault().Issuer
@@ -109,14 +109,14 @@ public partial class Query
         var queryable = await symbolMarketTokenIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(f => f.IssueChain == dto.IssueChainId);
         queryable = queryable.Where(f => f.Symbol == dto.TokenSymbol);
-        var result = queryable.OrderByDescending(k => k.CreateTime).FirstOrDefault();
-
-        if (result == null)
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(0).Take(1).ToList();
+        
+        if (result.IsNullOrEmpty() || result.FirstOrDefault()==null)
         {
             return new SymbolMarketTokenExistDto();
         }
         
-        var symbolMarketTokenDto = objectMapper.Map<SeedSymbolMarketTokenIndex, SymbolMarketTokenExistDto>(result);
+        var symbolMarketTokenDto = objectMapper.Map<SeedSymbolMarketTokenIndex, SymbolMarketTokenExistDto>(result.FirstOrDefault());
         return symbolMarketTokenDto;
     }
 }

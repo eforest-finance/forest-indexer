@@ -257,8 +257,13 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         
         var symbolMarketTokenIndexId = IdGenerateHelper.GetSymbolMarketTokenId(context.ChainId, eventValue.Symbol);
         var symbolMarketTokenIndex = await GetEntityAsync<SeedSymbolMarketTokenIndex>(symbolMarketTokenIndexId);
-        
-        if (symbolMarketTokenIndex == null) return;
+
+        if (symbolMarketTokenIndex == null)
+        {
+            Logger.LogDebug("TokenIssueLogEventProcessor-4-HandleForNoMainChainSeedTokenAsync result is null {A}",
+                symbolMarketTokenIndexId);
+            return;
+        }
         symbolMarketTokenIndex.Supply += eventValue.Amount;
         symbolMarketTokenIndex.Issued += eventValue.Amount;
         if (symbolMarketTokenIndex.IssueToSet.IsNullOrEmpty())
