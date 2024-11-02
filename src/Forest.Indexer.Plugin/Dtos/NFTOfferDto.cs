@@ -20,7 +20,7 @@ public class NFTOfferDto
     
     public DateTime ExpireTime { get; set; }
 
-    public TokenInfoDto PurchaseToken { get; set; }
+    public TokenInfoDto? PurchaseToken { get; set; }
     public long RealQuantity { get; set; }
 
 }

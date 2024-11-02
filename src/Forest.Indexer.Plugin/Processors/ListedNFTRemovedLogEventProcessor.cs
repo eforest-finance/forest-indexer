@@ -175,7 +175,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             queryable = queryable.Where(index => index.Id != noListingId);
         }
 
-        var result = queryable.Skip(0).Take(1).OrderByDescending(k => k.BlockHeight).ToList();
+        var result = queryable.OrderByDescending(k => k.BlockHeight).Skip(0).Take(1).ToList();
         return result?.FirstOrDefault();
     }
 
@@ -413,7 +413,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             queryable = queryable.Where(index => index.Id != noListingId);
         }
 
-        var result = queryable.Skip(0).Take(1).OrderByDescending(k => k.BlockHeight).ToList();
+        var result = queryable.OrderByDescending(k => k.BlockHeight).Skip(0).Take(1).ToList();
         return result?.FirstOrDefault();
     }
 
