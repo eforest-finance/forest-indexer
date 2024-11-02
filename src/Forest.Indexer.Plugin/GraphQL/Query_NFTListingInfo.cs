@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
@@ -226,7 +227,7 @@ public partial class Query
         var utcNow = DateTime.UtcNow;
         var queryable = await nftListingRepo.GetQueryableAsync();
 
-        Logger.LogDebug($"[getMinPriceNft] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
+        Logger.LogDebug("[getMinPriceNft] INPUT: chainId={A}, expired={B}", input.ChainId, input.ExpireTimeGt);
         
         queryable = queryable.Where(index => index.ChainId == input.ChainId);
         
@@ -238,8 +239,8 @@ public partial class Query
         
         queryable = queryable.Where(index => index.ExpireTime < utcNow);
 
-        var result = queryable.Skip(0).ToList();
-        Logger.LogDebug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result?.Count}");
+        var result = queryable.Skip(0).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
+        Logger.LogDebug("[NFTListingInfo] STEP: query chainId={A}, count={B}", input.ChainId, result?.Count);
         
         List<ExpiredNftMinPriceDto> data = new();
         foreach (var item in result)
@@ -306,7 +307,7 @@ public partial class Query
         queryableListing = queryableListing.Where(index => index.ExpireTime >= expiredTime);
         queryableListing = queryableListing.Where(index => index.ExpireTime < utcNow);
 
-        var result = queryableListing.ToList();
+        var result = queryableListing.Skip(0).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
 
         return result ?? new List<NFTListingInfoIndex>();
     }
@@ -321,9 +322,9 @@ public partial class Query
         queryable = queryable.Where(f=>f.ChainId == dto.ChainId);
         queryable = queryable.Where(f=>f.BlockHeight >= dto.BlockHeight);
 
-        var result = queryable.Skip(dto.SkipCount).Take(1000)
-            .OrderBy(o => o.BlockHeight).ToList();
-        var dataList = objectMapper.Map<List<NFTListingChangeIndex>, List<NFTListingChangeDto>>(result);
+         var result = queryable.Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber)
+             .OrderBy(o => o.BlockHeight).ToList();
+         var dataList = objectMapper.Map<List<NFTListingChangeIndex>, List<NFTListingChangeDto>>(result);
         var pageResult = new NFTListingChangeDtoPageResultDto
         {
             TotalRecordCount = result.Count,

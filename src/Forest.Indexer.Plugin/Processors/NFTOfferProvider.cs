@@ -60,7 +60,7 @@ public class NFTOfferProvider : INFTOfferProvider, ISingletonDependency
             queryable = queryable.Where(index => index.Id != excludeOfferId);
         }
 
-        var result = queryable.Skip(0).OrderByDescending(k => k.Price).ToList();
+        var result = queryable.OrderByDescending(k => k.Price).ToList();
         return result ?? new List<OfferInfoIndex>();
     }
 

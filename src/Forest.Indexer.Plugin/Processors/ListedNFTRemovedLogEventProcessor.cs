@@ -51,7 +51,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             var tokenIndex = await GetEntityAsync<TokenInfoIndex>(purchaseTokenId);
             if (tokenIndex == null)
             {
-                Logger.LogError($"purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND");
+                Logger.LogError("purchase token {A}-{B} NOT FOUND", context.ChainId, purchaseTokenId);
                 return;
             }
 
@@ -507,7 +507,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             queryable = queryable.Where(index => !excludeListingIds.Contains(index.Id));
         }
 
-        var result = queryable.Skip(0).OrderBy(k => k.Prices).ToList();
+        var result = queryable.OrderBy(k => k.Prices).ToList();
         return result ?? new List<NFTListingInfoIndex>();
     }
 

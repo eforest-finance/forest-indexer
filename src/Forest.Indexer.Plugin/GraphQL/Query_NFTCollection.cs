@@ -182,7 +182,7 @@ public partial class Query
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
         queryable = queryable.Where(f => f.ChainId == dto.ChainId);
-        var result = queryable.Skip(dto.SkipCount).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).OrderBy(o => o.BlockHeight).ToList();
         if (result.IsNullOrEmpty())
         {
             return new CollectionChangePageResultDto
@@ -209,7 +209,7 @@ public partial class Query
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
         queryable = queryable.Where(f => f.ChainId == dto.ChainId);
-        var result = queryable.Skip(dto.SkipCount).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).OrderBy(o => o.BlockHeight).ToList();
         if (result.IsNullOrEmpty())
         {
             return new CollectionPriceChangePageResultDto

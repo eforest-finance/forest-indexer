@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
@@ -131,7 +132,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         queryable = queryable.Where(f => f.Timestamp < DateTimeHelper.FromUnixTimeMilliseconds(endUtcStampSecond));
         queryable = queryable.Where(f=>f.NftInfoId.Contains(collectionSymbolPre));
 
-        var result = queryable.Skip(skipCount).OrderBy(k => k.Id).ToList();
+        var result = queryable.OrderBy(k => k.Id).Skip(skipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         return new Tuple<long, List<NFTActivityIndex>>(result.Count,result);
     }
 

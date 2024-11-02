@@ -214,7 +214,7 @@ public class BidPlacedLogEventProcessor : LogEventProcessorBase<Forest.Contracts
         List<SymbolBidInfoIndex> dataList;
         do
         {
-            dataList =  queryable.Skip(skipCount).ToList();
+            dataList =  queryable.Skip(skipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
             if (dataList.IsNullOrEmpty())
             {
                 break;

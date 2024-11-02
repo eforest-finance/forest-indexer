@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
@@ -48,7 +49,7 @@ public partial class Query
         queryable = queryable.Where(f => f.ChainId == dto.ChainId);
         queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
 
-        var result = queryable.Skip(dto.SkipCount).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).OrderBy(o => o.BlockHeight).ToList();
         var dataList = objectMapper.Map<List<SeedMainChainChangeIndex>, List<SeedMainChainChangeDto>>(result);
         var pageResult = new SeedMainChainChangePageResultDto
         {

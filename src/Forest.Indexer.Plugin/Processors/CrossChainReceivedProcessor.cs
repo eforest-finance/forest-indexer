@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
@@ -323,7 +324,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
              queryable = queryable.Where(q => !excludeListingIds.Contains(q.Id));
          }
 
-         var dataList = queryable.Skip(0).OrderBy(x=>x.Prices).ToList();
+         var dataList = queryable.OrderBy(x=>x.Prices).ToList();
          if (dataList.IsNullOrEmpty())
          {
              return new List<NFTListingInfoIndex>();

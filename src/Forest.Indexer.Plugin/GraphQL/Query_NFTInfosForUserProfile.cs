@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
@@ -180,7 +181,7 @@ public partial class Query
         List<UserBalanceIndex> userBalanceIndexList;
         do
         {
-            var resultUserBalanceIndex = queryable.Skip(skipCount).ToList();
+            var resultUserBalanceIndex = queryable.Skip(skipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
             userBalanceIndexList = resultUserBalanceIndex;
             if (!userBalanceIndexList.IsNullOrEmpty())
             {
