@@ -5,6 +5,7 @@ using AElf;
 using AElf.CSharp.Core.Extension;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -40,8 +41,9 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
         var listedNftIndexId = IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol, eventValue.Owner.ToBase58(),
             eventValue.Duration.StartTime.Seconds);
         Logger.LogDebug(
-            "[ListedNFTAdded] START: ChainId={ChainId}, symbol={Symbol}, Quantity={Quantity}, Id={Id}, Owner={owner}",
-            context.ChainId, eventValue.Symbol, eventValue.Quantity, listedNftIndexId, eventValue.Owner);
+            "[ListedNFTAdded] START: ChainId={ChainId}, symbol={Symbol}, Quantity={Quantity}, Id={Id}, Owner={owner} blockheight={height}",
+            context.ChainId, eventValue.Symbol, eventValue.Quantity, listedNftIndexId, eventValue.Owner,
+            context.Block.BlockHeight);
 
         try
         {
@@ -170,9 +172,15 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
         {
             Symbol = symbol,
             Id = IdGenerateHelper.GetId(context.ChainId, symbol),
-            UpdateTime = context.Block.BlockTime
+            UpdateTime = context.Block.BlockTime,
+            BlockHeight = context.Block.BlockHeight,
+            PreviousBlockHash = context.Block.PreviousBlockHash,
+            BlockHash = context.Block.BlockHash
+
         };
+        Logger.LogDebug("ListedNFTAdded nftListingChangeIndex  1 {A}",JsonConvert.SerializeObject(nftListingChangeIndex));
         _objectMapper.Map(context, nftListingChangeIndex);
+        Logger.LogDebug("ListedNFTAdded nftListingChangeIndex  2 {A}",JsonConvert.SerializeObject(nftListingChangeIndex));
         await SaveEntityAsync(nftListingChangeIndex);
     }
 

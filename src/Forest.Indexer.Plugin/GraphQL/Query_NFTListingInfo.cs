@@ -321,7 +321,7 @@ public partial class Query
         queryable = queryable.Where(f=>f.ChainId == dto.ChainId);
         queryable = queryable.Where(f=>f.BlockHeight >= dto.BlockHeight);
 
-        var result = queryable.Skip(dto.SkipCount)
+        var result = queryable.Skip(dto.SkipCount).Take(1000)
             .OrderBy(o => o.BlockHeight).ToList();
         var dataList = objectMapper.Map<List<NFTListingChangeIndex>, List<NFTListingChangeDto>>(result);
         var pageResult = new NFTListingChangeDtoPageResultDto
