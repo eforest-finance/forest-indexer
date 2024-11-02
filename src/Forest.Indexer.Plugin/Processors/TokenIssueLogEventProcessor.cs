@@ -176,23 +176,12 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         queryable = queryable.Where(x=>x.Owner==ownerAddress);
 
         int skip = 0;
+        int limit = 80;
         var nftListings = new List<NFTListingInfoIndex>();
-        int queryCount = 0;
-        while (queryCount < ForestIndexerConstants.MaxQueryCount)
         {
 
-            var result = queryable.Skip(skip).Take(ForestIndexerConstants.MaxQuerySize).OrderByDescending(x=>x.BlockHeight).ToList();
-            if (result.IsNullOrEmpty())
-            {
-                break;
-            }
-            if(result.Count < ForestIndexerConstants.MaxQuerySize)
-            {
-                nftListings.AddRange(result);
-                break;
-            }
-            skip += ForestIndexerConstants.MaxQuerySize;
-            queryCount++;
+            var result = queryable.Skip(skip).Take(limit).OrderByDescending(x=>x.BlockHeight).ToList();
+            nftListings.AddRange(result);
         }
 
         var writeCount = 0;

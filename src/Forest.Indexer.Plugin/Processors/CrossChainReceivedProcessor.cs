@@ -74,7 +74,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         }
         int skip = 0;
         int queryCount;
-        int limit = 1000;
+        int limit = 80;
         do
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
@@ -389,22 +389,11 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
 
         int skip = 0;
         var nftListings = new List<NFTListingInfoIndex>();
-        int queryCount = 0;
-        while (queryCount < MaxQueryCount)
+        int limit = 80;
+        
         {
-
-            var result = queryable.Skip(skip).Take(MaxQuerySize).OrderByDescending(x=>x.BlockHeight).ToList();
-            if (result.IsNullOrEmpty())
-            {
-                break;
-            }
-            if(result.Count < MaxQuerySize)
-            {
-                nftListings.AddRange(result);
-                break;
-            }
-            skip += MaxQuerySize;
-            queryCount++;
+            var result = queryable.Skip(skip).Take(limit).OrderByDescending(x=>x.BlockHeight).ToList();
+            nftListings.AddRange(result);
         }
 
         var writeCount = 0;
