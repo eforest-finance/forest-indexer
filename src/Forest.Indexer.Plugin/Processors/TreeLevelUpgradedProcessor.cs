@@ -22,7 +22,7 @@ public class TreeLevelUpdatedProcessor: LogEventProcessorBase<TreeLevelUpgraded>
 
     public override async Task ProcessAsync(TreeLevelUpgraded eventValue, LogEventContext context)
     {
-        Logger.LogInformation("TreeLevelUpdatedProcessor eventValue:{A}", JsonConvert.SerializeObject(eventValue));
+        Logger.LogInformation("TreeLevelUpdatedProcessor address:{A} eventValue:{B}", eventValue.Owner.ToBase58(),JsonConvert.SerializeObject(eventValue));
 
         if (eventValue == null || context == null) return;
 
