@@ -22,7 +22,7 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
 
     public override async Task ProcessAsync(TreePointsAdded eventValue, LogEventContext context)
     {
-        Logger.LogInformation("TreePointsAddedProcessor eventValue:{A}", JsonConvert.SerializeObject(eventValue));
+        Logger.LogInformation("TreePointsAddedProcessor address:{A} eventValue:{B}", eventValue.Owner.ToBase58(),JsonConvert.SerializeObject(eventValue));
         if (eventValue == null || context == null) return;
         
         var pointsType = GetValueFromEnum(eventValue.PointsType);
@@ -34,6 +34,8 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
             (context.ChainId, eventValue.Owner.ToBase58(),opType.ToString(), eventValue.OpTime);
         
         var recordIndex = await GetEntityAsync<TreePointsChangeRecordIndex>(recordId);
+        Logger.LogInformation("TreePointsAddedProcessor recordId:{A}, index:{B}", recordId, JsonConvert.SerializeObject(recordIndex));
+
         if (recordIndex != null) return;
 
 
@@ -51,6 +53,8 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
         };
         _objectMapper.Map(context, recordIndex);
         await SaveEntityAsync(recordIndex);
+        Logger.LogInformation("TreePointsAddedProcessor add success address:{A} recordId:{B}", eventValue.Owner.ToBase58(),recordId);
+
     }
     
     private PointsType GetValueFromEnum(int value)

@@ -196,5 +196,7 @@ public class ForestIndexerAutoMapperProfile : Profile
         CreateMap<UserBalanceIndex, UserBalanceDto>();
         CreateMap<TreePointsChangeRecordIndex, TreePointsChangeRecordDto>();
         CreateMap<TreePointsChangeRecordDto, TreePointsChangeRecordIndex>();
+        CreateMap<LogEventContext, TreePointsChangeRecordIndex>();
+
     }
 }
