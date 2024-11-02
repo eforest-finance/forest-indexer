@@ -14,7 +14,6 @@ public partial class Query
         GetChainBlockHeightDto dto)
     {
         var queryable = await repository.GetQueryableAsync();
-        queryable = queryable.Where(f => f.ChainId == dto.ChainId);
         
         if (dto.StartBlockHeight > 0)
         {
@@ -26,7 +25,7 @@ public partial class Query
             queryable = queryable.Where(f => f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(5000).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(2000).ToList();
         if (result.IsNullOrEmpty())
         {
             return new TreePointsChangeRecordPageResultDto();

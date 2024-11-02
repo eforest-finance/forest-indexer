@@ -44,9 +44,9 @@ public enum OpType
 
 public enum PointsType
 {
-    NormalOne = 0,
-    NormalTwo = 1,
-    Invite = 2,
+    NORMALONE = 0,
+    NORMALTWO = 1,
+    INVITE = 2,
     Default = 3
 }
 

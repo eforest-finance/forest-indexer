@@ -45,6 +45,11 @@ public class TreeLevelUpdatedProcessor: LogEventProcessorBase<TreeLevelUpgraded>
             TreeLevel = eventValue.UpgradeLevel.ToString()
         };
         _objectMapper.Map(context, recordIndex);
+        recordIndex.BlockHeight = context.Block.BlockHeight;
+        recordIndex.BlockHash = context.Block.BlockHash;
+        recordIndex.PreviousBlockHash = context.Block.PreviousBlockHash;
         await SaveEntityAsync(recordIndex);
+        Logger.LogInformation("TreeLevelUpdatedProcessor add success address:{A} recordIndex:{B}", eventValue.Owner.ToBase58(),JsonConvert.SerializeObject(recordIndex));
+
     }
 }
