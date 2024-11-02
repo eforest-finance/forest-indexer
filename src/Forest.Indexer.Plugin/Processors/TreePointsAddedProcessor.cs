@@ -26,10 +26,10 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
         if (eventValue == null || context == null) return;
         
         var pointsType = GetValueFromEnum(eventValue.PointsType);
-        if (pointsType == PointsType.Default) return;
+        if (pointsType == PointsType.DEFAULT) return;
         Logger.LogInformation("TreePointsAddedProcessor pointsType:{A}", pointsType);
 
-        var opType = OpType.Added;
+        var opType = OpType.ADDED;
         var recordId = IdGenerateHelper.GetTreePointsAddedRecordId
             (context.ChainId, eventValue.Owner.ToBase58(),opType.ToString(), eventValue.OpTime);
         
@@ -71,7 +71,7 @@ public class TreePointsAddedProcessor: LogEventProcessorBase<TreePointsAdded>
             case (int)PointsType.INVITE:
                 return PointsType.INVITE;
             default:
-                return PointsType.Default;
+                return PointsType.DEFAULT;
         }
     }
 

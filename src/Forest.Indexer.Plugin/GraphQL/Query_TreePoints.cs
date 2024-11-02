@@ -41,4 +41,30 @@ public partial class Query
             TotalRecordCount = (long)(totalCount == null ? 0 : totalCount),
         };
     }
+    
+    [Name("getSyncTreePointsRecordsAll")]
+    public static async Task<TreePointsChangeRecordPageResultDto> GetSyncTreePointsRecordsAll(
+        [FromServices] IReadOnlyRepository<TreePointsChangeRecordIndex> repository,
+        [FromServices] IObjectMapper objectMapper,
+        GetChainBlockHeightDto dto)
+    {
+        var queryable = await repository.GetQueryableAsync();
+        
+
+        var result = queryable.ToList();
+        if (result.IsNullOrEmpty())
+        {
+            return new TreePointsChangeRecordPageResultDto();
+        }
+        var count = queryable.Count();
+
+        var dataList = objectMapper.Map<List<TreePointsChangeRecordIndex>, List<TreePointsChangeRecordDto>>(result);
+        var totalCount = count;
+
+        return new TreePointsChangeRecordPageResultDto
+        {
+            Data = dataList,
+            TotalRecordCount = (long)(totalCount == null ? 0 : totalCount),
+        };
+    }
 }
