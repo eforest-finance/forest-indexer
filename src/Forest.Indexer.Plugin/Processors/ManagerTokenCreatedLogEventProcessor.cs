@@ -33,6 +33,12 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
         //                 JsonConvert.SerializeObject(context));
 
         if (eventValue == null || context == null) return;
+        if (eventValue.Owner.Value.Length == 0 || eventValue.Issuer.Value.Length == 0)
+        {
+            Logger.LogError("ManagerTokenCreatedLogEventProcessor.HandleEventAsync error Owner Or Issue is Null {A}",
+                JsonConvert.SerializeObject(eventValue));
+            return;
+        }
         var tsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
         var tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexId);
 
@@ -62,10 +68,10 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
 
         if (symbolMarketTokenIndex != null) return;
 
-        var realOwner = eventValue.RealOwner != null
+        var realOwner = eventValue.RealOwner.Value.Length != 0
             ? eventValue.RealOwner.ToBase58()
             : eventValue.OwnerManagerList.ToBase58();
-        var realManager = eventValue.RealIssuer != null
+        var realManager = eventValue.RealIssuer.Value.Length != 0
             ? eventValue.RealIssuer.ToBase58()
             : eventValue.IssuerManagerList.ToBase58();
         symbolMarketTokenIndex = new SeedSymbolMarketTokenIndex()

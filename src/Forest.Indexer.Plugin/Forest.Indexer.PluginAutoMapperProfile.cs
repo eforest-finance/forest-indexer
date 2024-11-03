@@ -119,14 +119,30 @@ public class ForestIndexerAutoMapperProfile : Profile
                 opt => opt.MapFrom(source => source.Block.BlockHash));
         CreateMap<LogEventContext, WhiteListManagerIndex>();
         CreateMap<LogEventContext, WhiteListExtraInfoIndex>();
-        CreateMap<TokenCreated, NFTInfoIndex>();
-        CreateMap<TokenCreated, SeedSymbolIndex>();
-        CreateMap<TokenCreated, CollectionIndex>();
-        CreateMap<TokenCreated, TokenInfoIndex>();
+        CreateMap<TokenCreated, NFTInfoIndex>()
+            .ForMember(destination => destination.Issuer,
+                opt => opt.MapFrom(source => source.Issuer.Value.Length != 0 ? source.Issuer.ToBase58() : ""))
+            .ForMember(destination => destination.Owner,
+                opt => opt.MapFrom(source => source.Owner.Value.Length != 0?source.Owner.ToBase58():""));
+        CreateMap<TokenCreated, SeedSymbolIndex>()
+            .ForMember(destination => destination.Issuer,
+                opt => opt.MapFrom(source => source.Issuer.Value.Length != 0 ? source.Issuer.ToBase58() : ""))
+            .ForMember(destination => destination.Owner,
+                opt => opt.MapFrom(source => source.Owner.Value.Length != 0?source.Owner.ToBase58():""));
+        CreateMap<TokenCreated, CollectionIndex>()
+            .ForMember(destination => destination.Issuer,
+                opt => opt.MapFrom(source => source.Issuer.Value.Length != 0 ? source.Issuer.ToBase58() : ""))
+            .ForMember(destination => destination.Owner,
+                opt => opt.MapFrom(source => source.Owner.Value.Length != 0?source.Owner.ToBase58():""));
+        CreateMap<TokenCreated, TokenInfoIndex>()
+            .ForMember(destination => destination.Issuer,
+                opt => opt.MapFrom(source => source.Issuer.Value.Length != 0 ? source.Issuer.ToBase58() : ""))
+            .ForMember(destination => destination.Owner,
+                opt => opt.MapFrom(source => source.Owner.Value.Length != 0?source.Owner.ToBase58():""));
 
         CreateMap<LogEventContext, NFTListingInfoIndex>()
             .ForMember(destination => destination.BlockHeight,
-                opt => opt.MapFrom(source => source.Block.BlockHeight))
+                opt => opt.MapFrom(source => source.Block.BlockHeight)) 
             .ForMember(destination => destination.BlockHash,
                 opt => opt.MapFrom(source => source.Block.BlockHash));
 

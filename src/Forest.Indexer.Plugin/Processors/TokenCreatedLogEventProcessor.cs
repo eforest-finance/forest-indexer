@@ -6,6 +6,7 @@ using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -102,6 +103,12 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
     {
         if (eventValue == null || context == null)
         {
+            return;
+        }
+
+        if (eventValue.Owner.Value.Length == 0 || eventValue.Issuer.Value.Length == 0)
+        {
+            Logger.LogError("TokenInfoIndexCreateAsync Owner or Issuer is null ,eventValue={A}",JsonConvert.SerializeObject(eventValue));
             return;
         }
 
