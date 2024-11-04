@@ -45,7 +45,7 @@ public partial class Query
             
         }
 
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount).OrderByDescending(k => k.CreateTime).ToList();
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
         var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result);
         var pageResult = new NFTCollectionPageResultDto
         {
@@ -61,7 +61,7 @@ public partial class Query
         [FromServices] IObjectMapper objectMapper,
         GetNFTCollectionsByAddressListDto dto)
     {
-        var queryable = await repository.GetQueryableAsync();
+       
         if (dto == null)
             return new NFTCollectionPageResultDto
             {
@@ -69,8 +69,7 @@ public partial class Query
                 Data = new List<NFTCollectionDto>()
             };
 
-        
-        
+        var queryable = await repository.GetQueryableAsync();
         if (!dto.AddressList.IsNullOrEmpty())
         {
             var address1 = dto.AddressList.Count >= 1 ? dto.AddressList[0] : "";
@@ -99,7 +98,7 @@ public partial class Query
             queryable = queryable.Where(q => (q.Symbol == dto.Param || q.TokenName == dto.Param));
         }
 
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount).OrderByDescending(k => k.CreateTime)
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount)
             .ToList();
         var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result);
         var pageResult = new NFTCollectionPageResultDto
@@ -182,7 +181,8 @@ public partial class Query
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
         queryable = queryable.Where(f => f.ChainId == dto.ChainId);
-        var result = queryable.Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(dto.SkipCount)
+            .Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         if (result.IsNullOrEmpty())
         {
             return new CollectionChangePageResultDto
@@ -209,7 +209,8 @@ public partial class Query
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
         queryable = queryable.Where(f => f.ChainId == dto.ChainId);
-        var result = queryable.Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(dto.SkipCount)
+            .Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         if (result.IsNullOrEmpty())
         {
             return new CollectionPriceChangePageResultDto
@@ -297,7 +298,7 @@ public partial class Query
         var dataList = new List<NFTInfoIndex>();
         do
         {
-            var result = queryable.Skip(itemTotal).Take(QuerySize).OrderBy(o => o.BlockHeight).ToList();
+            var result = queryable.OrderBy(o => o.BlockHeight).Skip(itemTotal).Take(QuerySize).ToList();
             var count = result.IsNullOrEmpty() ? 0 : result.Count;
             Logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",count);
             dataList = result;
@@ -344,7 +345,7 @@ public partial class Query
         var dataList = new List<UserBalanceIndex>();
         do
         {
-            var result = queryable.Skip(skipCount).Take(QuerySize).OrderBy(o => o.BlockHeight).ToList();
+            var result = queryable.OrderBy(o => o.BlockHeight).Skip(skipCount).Take(QuerySize).ToList();
             Logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result?.Count);
             dataList = result;
             if (dataList.IsNullOrEmpty())

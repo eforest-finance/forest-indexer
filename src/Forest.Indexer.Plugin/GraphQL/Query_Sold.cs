@@ -30,9 +30,10 @@ public partial class Query
             queryable = queryable.Where(f=>f.CollectionSymbol == dto.CollectionSymbol);
         }
 
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
+        var result = queryable
             .OrderByDescending(a => a.DealTime)
             .OrderByDescending(a => a.PurchaseAmount)
+            .Skip(dto.SkipCount).Take(dto.MaxResultCount)
             .ToList();
         if (result.IsNullOrEmpty())
         {

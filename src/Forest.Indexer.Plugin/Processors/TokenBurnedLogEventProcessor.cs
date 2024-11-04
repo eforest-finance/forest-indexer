@@ -116,6 +116,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         }
         int skip = 0;
         int limit = 80;
+        return;//todo v2 tem
         
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();

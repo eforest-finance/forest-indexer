@@ -344,9 +344,10 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         int skip = 0;
         var nftListings = new List<NFTListingInfoIndex>();
         int limit = 80;
+        return;//todo v2 tem
       
         {
-            var result = queryable.Skip(skip).Take(limit).OrderByDescending(x=>x.BlockHeight).ToList();
+            var result = queryable.OrderByDescending(x=>x.BlockHeight).Skip(skip).Take(limit).ToList();
             nftListings.AddRange(result);
         }
 
@@ -385,6 +386,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         }
         int skip = 0;
         int limit = 80;
+        return;//todo v2 tem
         
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();

@@ -347,7 +347,7 @@ public class ListedNFTChangedLogEventProcessor : LogEventProcessorBase<ListedNFT
          queryable = queryable.Where(x=>x.BlockHeight > blockHeight && x.BlockHeight < temMaxBlockHeight);
          queryable = queryable.Where(x=>x.NFTInfoId == nftInfoIndex.Id );
 
-         var resultUserBalanceIndex = queryable.Skip(0).Take(100).OrderBy(o => o.BlockHeight).ToList();
+         var resultUserBalanceIndex = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(100).ToList();
          return resultUserBalanceIndex;
      }
      private async Task<bool> CheckOtherListExistAsync(string bizId, string noListingOwner, string excludeListingId)

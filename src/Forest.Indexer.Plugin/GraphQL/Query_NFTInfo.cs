@@ -110,7 +110,7 @@ public partial class Query
             queryable = queryable.Where(f => f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         if (result.IsNullOrEmpty())
         {
             return new List<NFTInfoSyncDto>();

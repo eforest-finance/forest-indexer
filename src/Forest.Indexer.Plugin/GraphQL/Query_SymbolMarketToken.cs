@@ -56,7 +56,7 @@ public partial class Query
         }
         
 
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount).OrderByDescending(k => k.CreateTime)
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount)
             .ToList();
         if (result.IsNullOrEmpty())
         {

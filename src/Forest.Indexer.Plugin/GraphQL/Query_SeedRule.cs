@@ -31,7 +31,7 @@ public partial class Query
             queryable = queryable.Where(f=>f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.Skip(0).Take(QueryCurrentSize).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(QueryCurrentSize).ToList();
         if (result.IsNullOrEmpty())
         {
             return new List<SeedPriceDto>();
@@ -60,7 +60,7 @@ public partial class Query
             queryable = queryable.Where(f=>f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.Skip(0).Take(QueryCurrentSize).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(QueryCurrentSize).ToList();
         if (result.IsNullOrEmpty())
         {
             return new List<UniqueSeedPriceDto>();

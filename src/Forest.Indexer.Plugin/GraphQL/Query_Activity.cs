@@ -33,7 +33,7 @@ public partial class Query
             queryable = queryable.Where(q => intTypes.Contains(q.IntType));
             
         }
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount).OrderByDescending(k=>k.TransactionDateTime).ToList();
+        var result = queryable.OrderByDescending(k=>k.TransactionDateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
         
         var dataList = objectMapper.Map<List<SymbolMarketActivityIndex>, List<SymbolMarkerActivityDto>>(result);
         var pageResult = new SymbolMarkerActivityPageResultDto

@@ -85,10 +85,10 @@ public partial class Query
             queryable = queryable.Where(index => index.ChainId == input.ChainId);
 
         var result = queryable
-            .Skip(input.SkipCount)
-            .Take(input.MaxResultCount)
             .OrderByDescending(a => a.Amount)
             .OrderBy(a => a.Address)
+            .Skip(input.SkipCount)
+            .Take(input.MaxResultCount)
             .ToList();
         var totalCount = result?.Count;
         if (result?.Count == ForestIndexerConstants.EsLimitTotalNumber)
@@ -118,7 +118,7 @@ public partial class Query
         }
         queryable = queryable.Where(f => f.BlockHeight >= input.BlockHeight);
 
-        var result = queryable.Skip(input.SkipCount).Take(ForestIndexerConstants.QueryUserBalanceListDefaultSize).OrderBy(a=>a.BlockHeight)
+        var result = queryable.OrderBy(a=>a.BlockHeight).Skip(input.SkipCount).Take(ForestIndexerConstants.QueryUserBalanceListDefaultSize)
             .ToList();
 
         var totalCount = result?.Count;

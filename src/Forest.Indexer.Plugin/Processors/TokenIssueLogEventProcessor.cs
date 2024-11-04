@@ -93,6 +93,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         }
         int skip = 0;
         int limit = 80;
+        return;//todo v2 tem
         
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
@@ -177,10 +178,11 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
 
         int skip = 0;
         int limit = 80;
+        return;//todo v2 tem
         var nftListings = new List<NFTListingInfoIndex>();
         {
 
-            var result = queryable.Skip(skip).Take(limit).OrderByDescending(x=>x.BlockHeight).ToList();
+            var result = queryable.OrderByDescending(x=>x.BlockHeight).Skip(skip).Take(limit).ToList();
             nftListings.AddRange(result);
         }
 

@@ -56,10 +56,10 @@ public partial class Query
         }
 
         var result = queryableListing
-            .Skip(input.SkipCount).Take(input.MaxResultCount)
             .OrderBy(a => a.Prices)
             .ThenBy(a => a.StartTime)
             .ThenBy(a => a.ExpireTime)
+            .Skip(input.SkipCount).Take(input.MaxResultCount)
             .ToList();
         
         // Logger.LogDebug(
@@ -114,10 +114,11 @@ public partial class Query
             queryable = queryable.Where(index => index.Owner == dto.Owner);
         }
 
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
+        var result = queryable
             .OrderBy(a=>a.Prices)
             .OrderBy(a=>a.StartTime)
             .OrderBy(a => a.ExpireTime)
+            .Skip(dto.SkipCount).Take(dto.MaxResultCount)
             .ToList();
 
         var dataList = result.Select(i =>
@@ -322,8 +323,8 @@ public partial class Query
         queryable = queryable.Where(f=>f.ChainId == dto.ChainId);
         queryable = queryable.Where(f=>f.BlockHeight >= dto.BlockHeight);
 
-         var result = queryable.Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber)
-             .OrderBy(o => o.BlockHeight).ToList();
+         var result = queryable
+             .OrderBy(o => o.BlockHeight).Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
          var dataList = objectMapper.Map<List<NFTListingChangeIndex>, List<NFTListingChangeDto>>(result);
         var pageResult = new NFTListingChangeDtoPageResultDto
         {
@@ -353,7 +354,7 @@ public partial class Query
             queryable = queryable.Where(index=>index.ExpireTime > expiredTime);
         }
 
-        var result = queryable.Skip(input.SkipCount).Take(input.MaxResultCount).OrderBy(a=>a.BlockHeight).ToList();
+        var result = queryable.OrderBy(a=>a.BlockHeight).Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
         var count = result.IsNullOrEmpty() ? 0 : result.Count;
         Logger.LogDebug(
             "[NFTListingInfoAll] SETP: query Pager chainId={A}, height={B}, count={C}", input.ChainId, input.BlockHeight,count);

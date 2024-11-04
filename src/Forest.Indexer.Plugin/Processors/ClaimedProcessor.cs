@@ -4,6 +4,7 @@ using Forest.Contracts.Auction;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
+using Newtonsoft.Json;
 using Volo.Abp;
 using Volo.Abp.ObjectMapping;
 
@@ -26,6 +27,18 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
 
     public override async Task ProcessAsync(Claimed eventValue, LogEventContext context)
     {
+        Logger.LogInformation("Claimed HandleEventAsync eventValue :{A}", 
+            JsonConvert.SerializeObject(eventValue));
+        if (eventValue.AuctionId == null || eventValue.AuctionId.Value.Length == 0
+                                         || eventValue.Bidder == null || eventValue.Bidder.Value.Length == 0)
+        {
+            Logger.LogError("Claimed HandleEventAsync error AuctionId or Bidder is null:{A}",
+                JsonConvert.SerializeObject(eventValue)
+            );
+            return;
+        }
+       
+        
         var symbolAuctionInfoIndex =
             await GetEntityAsync<SymbolAuctionInfoIndex>(eventValue.AuctionId.ToHex());
         symbolAuctionInfoIndex.FinishIdentifier = (int)SeedAuctionStatus.Finished;

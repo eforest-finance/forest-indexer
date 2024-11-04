@@ -312,7 +312,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
                 await SaveEntityAsync(userBalanceIndex);
             }
 
-            await UpdateUserBanlanceBynftInfoIdAsync(nftInfoIndex, context, beginBlockHeight);
+            //await UpdateUserBanlanceBynftInfoIdAsync(nftInfoIndex, context, beginBlockHeight);
         }
     }
 
@@ -323,7 +323,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
         queryable = queryable.Where(x => x.BlockHeight > blockHeight && x.BlockHeight < temMaxBlockHeight);
         queryable = queryable.Where(x => x.NFTInfoId == nftInfoIndex.Id);
 
-        var resultUserBalanceIndex = queryable.Skip(0).Take(100).OrderBy(o => o.BlockHeight).ToList();
+        var resultUserBalanceIndex = queryable.OrderByDescending(o => o.BlockHeight).Skip(0).Take(100).ToList();
         return resultUserBalanceIndex;
     }
 

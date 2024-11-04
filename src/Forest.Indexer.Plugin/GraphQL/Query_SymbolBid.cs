@@ -29,7 +29,7 @@ public partial class Query
             queryable = queryable.Where(f=>f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.Skip(0).Take(QueryCurrentSize).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(QueryCurrentSize).ToList();
         if (result.IsNullOrEmpty())
         {
             return new List<SymbolAuctionInfoDto>();
@@ -59,7 +59,7 @@ public partial class Query
             queryable = queryable.Where(f=>f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.Skip(0).Take(QueryCurrentSize).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(QueryCurrentSize).ToList();
         var symbolBidInfoIndices = result;
         if (symbolBidInfoIndices.IsNullOrEmpty())
         {

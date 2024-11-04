@@ -75,6 +75,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         int skip = 0;
         int queryCount;
         int limit = 80;
+        return;//todo v2 tem
         do
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
@@ -390,9 +391,10 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         int skip = 0;
         var nftListings = new List<NFTListingInfoIndex>();
         int limit = 80;
+        return;//todo v2 tem
         
         {
-            var result = queryable.Skip(skip).Take(limit).OrderByDescending(x=>x.BlockHeight).ToList();
+            var result = queryable.OrderByDescending(x=>x.BlockHeight).Skip(skip).Take(limit).ToList();
             nftListings.AddRange(result);
         }
 
