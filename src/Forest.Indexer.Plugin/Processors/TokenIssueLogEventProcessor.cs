@@ -37,8 +37,8 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         await SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
             eventValue.Amount, context);
-        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
-         await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
+        // await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);todo v2
+        //  await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context); todo v2
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
         if (SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;

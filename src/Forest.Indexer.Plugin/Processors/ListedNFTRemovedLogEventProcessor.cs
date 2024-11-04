@@ -500,7 +500,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             queryable = queryable.Where(index => !excludeListingIds.Contains(index.Id));
         }
 
-        var result = queryable.OrderBy(k => k.Prices).ToList();
+        var result = queryable.OrderBy(k => k.Prices).Skip(0).Take(1).ToList();
         return result ?? new List<NFTListingInfoIndex>();
     }
 

@@ -166,11 +166,11 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         var fromUserBalance = await SaveUserBalanceAsync(eventValue.Symbol,
             eventValue.From.ToBase58(),
             -eventValue.Amount, context);
-        await UpdateOfferRealQualityAsync(eventValue.Symbol, fromUserBalance,
-            eventValue.From.ToBase58(),
-            context); 
-        await   UpdateListingInfoRealQualityAsync(eventValue.Symbol, fromUserBalance,
-            eventValue.From.ToBase58(), context);
+        // await UpdateOfferRealQualityAsync(eventValue.Symbol, fromUserBalance,
+        //     eventValue.From.ToBase58(),
+        //     context); todo v2
+        // await   UpdateListingInfoRealQualityAsync(eventValue.Symbol, fromUserBalance,
+        //     eventValue.From.ToBase58(), context); todo v2
     }
     public async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
     {
@@ -251,13 +251,13 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         var userBalanceTo = await QueryUserBalanceByIdAsync(userBalanceToId, context.ChainId);
         if (userBalanceTo == null)
         {
-            var lastNFTListingInfoDic =
-                await QueryLatestNFTListingInfoByNFTIdsAsync(new List<string> { nftInfoIndexId },
-                    "");
-
-            var lastNFTListingInfo = lastNFTListingInfoDic != null && lastNFTListingInfoDic.ContainsKey(nftInfoIndexId)
-                ? lastNFTListingInfoDic[nftInfoIndexId]
-                : new NFTListingInfoIndex();
+            // var lastNFTListingInfoDic =
+            //     await QueryLatestNFTListingInfoByNFTIdsAsync(new List<string> { nftInfoIndexId },
+            //         "");
+            //
+            // var lastNFTListingInfo = lastNFTListingInfoDic != null && lastNFTListingInfoDic.ContainsKey(nftInfoIndexId)
+            //     ? lastNFTListingInfoDic[nftInfoIndexId]
+            //     : new NFTListingInfoIndex(); todo v2
             userBalanceTo = new UserBalanceIndex
             {
                 Id = userBalanceToId,
@@ -267,8 +267,8 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
                 Address = eventValue.To.ToBase58(),
                 Amount = eventValue.Amount,
                 ChangeTime = context.Block.BlockTime,
-                ListingPrice = lastNFTListingInfo.Prices,
-                ListingTime = lastNFTListingInfo.StartTime
+                //ListingPrice = lastNFTListingInfo.Prices,
+                //ListingTime = lastNFTListingInfo.StartTime todo v2
             };
         }
         else
@@ -279,12 +279,12 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
         _objectMapper.Map(context, userBalanceTo);
         await SaveEntityAsync(userBalanceTo);
-        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount,
-            eventValue.To.ToBase58(), context);
-        await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount, eventValue.To.ToBase58(), context);
+        // await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount,
+        //     eventValue.To.ToBase58(), context); todo v2
+        // await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount, eventValue.To.ToBase58(), context); todo v2
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
     }
-    private async Task<Dictionary<string, NFTListingInfoIndex>> QueryLatestNFTListingInfoByNFTIdsAsync(
+    private async Task<Dictionary<string, NFTListingInfoIndex>> QueryLatestNFTListingInfoByNFTIdsAsync1(
         List<string> nftInfoIds, string noListingId)
     {
         if (nftInfoIds == null) return new Dictionary<string, NFTListingInfoIndex>();

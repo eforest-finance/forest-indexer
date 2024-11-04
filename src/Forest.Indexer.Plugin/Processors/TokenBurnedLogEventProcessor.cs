@@ -47,7 +47,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol,
             eventValue.Burner.ToBase58(),
             -eventValue.Amount, context);
-        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context);
+        // await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context); todo v2
         
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 

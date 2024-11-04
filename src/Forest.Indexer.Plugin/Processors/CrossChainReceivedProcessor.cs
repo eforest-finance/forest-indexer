@@ -48,8 +48,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
             eventValue.Amount,
             context);
-        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
-        await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
+        // await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context); todo v2
+        // await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context); todo v2
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
         if (SymbolHelper.CheckSymbolIsSeedSymbol(eventValue.Symbol))
@@ -217,11 +217,11 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         _objectMapper.Map(context, seedSymbolIndexToChain);
         seedSymbolIndexToChain.Supply = eventValue.Amount;
         //add calc minNftListing
-        var minNftListing = await GetMinListingNftAsync(seedSymbolIndexIdToChainId);
-        if (minNftListing != null)
-        {
-            seedSymbolIndexToChain.OfMinNftListingInfo(minNftListing);
-        }
+        // var minNftListing = await GetMinListingNftAsync(seedSymbolIndexIdToChainId);
+        // if (minNftListing != null)
+        // {
+        //     seedSymbolIndexToChain.OfMinNftListingInfo(minNftListing);
+        // }
         
         await SaveEntityAsync(seedSymbolIndexToChain);
 
