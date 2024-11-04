@@ -1,6 +1,8 @@
 using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
+using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -13,6 +15,7 @@ public partial class Query
         [FromServices] IObjectMapper objectMapper,
         GetChainBlockHeightDto dto)
     {
+        Logger.LogInformation("getSyncTreePointsRecords params:{A}", JsonConvert.SerializeObject(dto));
         var queryable = await repository.GetQueryableAsync();
         
         if (dto.StartBlockHeight > 0)
@@ -26,9 +29,15 @@ public partial class Query
         }
 
         var result = queryable.OrderBy(o => o.BlockHeight).OrderBy(i=>i.BlockHeight).Skip(0).Take(2000).ToList();
-        if (result.IsNullOrEmpty())
+        Logger.LogInformation("getSyncTreePointsRecords resultCount:{A}", result.IsNullOrEmpty()?0:result.Count());
+
+        if (result.IsNullOrEmpty() || result.Count == 0)
         {
-            return new TreePointsChangeRecordPageResultDto();
+            return new TreePointsChangeRecordPageResultDto()
+            {
+                TotalRecordCount = 0,
+                Data = new List<TreePointsChangeRecordDto>()
+            };
         }
         var count = queryable.Count();
 
@@ -48,9 +57,9 @@ public partial class Query
         [FromServices] IObjectMapper objectMapper,
         GetChainBlockHeightDto dto)
     {
-        var queryable = await repository.GetQueryableAsync();
-        
+        Logger.LogInformation("getSyncTreePointsRecordsAll params:{A}", JsonConvert.SerializeObject(dto));
 
+        var queryable = await repository.GetQueryableAsync();
         var result = queryable.ToList();
         if (result.IsNullOrEmpty())
         {
@@ -59,6 +68,8 @@ public partial class Query
         var count = queryable.Count();
 
         var dataList = objectMapper.Map<List<TreePointsChangeRecordIndex>, List<TreePointsChangeRecordDto>>(result);
+        Logger.LogInformation("getSyncTreePointsRecordsAll resultCount:{A}", dataList.IsNullOrEmpty()?0:dataList.Count());
+
         var totalCount = count;
 
         return new TreePointsChangeRecordPageResultDto
