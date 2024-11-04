@@ -75,15 +75,15 @@ public partial class Query
             var address1 = dto.AddressList.Count >= 1 ? dto.AddressList[0] : "";
             var address2 = dto.AddressList.Count >= 2 ? dto.AddressList[1] : "";
             
-            if ((!string.IsNullOrEmpty(address1)) && string.IsNullOrEmpty(address2))
+            if (!string.IsNullOrEmpty(address1) && string.IsNullOrEmpty(address2))
             {
                 queryable = queryable.Where(q =>
-                    q.OwnerManagerSet.Any(i => i == address1));
+                    q.RandomOwnerManager == address1);
             }
-            else if((!string.IsNullOrEmpty(address1)) && !string.IsNullOrEmpty(address2))
+            else if(!string.IsNullOrEmpty(address1) && !string.IsNullOrEmpty(address2))
             {
                 queryable = queryable.Where(q =>
-                    q.OwnerManagerSet.Any(i => i == address1) || q.OwnerManagerSet.Any(i => i == address2));
+                    q.RandomOwnerManager == address1 || q.RandomOwnerManager == address2);
             }
         }
         
