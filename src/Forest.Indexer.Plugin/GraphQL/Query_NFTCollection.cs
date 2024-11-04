@@ -188,7 +188,7 @@ public partial class Query
             return new CollectionChangePageResultDto
             {
                 TotalRecordCount = 0,
-                Data = null
+                Data = new List<CollectionChangeDto>()
             };
         }
         var dataList = objectMapper.Map<List<CollectionChangeIndex>, List<CollectionChangeDto>>(result);
