@@ -140,7 +140,7 @@ public partial class Query
         return new NftOfferPageResultDto
         {
             TotalRecordCount = count,
-            Data = dataList
+            Data = dataList.IsNullOrEmpty() ? new List<NFTOfferDto>() : dataList
         };
     }
 
