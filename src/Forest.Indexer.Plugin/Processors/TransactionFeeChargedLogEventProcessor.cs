@@ -30,6 +30,7 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
 
     public async override Task ProcessAsync(TransactionFeeCharged eventValue, LogEventContext context)
     {
+        return;//todo v2
         // Logger.LogDebug("TransactionFeeChargedLogEventProcessor-1 {A}",JsonConvert.SerializeObject(eventValue));
         // Logger.LogDebug("TransactionFeeChargedLogEventProcessor-2 {A}",JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
