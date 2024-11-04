@@ -47,13 +47,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
 
         try
         {
-            var listingNftInfoIndex = await GetEntityAsync<NFTListingInfoIndex>(listedNftIndexId);
-            if (listingNftInfoIndex != null)
-            {
-                Logger.LogError("listingInfo EXISTS");
-                return;
-            }
-
+           
             
             var tokenIndex = await GetEntityAsync<TokenInfoIndex>(purchaseTokenId);
             if (tokenIndex == null)
@@ -62,7 +56,7 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
                 return;
             }
 
-            listingNftInfoIndex = _objectMapper.Map<ListedNFTAdded, NFTListingInfoIndex>(eventValue);
+            var listingNftInfoIndex = _objectMapper.Map<ListedNFTAdded, NFTListingInfoIndex>(eventValue);
             listingNftInfoIndex.Id = listedNftIndexId;
             listingNftInfoIndex.Prices = eventValue.Price.Amount / (decimal)Math.Pow(10, tokenIndex.Decimals);
             listingNftInfoIndex.RealQuantity = eventValue.Quantity;
@@ -187,13 +181,6 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
     private async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
     {
         // NFT activity
-        var nftActivityIndexExists = await GetEntityAsync<NFTActivityIndex>(nftActivityIndex.Id);
-        if (nftActivityIndexExists != null)
-        {
-            Logger.LogDebug("[AddNFTActivityAsync] FAIL: activity EXISTS, nftActivityIndexId={Id}",
-                nftActivityIndex.Id);
-            return false;
-        }
 
         var from = nftActivityIndex.From;
         var to = nftActivityIndex.To;

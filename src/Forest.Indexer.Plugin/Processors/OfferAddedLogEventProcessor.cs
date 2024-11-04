@@ -27,10 +27,8 @@ public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
         Logger.LogDebug("OfferAddedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
         var offerIndexId = IdGenerateHelper.GetOfferId(context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
             eventValue.OfferTo.ToBase58(), eventValue.ExpireTime.Seconds,eventValue.Price.Amount);
-        var offerIndex = await GetEntityAsync<OfferInfoIndex>(offerIndexId);
-        if (offerIndex != null) return;
 
-        offerIndex = _objectMapper.Map<OfferAdded, OfferInfoIndex>(eventValue);
+        var offerIndex = _objectMapper.Map<OfferAdded, OfferInfoIndex>(eventValue);
         offerIndex.Id = offerIndexId;
         var tokenIndexId = IdGenerateHelper.GetId(context.ChainId, eventValue.Price.Symbol);
         var tokenIndex = await GetEntityAsync<TokenInfoIndex>(tokenIndexId);

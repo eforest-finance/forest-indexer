@@ -127,7 +127,7 @@ public partial class Query
     {
         if (dto == null || dto.Id.IsNullOrEmpty() || dto.ChainId.IsNullOrEmpty()) return null;
         var queryable = await repository.GetQueryableAsync();
-        queryable = queryable.Where(f => f.Id == dto.Id);
+        queryable = queryable.Where(f => f.Id == dto.Id && f.ChainId == dto.ChainId);
 
         var result = queryable.Skip(0).Take(1).ToList().FirstOrDefault();
         if (result == null)
