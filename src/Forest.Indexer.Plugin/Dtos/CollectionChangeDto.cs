@@ -12,5 +12,5 @@ public class CollectionChangePageResultDto
 {
     public long TotalRecordCount { get; set; }
 
-    public List<CollectionChangeDto> Data { get; set; }
+    public List<CollectionChangeDto>? Data { get; set; }
 }
