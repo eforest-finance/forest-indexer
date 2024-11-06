@@ -130,9 +130,9 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         queryable = queryable.Where(f => f.ChainId == chainId);
         var intTypeList = new List<int> { (int)NFTActivityType.Sale,(int)NFTActivityType.PlaceBid};
         queryable = queryable.Where(f => intTypeList.Contains(f.IntType));
-        queryable = queryable.Where(f => f.Timestamp > DateTimeHelper.FromUnixTimeMilliseconds(beginUtcStampSecond));
-        queryable = queryable.Where(f => f.Timestamp < DateTimeHelper.FromUnixTimeMilliseconds(endUtcStampSecond));
-        queryable = queryable.Where(f=>f.NftInfoId.Contains(collectionSymbolPre));
+        queryable = queryable.Where(f => f.Timestamp > DateTimeHelper.FromUnixTimeSeconds(beginUtcStampSecond));
+        queryable = queryable.Where(f => f.Timestamp < DateTimeHelper.FromUnixTimeSeconds(endUtcStampSecond));
+        queryable = queryable.Where(f=>f.NftInfoId.StartsWith(collectionSymbolPre));
 
         var result = queryable.OrderBy(k => k.Id).Skip(skipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         return new Tuple<long, List<NFTActivityIndex>>(result.Count,result);
