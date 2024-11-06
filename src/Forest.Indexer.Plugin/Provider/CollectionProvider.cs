@@ -2,6 +2,7 @@ using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
+using Microsoft.IdentityModel.Tokens;
 using Volo.Abp.DependencyInjection;
 
 namespace Forest.Indexer.Plugin.Processors.Provider;
@@ -47,7 +48,8 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         //Calculate current FloorPrice
         //symbol is collection symbol.
         var symbolAuctionInfoIndex = await QueryMinPriceForSymbolAuctionInfoIndexAsync(chainId, symbol, 0, 0);
-        decimal? auctionMinPrice =  symbolAuctionInfoIndex?.FinishPrice.Amount;
+        
+        decimal? auctionMinPrice =  symbolAuctionInfoIndex?.FinishPrice?.Amount;
         if (auctionMinPrice !=null && auctionMinPrice.Value > 0)
         {
             auctionMinPrice = DecimalUntil.ConvertToElf(auctionMinPrice.Value);
@@ -140,9 +142,16 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         string symbol,long beginStampSecond,long endStampSecond)
     {
         var queryable = await _symbolAuctionInfoIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(f => f.CollectionSymbol == symbol);
-        queryable = queryable.Where(f => f.ChainId == chainId);
+        if (!symbol.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(f => f.CollectionSymbol == symbol);
+        }
 
+        if (!chainId.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(f => f.ChainId == chainId);
+        }
+        
         if (beginStampSecond > 0)
         {
             queryable = queryable.Where(f => f.MaxEndTime >= beginStampSecond);
@@ -205,7 +214,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         {
             decimals = ForestIndexerConstants.SGRDecimal;
         }
-        Logger.LogInformation("Get SGRCollection:{SGR}",optionSGRCollection);
+        // Logger.LogInformation("Get SGRCollection:{SGR}",optionSGRCollection);
         var minQuantity = (int)(1 * Math.Pow(10, decimals));
         queryable = queryable.Where(f => f.CollectionSymbol == symbol);
         queryable = queryable.Where(f => f.ChainId == chainId);
