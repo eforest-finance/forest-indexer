@@ -228,20 +228,20 @@ public partial class Query
         var utcNow = DateTime.UtcNow;
         var queryable = await nftListingRepo.GetQueryableAsync();
 
-        Logger.LogDebug("[getMinPriceNft] INPUT: chainId={A}, expired={B}", input.ChainId, input.ExpireTimeGt);
+        //Logger.LogDebug("[getMinPriceNft] INPUT: chainId={A}, expired={B}", input.ChainId, input.ExpireTimeGt);
         
         queryable = queryable.Where(index => index.ChainId == input.ChainId);
         
         if (input.ExpireTimeGt != null && (long)input.ExpireTimeGt > 0)
         {
             queryable = queryable.Where(index =>
-                index.ExpireTime >= DateTimeHelper.FromUnixTimeMilliseconds((long)input.ExpireTimeGt));
+                index.ExpireTime >= DateTimeHelper.FromUnixTimeSeconds((long)input.ExpireTimeGt));
         }
         
         queryable = queryable.Where(index => index.ExpireTime < utcNow);
 
         var result = queryable.Skip(0).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
-        Logger.LogDebug("[NFTListingInfo] STEP: query chainId={A}, count={B}", input.ChainId, result?.Count);
+        //Logger.LogDebug("[NFTListingInfo] STEP: query chainId={A}, count={B}", input.ChainId, result?.Count);
         
         List<ExpiredNftMinPriceDto> data = new();
         foreach (var item in result)
@@ -343,21 +343,21 @@ public partial class Query
         if (input.ChainId.IsNullOrWhiteSpace())
             return new NftListingPageResultDto("invalid input param");
 
-        Logger.LogDebug("[NFTListingInfoAll] INPUT: chainId={A}, blockHeight={B}", input.ChainId, input.BlockHeight);
+        //Logger.LogDebug("[NFTListingInfoAll] INPUT: chainId={A}, blockHeight={B}", input.ChainId, input.BlockHeight);
         var queryable = await nftListingRepo.GetQueryableAsync();
         // query listing info
         queryable = queryable.Where(f=>f.ChainId == input.ChainId);
         queryable = queryable.Where(f=>f.BlockHeight >= input.BlockHeight);
         if (input.ExpireTimeGt != null)
         {
-            var expiredTime = DateTimeHelper.FromUnixTimeMilliseconds((long)input.ExpireTimeGt);
+            var expiredTime = DateTimeHelper.FromUnixTimeSeconds((long)input.ExpireTimeGt);
             queryable = queryable.Where(index=>index.ExpireTime > expiredTime);
         }
 
         var result = queryable.OrderBy(a=>a.BlockHeight).Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
         var count = result.IsNullOrEmpty() ? 0 : result.Count;
-        Logger.LogDebug(
-            "[NFTListingInfoAll] SETP: query Pager chainId={A}, height={B}, count={C}", input.ChainId, input.BlockHeight,count);
+        // Logger.LogDebug(
+        //     "[NFTListingInfoAll] SETP: query Pager chainId={A}, height={B}, count={C}", input.ChainId, input.BlockHeight,count);
         
         var dataList = result.Select(i =>
         {
@@ -368,8 +368,8 @@ public partial class Query
             return item;
         }).ToList();
 
-        Logger.LogDebug(
-            "[NFTListingInfoAll] SETP: Convert Data chainId={A}, height={B}, count={C}",input.ChainId, input.BlockHeight,dataList.Count);
+        // Logger.LogDebug(
+        //     "[NFTListingInfoAll] SETP: Convert Data chainId={A}, height={B}, count={C}",input.ChainId, input.BlockHeight,dataList.Count);
         return new NftListingPageResultDto(result.Count, dataList);
     }
 }

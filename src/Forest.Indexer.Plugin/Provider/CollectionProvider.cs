@@ -202,12 +202,12 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
 
         if (beginStampSecond > 0)
         {
-            queryable = queryable.Where(index => index.ExpireTime >= DateTimeHelper.FromUnixTimeMilliseconds(beginStampSecond));
+            queryable = queryable.Where(index => index.ExpireTime >= DateTimeHelper.FromUnixTimeSeconds(beginStampSecond));
         }
 
         if (endStampSecond > 0)
         {
-            queryable = queryable.Where(index => index.StartTime <= DateTimeHelper.FromUnixTimeMilliseconds(endStampSecond));
+            queryable = queryable.Where(index => index.StartTime <= DateTimeHelper.FromUnixTimeSeconds(endStampSecond));
         }
         
         var result = queryable.OrderBy(k => k.Prices).Take(1).ToList();

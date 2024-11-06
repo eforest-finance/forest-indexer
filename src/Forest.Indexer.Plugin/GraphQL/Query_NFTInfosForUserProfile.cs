@@ -190,7 +190,7 @@ public partial class Query
             }
         } while (!userBalanceIndexList.IsNullOrEmpty());
 
-        Logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
+        //Logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
         return nftIds;
     }
     //todo V2 use script ,code:undo
@@ -252,7 +252,7 @@ public partial class Query
             totalCount = queryable.Count();
         }
 
-        Logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
+        //Logger.LogInformation("User profile nft infos nftIds:{nftIds}", nftIds);
         var count = (long)(totalCount ?? 0);
         return new Tuple<long, List<string>>(count, nftIds);
     }

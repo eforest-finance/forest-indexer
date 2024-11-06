@@ -300,7 +300,7 @@ public partial class Query
         {
             var result = queryable.OrderBy(o => o.BlockHeight).Skip(itemTotal).Take(QuerySize).ToList();
             var count = result.IsNullOrEmpty() ? 0 : result.Count;
-            Logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",count);
+            // Logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",count);
             dataList = result;
             if (dataList.IsNullOrEmpty())
             {
@@ -346,7 +346,7 @@ public partial class Query
         do
         {
             var result = queryable.OrderBy(o => o.BlockHeight).Skip(skipCount).Take(QuerySize).ToList();
-            Logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result?.Count);
+            // Logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result?.Count);
             dataList = result;
             if (dataList.IsNullOrEmpty())
             {
@@ -377,7 +377,7 @@ public partial class Query
         {
             var result = queryable.Skip(itemTotal).Take(QuerySize).ToList();
             var count = result.IsNullOrEmpty() ? 0 : result.Count;
-            Logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", count);
+            // Logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", count);
             dataList = result;
             if (dataList.IsNullOrEmpty())
             {
