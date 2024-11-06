@@ -182,7 +182,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         {
             decimals = ForestIndexerConstants.SGRDecimal;
         }
-        Logger.LogInformation(" QueryMinPriceWithTimestampForNFTListingInfoIndexAsync Get SGRCollection:{SGR}",optionSGRCollection);
+        // Logger.LogInformation(" QueryMinPriceWithTimestampForNFTListingInfoIndexAsync Get SGRCollection:{SGR}",optionSGRCollection);
         var minQuantity = (int)(1 * Math.Pow(10, decimals));
         
         queryable = queryable.Where(f => f.CollectionSymbol == symbol);
