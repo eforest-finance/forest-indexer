@@ -63,7 +63,7 @@ public class ListedNFTChangedLogEventProcessor : LogEventProcessorBase<ListedNFT
             // copy block data
             _objectMapper.Map(context, listedNFTIndex);
 
-            await UpdateListedInfoCommonAsync(context.ChainId, eventValue.Symbol, context, listedNFTIndex,"");
+            // await UpdateListedInfoCommonAsync(context.ChainId, eventValue.Symbol, context, listedNFTIndex,""); todo v2
 
             Logger.LogDebug("[ListedNFTChanged] SAVE:, ChainId={ChainId}, symbol={Symbol}, Quantity={Quantity}, Id={Id}",
                 context.ChainId, eventValue.Symbol, eventValue.Quantity, listedNftIndexId);
