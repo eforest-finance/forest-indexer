@@ -25,7 +25,7 @@ public class SymbolAuctionInfoDto
 
     public int MinMarkup { get; set; }
 
-    public string FinishBidder { get; set; }
+    public string? FinishBidder { get; set; }
 
     public long FinishTime { get; set; }
 
