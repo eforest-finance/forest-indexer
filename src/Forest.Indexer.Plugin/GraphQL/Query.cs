@@ -204,7 +204,7 @@ public partial class Query
         }
         
         var collectionSymbolPre = TokenHelper.GetCollectionIdPre(input.CollectionId);
-        queryable.Where(i => i.NftInfoId.Contains(collectionSymbolPre));
+        queryable = queryable.Where(i => i.NftInfoId.Contains(collectionSymbolPre));
 
         var count = queryable.Count();
         var list = queryable
@@ -232,18 +232,18 @@ public partial class Query
     {
         var queryable = await _nftActivityIndexRepository.GetQueryableAsync();
 
-        queryable.Where(i => i.ChainId != ForestIndexerConstants.MainChain);
+        queryable = queryable.Where(i => i.ChainId != ForestIndexerConstants.MainChain);
 
         if (!input.ChainId.IsNullOrEmpty())
         {
-            queryable.Where(i => i.ChainId == input.ChainId);
+            queryable = queryable.Where(i => i.ChainId == input.ChainId);
         }
 
-        queryable.Where(i => i.BlockHeight >= input.BlockHeight);
+        queryable = queryable.Where(i => i.BlockHeight >= input.BlockHeight);
 
         if (input.Types?.Count > 0)
         {
-            queryable.Where(i => input.Types.Contains(i.IntType));
+            queryable = queryable.Where(i => input.Types.Contains(i.IntType));
         }
 
         var count = queryable.Count();
