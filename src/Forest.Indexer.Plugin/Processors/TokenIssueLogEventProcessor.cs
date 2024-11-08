@@ -37,8 +37,8 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         await SaveCollectionChangeIndexAsync(context, eventValue.Symbol);
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
             eventValue.Amount, context);
-        // await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);todo v2
-        //  await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context); todo v2
+        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
+        await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
         if (SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;
@@ -93,7 +93,6 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         }
         int skip = 0;
         int limit = 80;
-        return;//todo v2 tem
         
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
@@ -178,7 +177,6 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
 
         int skip = 0;
         int limit = 80;
-        return;//todo v2 tem
         var nftListings = new List<NFTListingInfoIndex>();
         {
 

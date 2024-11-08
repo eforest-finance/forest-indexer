@@ -166,11 +166,11 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         var fromUserBalance = await SaveUserBalanceAsync(eventValue.Symbol,
             eventValue.From.ToBase58(),
             -eventValue.Amount, context);
-        // await UpdateOfferRealQualityAsync(eventValue.Symbol, fromUserBalance,
-        //     eventValue.From.ToBase58(),
-        //     context); todo v2
-        // await   UpdateListingInfoRealQualityAsync(eventValue.Symbol, fromUserBalance,
-        //     eventValue.From.ToBase58(), context); todo v2
+        await UpdateOfferRealQualityAsync(eventValue.Symbol, fromUserBalance,
+             eventValue.From.ToBase58(),
+             context);
+         await   UpdateListingInfoRealQualityAsync(eventValue.Symbol, fromUserBalance,
+            eventValue.From.ToBase58(), context);
     }
     public async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
     {
@@ -279,9 +279,9 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
         _objectMapper.Map(context, userBalanceTo);
         await SaveEntityAsync(userBalanceTo);
-        // await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount,
-        //     eventValue.To.ToBase58(), context); todo v2
-        // await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount, eventValue.To.ToBase58(), context); todo v2
+        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount,
+            eventValue.To.ToBase58(), context);
+        await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount, eventValue.To.ToBase58(), context);
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
     }
     private async Task<Dictionary<string, NFTListingInfoIndex>> QueryLatestNFTListingInfoByNFTIdsAsync1(
@@ -344,8 +344,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         int skip = 0;
         var nftListings = new List<NFTListingInfoIndex>();
         int limit = 80;
-        return;//todo v2 tem
-      
+
         {
             var result = queryable.OrderByDescending(x=>x.BlockHeight).Skip(skip).Take(limit).ToList();
             nftListings.AddRange(result);
@@ -386,8 +385,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         }
         int skip = 0;
         int limit = 80;
-        return;//todo v2 tem
-        
+
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
             var utcNow = DateTime.UtcNow;
