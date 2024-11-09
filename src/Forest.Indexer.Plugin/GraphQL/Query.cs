@@ -151,8 +151,11 @@ public partial class Query
     {
         
         var queryable = await _nftActivityIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(i=>i.NftInfoId == input.NFTInfoId);
-        
+        if (!input.NFTInfoId.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(i=>i.NftInfoId == input.NFTInfoId); 
+        }
+
         if (input.Types?.Count > 0)
         {
             queryable = queryable.Where(i=>input.Types.Contains(i.IntType));

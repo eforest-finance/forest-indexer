@@ -16,8 +16,9 @@ public partial class Query
         var queryable = await userBalanceRepo.GetQueryableAsync();
         queryable = queryable.Where(index => index.NFTInfoId == dto.nftInfoId && index.Amount>0);
 
-        var result = queryable.Skip(0).Take(1).ToList();
-        var totalCount = result?.Count;
+        var totalCount = queryable.Count();
+        var result = queryable.Skip(0).Take((int)ForestIndexerConstants.EsLimitTotalNumber).ToList();
+        
         if (result?.Count == ForestIndexerConstants.EsLimitTotalNumber)
         {
             var queryableCount = await userBalanceRepo.GetQueryableAsync();
@@ -28,7 +29,7 @@ public partial class Query
         return new NFTUserBalanceDto
         {
             Owner = result?.Count > 0 ? result.FirstOrDefault().Address : string.Empty,
-            OwnerCount =  (long)(totalCount ?? 0),
+            OwnerCount =  totalCount,
         };
     }
 
