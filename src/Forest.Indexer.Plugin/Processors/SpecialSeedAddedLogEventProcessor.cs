@@ -1,39 +1,28 @@
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk.Processor;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Forest.Indexer.Plugin.Util;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class SpecialSeedAddedLogEventProcessor: AElfLogEventProcessorBase<SpecialSeedAdded, LogEventInfo>
+public class  SpecialSeedAddedLogEventProcessor: LogEventProcessorBase<SpecialSeedAdded>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
-    private readonly IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> _tsmSeedSymbolIndexRepository;
     
     public SpecialSeedAddedLogEventProcessor(
-        ILogger<AElfLogEventProcessorBase<SpecialSeedAdded, LogEventInfo>> logger, 
-        IObjectMapper objectMapper,
-        IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> tsmSeedSymbolIndexRepository,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
+        IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _contractInfoOptions = contractInfoOptions.Value;
-        _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
     }
     
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos?.FirstOrDefault(c => c?.ChainId == chainId)
-            ?.SymbolRegistrarContractAddress;
+        return ContractInfoHelper.GetSymbolRegistrarContractAddress(chainId);
     }
     
-    protected override async Task HandleEventAsync(SpecialSeedAdded eventValue, LogEventContext context)
+    public async override Task ProcessAsync(SpecialSeedAdded eventValue, LogEventContext context)
     {
         if (eventValue == null) return;
         
@@ -50,8 +39,6 @@ public class SpecialSeedAddedLogEventProcessor: AElfLogEventProcessorBase<Specia
                 SeedName = IdGenerateHelper.GetSeedName(seed.Symbol),
                 Status = SeedStatus.AVALIABLE,
                 AuctionType = seed.AuctionType,
-                TokenType = TokenHelper.GetTokenType(seed.Symbol),
-                SeedType = seed.SeedType,
                 TokenPrice = new TokenPriceInfo()
                 {
                     Symbol = seed.PriceSymbol,
@@ -59,12 +46,14 @@ public class SpecialSeedAddedLogEventProcessor: AElfLogEventProcessorBase<Specia
                 },
                 IsBurned = false
             };
+            seedSymbolIndex.OfType(TokenHelper.GetTokenType(seed.Symbol));
+            seedSymbolIndex.OfType(seed.SeedType);
             _objectMapper.Map(context, seedSymbolIndex);
             if (seed.SeedType == SeedType.Disable)
             {
                 seedSymbolIndex.Status = SeedStatus.NOTSUPPORT;
             }
-            await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(seedSymbolIndex);
+            await SaveEntityAsync(seedSymbolIndex);
         }
     }
 }

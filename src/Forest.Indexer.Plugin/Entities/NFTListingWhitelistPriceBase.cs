@@ -1,11 +1,11 @@
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class NFTListingWhitelistPriceBase: AElfIndexerClientEntity<string>
+public class NFTListingWhitelistPriceBase : AeFinderEntity, IAeFinderEntity
 {
-    [Keyword] public string Id { get; set; }
+    [Keyword] public override string Id { get; set; }
     [Keyword] public string ChainId { get; set; }
     [Keyword] public string NFTInfoId { get; set; }
     [Keyword] public string WhitelistHash { get; set; }

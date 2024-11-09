@@ -1,11 +1,10 @@
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class TagInfoBase : AElfIndexerClientEntity<string>
+public class TagInfoBase 
 {
-    [Keyword] public override string Id { get; set; }
     [Keyword] public string TagHash { get; set; }
     [Keyword] public string Name { get; set; }
     [Keyword] public string Info { get; set; }

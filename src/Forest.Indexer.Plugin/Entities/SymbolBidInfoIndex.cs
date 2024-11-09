@@ -1,10 +1,9 @@
-using AElf.Indexing.Elasticsearch;
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class SymbolBidInfoIndex: AElfIndexerClientEntity<string>, IIndexBuild
+public class SymbolBidInfoIndex : AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     [Keyword] public string Symbol { get; set; }
@@ -18,8 +17,20 @@ public class SymbolBidInfoIndex: AElfIndexerClientEntity<string>, IIndexBuild
 
 
     public long BidTime { get; set; }
-    
+
     [Keyword] public string AuctionId { get; set; }
 
     [Keyword] public string TransactionHash { get; set; }
+    [Keyword]
+    public string ChainId { get; set; }
+
+    [Keyword]
+    public string BlockHash { get; set; }
+
+    public long BlockHeight { get; set; }
+
+    [Keyword]
+    public string PreviousBlockHash { get; set; }
+
+    public bool IsDeleted { get; set; }
 }

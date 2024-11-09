@@ -1,57 +1,45 @@
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk.Logging;
+using AeFinder.Sdk.Processor;
 using Drop.Indexer.Plugin.Entities;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Orleans.Runtime;
-using Volo.Abp.ObjectMapping;
 using Forest.Contracts.Drop;
+using Newtonsoft.Json;
+using Volo.Abp.ObjectMapping;
 
 namespace Drop.Indexer.Plugin.Processors;
 
-public class DropStateChangedLogEventProcessor : AElfLogEventProcessorBase<DropStateChanged, LogEventInfo>
+public class DropStateChangedLogEventProcessor : LogEventProcessorBase<DropStateChanged>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
-    private readonly IAElfIndexerClientEntityRepository<NFTDropIndex, LogEventInfo> _nftDropIndexRepository;
-    private readonly ILogger<DropStateChangedLogEventProcessor> _logger;
-    
-    public DropStateChangedLogEventProcessor(ILogger<DropStateChangedLogEventProcessor> logger, 
-        IObjectMapper objectMapper,
-        IAElfIndexerClientEntityRepository<NFTDropIndex, LogEventInfo> nftDropIndexRepository,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions
-        ) : base(logger)
+
+    public DropStateChangedLogEventProcessor(
+        IObjectMapper objectMapper
+    )
     {
-        _nftDropIndexRepository = nftDropIndexRepository;
-        _logger = logger;
-        _contractInfoOptions = contractInfoOptions.Value;
         _objectMapper = objectMapper;
     }
-    
+
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos.First(c => c.ChainId == chainId).NFTDropContractAddress;
+        return ContractInfoHelper.GetNFTDropContractAddress(chainId);
     }
-    
-    
-    protected override async Task HandleEventAsync(DropStateChanged eventValue, LogEventContext context)
+
+    public override async Task ProcessAsync(DropStateChanged eventValue, LogEventContext context)
     {
-        _logger.Debug("DropStateChanged: {eventValue} context: {context}",JsonConvert.SerializeObject(eventValue), 
+        Logger.LogInformation("DropStateChanged: {eventValue} context: {context}",
+            JsonConvert.SerializeObject(eventValue),
             JsonConvert.SerializeObject(context));
-        
-        var dropIndex = await _nftDropIndexRepository.GetFromBlockStateSetAsync(eventValue.DropId.ToHex(), context.ChainId);
+        var id = eventValue.DropId.ToHex();
+        var dropIndex = await GetEntityAsync<NFTDropIndex>(id);
         if (dropIndex == null)
         {
-            _logger.Info("Drop Not Exist: {id}",eventValue.DropId.ToHex());
+            Logger.LogInformation("Drop Not Exist: {id}", eventValue.DropId.ToHex());
             return;
         }
 
         dropIndex.State = eventValue.State;
         dropIndex.UpdateTime = eventValue.UpdateTime.ToDateTime();
         _objectMapper.Map(context, dropIndex);
-        _logger.Debug("DropStateChangedUpdate: id: {eventValue}",dropIndex.Id);
-        await _nftDropIndexRepository.AddOrUpdateAsync(dropIndex);
+        Logger.LogInformation("DropStateChangedUpdate: id: {eventValue}", dropIndex.Id);
+        await SaveEntityAsync(dropIndex);
     }
 }

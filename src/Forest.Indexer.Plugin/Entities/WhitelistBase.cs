@@ -1,9 +1,9 @@
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class WhitelistBase : AElfIndexerClientEntity<string>
+public class WhitelistBase 
 {
-    [Keyword] public override string Id { get; set; }
+   // [Keyword] public override string Id { get; set; }
 }

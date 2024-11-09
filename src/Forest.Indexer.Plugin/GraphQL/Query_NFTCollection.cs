@@ -1,27 +1,26 @@
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Processors.Provider;
 using GraphQL;
-using Microsoft.Extensions.Logging;
-using Nest;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
 
 public partial class Query
 {
+    private static readonly IAeFinderLogger Logger;
     private const int QuerySize = 1000;
     private const int ChunkSize = 100;
     
     [Name("nftCollections")]
     public static async Task<NFTCollectionPageResultDto> NFTCollections(
-        [FromServices] IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<CollectionIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNFTCollectionsDto dto)
     {
-        var mustQuery1 = new List<Func<QueryContainerDescriptor<CollectionIndex>, QueryContainer>>();
-        var mustQuery2 = new List<Func<QueryContainerDescriptor<CollectionIndex>, QueryContainer>>();
+        var queryable = await repository.GetQueryableAsync();
+        
         if (dto == null)
             return new NFTCollectionPageResultDto
             {
@@ -31,41 +30,26 @@ public partial class Query
 
         if (!dto.CreatorAddress.IsNullOrWhiteSpace())
         {
-            mustQuery1.Add(q => q.Terms(i =>
-                i.Field(f => f.OwnerManagerSet).Terms(dto.CreatorAddress)));
-            mustQuery2.Add(q => q.Terms(i =>
-                i.Field(f => f.OwnerManagerSet).Terms(dto.CreatorAddress)));
+            queryable = queryable.Where(q => q.OwnerManagerSet.Contains(dto.CreatorAddress));
         }
         
         if (!dto.CollectionType.IsNullOrEmpty())
         {
-            mustQuery1.Add(q => q.Terms(i =>
-                i.Field(f => f.CollectionType).Terms(dto.CollectionType)));
-            mustQuery2.Add(q => q.Terms(i =>
-                i.Field(f => f.CollectionType).Terms(dto.CollectionType)));
+            queryable = queryable.Where(q => dto.CollectionType.Contains(q.IntCollectionType));
         }
 
         if (!dto.Param.IsNullOrEmpty())
         {
-            mustQuery1.Add(q => q.Term(i =>
-                i.Field(f => f.Symbol).Value(dto.Param)));
-            mustQuery2.Add(q => q.Term(i =>
-                i.Field(f => f.TokenName).Value(dto.Param)));
+            queryable = queryable.Where(q => (q.Symbol == dto.Param || q.TokenName == dto.Param));
+            queryable = queryable.Where(q => q.TokenName == dto.Param );
+            
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<CollectionIndex> f)
-            => f.Bool(b =>
-                b.MinimumShouldMatch(1)
-                    .Should(mustQuery1)
-                    .Should(mustQuery2)
-            );
-
-        var result = await repository.GetListAsync(Filter, sortExp: k => k.CreateTime,
-            sortType: SortOrder.Descending, skip: dto.SkipCount, limit: dto.MaxResultCount);
-        var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result.Item2);
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
+        var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result);
         var pageResult = new NFTCollectionPageResultDto
         {
-            TotalRecordCount = result.Item1,
+            TotalRecordCount = result.Count,
             Data = dataList
         };
         return pageResult;
@@ -73,12 +57,11 @@ public partial class Query
     
     [Name("nftCollectionsByAddressList")]
     public static async Task<NFTCollectionPageResultDto> NFTCollectionsByAddressList(
-        [FromServices] IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<CollectionIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNFTCollectionsByAddressListDto dto)
     {
-        var mustQuery1 = new List<Func<QueryContainerDescriptor<CollectionIndex>, QueryContainer>>();
-        var mustQuery2 = new List<Func<QueryContainerDescriptor<CollectionIndex>, QueryContainer>>();
+       
         if (dto == null)
             return new NFTCollectionPageResultDto
             {
@@ -86,43 +69,41 @@ public partial class Query
                 Data = new List<NFTCollectionDto>()
             };
 
+        var queryable = await repository.GetQueryableAsync();
         if (!dto.AddressList.IsNullOrEmpty())
         {
-            mustQuery1.Add(q => q.Terms(i =>
-                i.Field(f => f.OwnerManagerSet).Terms(dto.AddressList)));
-            mustQuery2.Add(q => q.Terms(i =>
-                i.Field(f => f.OwnerManagerSet).Terms(dto.AddressList)));
+            var address1 = dto.AddressList.Count >= 1 ? dto.AddressList[0] : "";
+            var address2 = dto.AddressList.Count >= 2 ? dto.AddressList[1] : "";
+            
+            if (!string.IsNullOrEmpty(address1) && string.IsNullOrEmpty(address2))
+            {
+                queryable = queryable.Where(q =>
+                    q.RandomOwnerManager == address1);
+            }
+            else if(!string.IsNullOrEmpty(address1) && !string.IsNullOrEmpty(address2))
+            {
+                queryable = queryable.Where(q =>
+                    q.RandomOwnerManager == address1 || q.RandomOwnerManager == address2);
+            }
         }
         
         if (!dto.CollectionType.IsNullOrEmpty())
         {
-            mustQuery1.Add(q => q.Terms(i =>
-                i.Field(f => f.CollectionType).Terms(dto.CollectionType)));
-            mustQuery2.Add(q => q.Terms(i =>
-                i.Field(f => f.CollectionType).Terms(dto.CollectionType)));
+            queryable = queryable.Where(q => dto.CollectionType.Contains(q.IntCollectionType));
+            
         }
 
         if (!dto.Param.IsNullOrEmpty())
         {
-            mustQuery1.Add(q => q.Term(i =>
-                i.Field(f => f.Symbol).Value(dto.Param)));
-            mustQuery2.Add(q => q.Term(i =>
-                i.Field(f => f.TokenName).Value(dto.Param)));
+            queryable = queryable.Where(q => (q.Symbol == dto.Param || q.TokenName == dto.Param));
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<CollectionIndex> f)
-            => f.Bool(b =>
-                b.MinimumShouldMatch(1)
-                    .Should(mustQuery1)
-                    .Should(mustQuery2)
-            );
-
-        var result = await repository.GetListAsync(Filter, sortExp: k => k.CreateTime,
-            sortType: SortOrder.Descending, skip: dto.SkipCount, limit: dto.MaxResultCount);
-        var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result.Item2);
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount)
+            .ToList();
+        var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result);
         var pageResult = new NFTCollectionPageResultDto
         {
-            TotalRecordCount = result.Item1,
+            TotalRecordCount = result.Count,
             Data = dataList
         };
         return pageResult;
@@ -130,11 +111,10 @@ public partial class Query
 
     [Name("nftCollectionByIds")]
     public static async Task<NFTCollectionPageResultDto> NFTCollectionByIds(
-        [FromServices] IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<CollectionIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNFTCollectionByIdsDto dto)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<CollectionIndex>, QueryContainer>>();
         if (dto == null
             || dto.Ids == null
             || dto.Ids.Count == 0
@@ -144,18 +124,14 @@ public partial class Query
                 TotalRecordCount = 0,
                 Data = new List<NFTCollectionDto>()
             };
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(q => dto.Ids.Contains(q.Id));
 
-        mustQuery.Add(q => q.Terms(i =>
-            i.Field(f => f.Id).Terms(dto.Ids)));
-
-        QueryContainer Filter(QueryContainerDescriptor<CollectionIndex> f)
-            => f.Bool(b => b.Must(mustQuery));
-
-        var result = await repository.GetListAsync(Filter, skip: 0, limit: dto.Ids.Count);
-        var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result.Item2);
+        var result = queryable.Skip(0).Take(dto.Ids.Count).ToList();
+        var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result);
         var pageResult = new NFTCollectionPageResultDto
         {
-            TotalRecordCount = result.Item1,
+            TotalRecordCount = result.Count,
             Data = dataList
         };
         return pageResult;
@@ -164,60 +140,61 @@ public partial class Query
 
     [Name("nftCollection")]
     public static async Task<NFTCollectionDto> NFTCollection(
-        [FromServices] IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<CollectionIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNFTCollectionDto dto)
     {
         if (dto == null || dto.Id.IsNullOrWhiteSpace()) return null;
-        var nftCollectionIndex = await repository.GetAsync(dto.Id);
-        if (nftCollectionIndex == null) return null;
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(q => q.Id == dto.Id);
+        var nftCollectionIndex = queryable.Skip(0).Take(1).ToList();
+        if (nftCollectionIndex.IsNullOrEmpty()) return null;
 
-        return objectMapper.Map<CollectionIndex, NFTCollectionDto>(nftCollectionIndex);
+        return objectMapper.Map<CollectionIndex, NFTCollectionDto>(nftCollectionIndex.FirstOrDefault());
     }
 
     [Name("nftCollectionSymbol")]
     public static async Task<SymbolDto> NFTCollectionSymbol(
-        [FromServices] IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<CollectionIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         string symbol)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<CollectionIndex>, QueryContainer>>();
         if (symbol.IsNullOrWhiteSpace()) return new SymbolDto();
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(i => i.Symbol == symbol);
 
-        mustQuery.Add(q => q.Term(i => i.Field(f => f.Symbol).Value(symbol)));
-
-        QueryContainer Filter(QueryContainerDescriptor<CollectionIndex> f)
-            => f.Bool(b => b.Must(mustQuery));
-
-        var result = await repository.GetListAsync(Filter, skip: 0, limit: 1);
-        if (result == null) return new SymbolDto();
+        var result = queryable.Skip(0).Take(1).ToList();
+        if (result.IsNullOrEmpty()) return new SymbolDto();
 
         return new SymbolDto
         {
-            Symbol = result.Item2?.FirstOrDefault(new CollectionIndex())?.Symbol
+            Symbol = result?.FirstOrDefault(new CollectionIndex())?.Symbol
         };
     }
 
     [Name("nftCollectionChange")]
     public static async Task<CollectionChangePageResultDto> NFTCollectionChange(
-        [FromServices] IAElfIndexerClientEntityRepository<CollectionChangeIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<CollectionChangeIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNFTCollectionChangeDto dto)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<CollectionChangeIndex>, QueryContainer>>
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
+        queryable = queryable.Where(f => f.ChainId == dto.ChainId);
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(dto.SkipCount)
+            .Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
+        if (result.IsNullOrEmpty())
         {
-            q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.BlockHeight)),
-            q => q.Term(i 
-                => i.Field(f => f.ChainId).Value(dto.ChainId))
-        };
-        QueryContainer Filter(QueryContainerDescriptor<CollectionChangeIndex> f) => 
-            f.Bool(b => b.Must(mustQuery));
-        var result = await repository.GetListAsync(Filter, skip:dto.SkipCount, sortExp: o => o.BlockHeight);
-        var dataList = objectMapper.Map<List<CollectionChangeIndex>, List<CollectionChangeDto>>(result.Item2);
+            return new CollectionChangePageResultDto
+            {
+                TotalRecordCount = 0,
+                Data = new List<CollectionChangeDto>()
+            };
+        }
+        var dataList = objectMapper.Map<List<CollectionChangeIndex>, List<CollectionChangeDto>>(result);
         var pageResult = new CollectionChangePageResultDto
         {
-            TotalRecordCount = result.Item1,
+            TotalRecordCount = dataList.Count,
             Data = dataList
         };
         return pageResult;
@@ -225,23 +202,27 @@ public partial class Query
     
     [Name("nftCollectionPriceChange")]
     public static async Task<CollectionPriceChangePageResultDto> NFTCollectionPriceChangeAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<CollectionPriceChangeIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<CollectionPriceChangeIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNFTCollectionPriceChangeDto dto)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<CollectionPriceChangeIndex>, QueryContainer>>
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
+        queryable = queryable.Where(f => f.ChainId == dto.ChainId);
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(dto.SkipCount)
+            .Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
+        if (result.IsNullOrEmpty())
         {
-            q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.BlockHeight)),
-            q => q.Term(i 
-                => i.Field(f => f.ChainId).Value(dto.ChainId))
-        };
-        QueryContainer Filter(QueryContainerDescriptor<CollectionPriceChangeIndex> f) => f.Bool(b => b.Must(mustQuery));
-        var result = await repository.GetListAsync(Filter, skip:dto.SkipCount, sortExp: o => o.BlockHeight);
-        var dataList = objectMapper.Map<List<CollectionPriceChangeIndex>, List<CollectionPriceChangeDto>>(result.Item2);
+            return new CollectionPriceChangePageResultDto
+            {
+                TotalRecordCount = 0,
+                Data = null
+            };
+        }    
+        var dataList = objectMapper.Map<List<CollectionPriceChangeIndex>, List<CollectionPriceChangeDto>>(result);
         var pageResult = new CollectionPriceChangePageResultDto
         {
-            TotalRecordCount = result.Item1,
+            TotalRecordCount = dataList.Count,
             Data = dataList
         };
         return pageResult;
@@ -251,7 +232,6 @@ public partial class Query
     public static async Task<NFTCollectionPriceResultDto> CalcNFTCollectionPriceAsync(
         [FromServices] ICollectionProvider collectionProvider,
         [FromServices] IObjectMapper objectMapper,
-        [FromServices] ILogger<CollectionIndex> _logger,
         GetNFTCollectionPriceDto dto)
     {
         var floorPrice = await collectionProvider.
@@ -266,7 +246,6 @@ public partial class Query
     public static async Task<NFTCollectionTradeResultDto> CalcNFTCollectionTradeAsync(
         [FromServices] ICollectionProvider collectionProvider,
         [FromServices] IObjectMapper objectMapper,
-        [FromServices] ILogger<CollectionIndex> _logger,
         CalNFTCollectionTradeDto dto)
     {
         var floorPrice =
@@ -294,47 +273,35 @@ public partial class Query
 
     [Name("generateNFTCollectionExtensionById")]
     public static async Task<NFTCollectionExtensionResultDto> GenerateNFTCollectionExtensionById(
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> seedSymbolRepository,
-        [FromServices] IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoRepository,
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepository,
-        [FromServices] ILogger<CollectionIndex> _logger,
+        [FromServices] IReadOnlyRepository<SeedSymbolIndex> seedSymbolRepository,
+        [FromServices] IReadOnlyRepository<NFTInfoIndex> nftInfoRepository,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
         GetNFTCollectionGenerateDataDto dto)
     {
         if (ForestIndexerConstants.SeedCollectionSymbol.Equals(dto.Symbol))
         { 
             var collectionExtensionResultDto = 
-                await CountSeedSymbolIndexAsync(seedSymbolRepository, userBalanceRepository, _logger, dto.ChainId);
+                await CountSeedSymbolIndexAsync(seedSymbolRepository, userBalanceRepository, dto.ChainId);
             return collectionExtensionResultDto;
         }
-        var mustQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>
-        {
-            q => q.Term(i => i.Field(f => f.ChainId)
-                .Value(dto.ChainId)),
-            q => q.Term(i => i.Field(f => f.CollectionSymbol)
-                .Value(dto.Symbol))
-        };
-        var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
+        var queryable = await nftInfoRepository.GetQueryableAsync();
+        queryable = queryable.Where(f=>f.ChainId == dto.ChainId && f.CollectionSymbol == dto.Symbol);
+        
+        //todo V2 use script ,code:undo
+        // var mustNotQuery = new List<Func<QueryContainerDescriptor<NFTInfoIndex>, QueryContainer>>();
         //Exclude 1.Burned All NFT ( supply = 0 and issued = totalSupply) 2.Create Failed (supply=0 and issued=0)
-        mustNotQuery.Add(q => q
-            .Script(sc => sc
-                .Script(script =>
-                    script.Source(
-                        $"{ForestIndexerConstants.BurnedAllNftScript} || {ForestIndexerConstants.CreateFailedANftScript} || {ForestIndexerConstants.IssuedLessThenOneANftScript}")
-                )
-            )
-        );
-        QueryContainer Filter(QueryContainerDescriptor<NFTInfoIndex> f) =>
-            f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
+        queryable = queryable.Where(f => !(f.Supply ==0  && f.Issued == f.TotalSupply) && !(f.Supply==0 && f.Issued == 0));
+        queryable = queryable.Where(f => f.Supply/Math.Pow(10, f.Decimals) >=1);
+        
         var itemTotal = 0;
         var nftIdsSet = new HashSet<string>();
         var dataList = new List<NFTInfoIndex>();
         do
         {
-            var result = await nftInfoRepository.GetListAsync(Filter, skip: itemTotal, limit: QuerySize,
-                sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
-            _logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",
-                result.Item1);
-            dataList = result.Item2;
+            var result = queryable.OrderBy(o => o.BlockHeight).Skip(itemTotal).Take(QuerySize).ToList();
+            var count = result.IsNullOrEmpty() ? 0 : result.Count;
+            // Logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",count);
+            dataList = result;
             if (dataList.IsNullOrEmpty())
             {
                 break;
@@ -351,7 +318,7 @@ public partial class Query
         var userSet = new HashSet<string>();
         foreach (var nftIds in splitList)
         {
-            await GenerateUserCountByNFTIdsAsync(userBalanceRepository, _logger, nftIds, userSet);
+            await GenerateUserCountByNFTIdsAsync(userBalanceRepository, nftIds, userSet);
         }
         var resultDto = new NFTCollectionExtensionResultDto
         {
@@ -367,29 +334,20 @@ public partial class Query
      * Generate the number of accounts corresponding to nftIds
      */
     private static async Task GenerateUserCountByNFTIdsAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> repository,
-        [FromServices] ILogger<CollectionIndex> _logger,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> repository,
         HashSet<string> nftIds,
         HashSet<string> userSet)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Terms(i
-            => i.Field(f => f.NFTInfoId).Terms(nftIds)));
-        //query balance > 0 
-        mustQuery.Add(q => q.Range(i
-            => i.Field(f => f.Amount).GreaterThan(0)));
-
-        QueryContainer Filter(QueryContainerDescriptor<UserBalanceIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f=>nftIds.Contains(f.NFTInfoId) && f.Amount >0);
 
         var skipCount = 0;
         var dataList = new List<UserBalanceIndex>();
         do
         {
-            var result = await repository.GetListAsync(Filter, skip: skipCount, limit: QuerySize,
-                sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
-            _logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result.Item1);
-            dataList = result.Item2;
+            var result = queryable.OrderBy(o => o.BlockHeight).Skip(skipCount).Take(QuerySize).ToList();
+            // Logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result?.Count);
+            dataList = result;
             if (dataList.IsNullOrEmpty())
             {
                 break;
@@ -403,38 +361,24 @@ public partial class Query
     }
     
     private static async Task<NFTCollectionExtensionResultDto> CountSeedSymbolIndexAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<SeedSymbolIndex, LogEventInfo> repository,
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepository,
-        [FromServices] ILogger<CollectionIndex> _logger,
+        [FromServices] IReadOnlyRepository<SeedSymbolIndex> repository,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
         string chainId)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>
-        {
-            q => q.Term(i => 
-                i.Field(f => f.IsDeleteFlag).Value(false)),
-            q => q.Term(i => 
-                i.Field(f => f.ChainId).Value(chainId))
-        };
-        var mustNotQuery = new List<Func<QueryContainerDescriptor<SeedSymbolIndex>, QueryContainer>>();
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.IsDeleteFlag == false && f.ChainId == chainId);
         //Exclude 1.Burned All NFT ( supply = 0 and issued = totalSupply) 2.Create Failed (supply=0 and issued=0)
-        mustNotQuery.Add(q => q
-            .Script(sc => sc
-                .Script(script =>
-                    script.Source($"{ForestIndexerConstants.BurnedAllNftScript} || {ForestIndexerConstants.CreateFailedANftScript}")
-                )
-            )
-        );
-        
-        QueryContainer Filter(QueryContainerDescriptor<SeedSymbolIndex> f) =>
-            f.Bool(b => b.Must(mustQuery).MustNot(mustNotQuery));
+        queryable = queryable.Where(f => !(f.Supply ==0  && f.Issued == f.TotalSupply) && !(f.Supply==0 && f.Issued == 0));
+
         var itemTotal = 0;
         var nftIdsSet = new HashSet<string>();
         List<SeedSymbolIndex> dataList;
         do
         {
-            var result = await repository.GetListAsync(Filter, skip: itemTotal, limit: QuerySize);
-            _logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", result.Item1);
-            dataList = result.Item2;
+            var result = queryable.Skip(itemTotal).Take(QuerySize).ToList();
+            var count = result.IsNullOrEmpty() ? 0 : result.Count;
+            // Logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", count);
+            dataList = result;
             if (dataList.IsNullOrEmpty())
             {
                 break;
@@ -450,7 +394,7 @@ public partial class Query
         var userSet = new HashSet<string>();
         foreach (var nftIds in splitList)
         {
-            await GenerateUserCountByNFTIdsAsync(userBalanceRepository, _logger, nftIds, userSet);
+            await GenerateUserCountByNFTIdsAsync(userBalanceRepository, nftIds, userSet);
         }
         var resultDto = new NFTCollectionExtensionResultDto
         {
@@ -460,7 +404,6 @@ public partial class Query
             OwnerTotal = userSet.Count
         };
         return resultDto;
-         
     }
     
     private static async Task<List<HashSet<T>>> SplitHashSetAsync<T>(HashSet<T> source, int chunkSize)

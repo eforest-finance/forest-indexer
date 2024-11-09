@@ -1,45 +1,30 @@
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk.Processor;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
-using Forest.Indexer.Plugin.Processors.Provider;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Forest.Indexer.Plugin.Util;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class BoughtProcessor: AElfLogEventProcessorBase<Bought, LogEventInfo>
+public class BoughtProcessor: LogEventProcessorBase<Bought>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
-    private readonly IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> _seedSymbolIndexRepository;
-    private readonly ISeedProvider _seedProvider;
 
     public BoughtProcessor(
-        ILogger<AElfLogEventProcessorBase<Bought, LogEventInfo>> logger,
-        IObjectMapper objectMapper,
-        IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> seedSymbolIndexRepository,
-        ISeedProvider seedProvider,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
+        IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _contractInfoOptions = contractInfoOptions.Value;
-        _seedSymbolIndexRepository = seedSymbolIndexRepository;
-        _seedProvider = seedProvider;
     }
 
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos?.FirstOrDefault(c => c?.ChainId == chainId)
-            ?.SymbolRegistrarContractAddress;
+        return ContractInfoHelper.GetSymbolRegistrarContractAddress(chainId);
     }
 
-    protected override async Task HandleEventAsync(Bought eventValue, LogEventContext context)
+    public override async Task ProcessAsync(Bought eventValue, LogEventContext context)
     {
-        var seedSymbolIndex = await _seedProvider.GetSeedSymbolIndexAsync(context.ChainId, eventValue.Symbol);
+        var seedSymbolIndex = await GetSeedSymbolIndexAsync(context.ChainId, eventValue.Symbol);
         _objectMapper.Map(context, seedSymbolIndex);
         seedSymbolIndex.TokenPrice = new TokenPriceInfo
         {
@@ -48,6 +33,24 @@ public class BoughtProcessor: AElfLogEventProcessorBase<Bought, LogEventInfo>
         };
         seedSymbolIndex.Status = SeedStatus.UNREGISTERED;
         seedSymbolIndex.Owner = eventValue.Buyer.ToBase58();
-        await _seedSymbolIndexRepository.AddOrUpdateAsync(seedSymbolIndex);
+        await SaveEntityAsync(seedSymbolIndex);
+    }
+    public async Task<TsmSeedSymbolIndex> GetSeedSymbolIndexAsync(string chainId, string symbol)
+    {
+        var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, symbol);
+        var seedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(seedSymbolId);
+
+        if (seedSymbolIndex == null)
+        {
+            seedSymbolIndex = new TsmSeedSymbolIndex
+            {
+                Id = seedSymbolId,
+                Symbol = symbol,
+                SeedName = IdGenerateHelper.GetSeedName(symbol)
+            };
+            seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
+        }
+
+        return seedSymbolIndex;
     }
 }

@@ -1,45 +1,33 @@
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk.Logging;
+using AeFinder.Sdk.Processor;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Forest.Indexer.Plugin.Util;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class UniqueSeedsPriceChangedLogEventProcessor: AElfLogEventProcessorBase<UniqueSeedsExternalPriceChanged, LogEventInfo>
+public class UniqueSeedsPriceChangedLogEventProcessor: LogEventProcessorBase<UniqueSeedsExternalPriceChanged>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
-    private readonly IAElfIndexerClientEntityRepository<UniqueSeedPriceIndex, LogEventInfo> _uniqueSeedPriceIndexRepository;
-    private readonly ILogger<AElfLogEventProcessorBase<UniqueSeedsExternalPriceChanged, LogEventInfo>> _logger;
 
     public UniqueSeedsPriceChangedLogEventProcessor(
-        ILogger<AElfLogEventProcessorBase<UniqueSeedsExternalPriceChanged, LogEventInfo>> logger,
-        IObjectMapper objectMapper,
-        IAElfIndexerClientEntityRepository<UniqueSeedPriceIndex, LogEventInfo> uniqueSeedPriceIndexRepository,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
+        IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _contractInfoOptions = contractInfoOptions.Value;
-        _uniqueSeedPriceIndexRepository = uniqueSeedPriceIndexRepository;
-        _logger = logger;
     }
 
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos.FirstOrDefault(c => c.ChainId == chainId)
-            .SymbolRegistrarContractAddress;
+        return ContractInfoHelper.GetSymbolRegistrarContractAddress(chainId);
     }
 
-    protected override async Task HandleEventAsync(UniqueSeedsExternalPriceChanged eventValue, LogEventContext context)
+    public async override Task ProcessAsync(UniqueSeedsExternalPriceChanged eventValue, LogEventContext context)
     {
         if (eventValue.FtPriceList != null)
         {
-            _logger.LogDebug("UniqueSeedsChanged FtPriceList {Size}", eventValue.FtPriceList.Value.Count);
+            Logger.LogDebug("UniqueSeedsChanged FtPriceList {Size}", eventValue.FtPriceList.Value.Count);
             foreach (var priceItem in eventValue.FtPriceList.Value)
             {
                 await SaveUniqueSeedsIndexAsync(TokenType.FT, priceItem, context);
@@ -49,7 +37,7 @@ public class UniqueSeedsPriceChangedLogEventProcessor: AElfLogEventProcessorBase
 
         if (eventValue.NftPriceList != null)
         {
-            _logger.LogDebug("UniqueSeedsChanged NftPriceList {Size}", eventValue.FtPriceList.Value.Count);
+            Logger.LogDebug("UniqueSeedsChanged NftPriceList {Size}", eventValue.FtPriceList.Value.Count);
             foreach (var priceItem in eventValue.NftPriceList.Value)
             {
                 await SaveUniqueSeedsIndexAsync(TokenType.NFT, priceItem, context);
@@ -72,6 +60,6 @@ public class UniqueSeedsPriceChangedLogEventProcessor: AElfLogEventProcessorBase
             }
         };
         _objectMapper.Map(context, uniqueSeedPriceIndex);
-        await _uniqueSeedPriceIndexRepository.AddOrUpdateAsync(uniqueSeedPriceIndex);
+        await SaveEntityAsync(uniqueSeedPriceIndex);
     }
 }

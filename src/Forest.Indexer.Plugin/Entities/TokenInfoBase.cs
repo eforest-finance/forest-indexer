@@ -1,11 +1,11 @@
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class TokenInfoBase: AElfIndexerClientEntity<string>
+public class TokenInfoBase 
 {
-    [Keyword] public override string Id { get; set; }
+   // [Keyword] public override string Id { get; set; }
     
     [Keyword] public string Symbol { get; set; }
 
@@ -32,6 +32,11 @@ public class TokenInfoBase: AElfIndexerClientEntity<string>
     public long Issued { get; set; }
 
     public DateTime CreateTime { get; set; }
+    
+    [Keyword]
+    public string ChainId { get; set; }
+    
+    public bool IsDeleted { get; set; }
 
     public List<ExternalInfoDictionary> ExternalInfoDictionary { get; set; }
 }

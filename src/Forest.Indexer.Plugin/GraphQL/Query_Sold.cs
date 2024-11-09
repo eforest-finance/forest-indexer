@@ -1,5 +1,4 @@
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
 using Nest;
@@ -11,49 +10,49 @@ public partial class Query
 {
     [Name("getNftDealInfos")]
     public static async Task<NftDealInfoDtoPageResultDto> GetNftDealInfosAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<SoldIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<SoldIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetNftDealInfoDto dto)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<SoldIndex>, QueryContainer>>();
-
+        var queryable = await repository.GetQueryableAsync();
         if (!dto.ChainId.IsNullOrEmpty())
         {
-            mustQuery.Add(q => q.Term(i =>
-                i.Field(f => f.ChainId).Value(dto.ChainId)));
+            queryable = queryable.Where(f=>f.ChainId == dto.ChainId);
         }
 
         if (!dto.Symbol.IsNullOrEmpty())
         {
-            mustQuery.Add(q => q.Term(i =>
-                i.Field(f => f.NftSymbol).Value(dto.Symbol)));
+            queryable = queryable.Where(f=>f.NftSymbol == dto.Symbol);
         }
         
         if (!dto.CollectionSymbol.IsNullOrEmpty())
         {
-            mustQuery.Add(q => q.Term(i =>
-                i.Field(f => f.CollectionSymbol).Value(dto.CollectionSymbol)));
+            queryable = queryable.Where(f=>f.CollectionSymbol == dto.CollectionSymbol);
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<SoldIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
+        var result = queryable
+            .OrderByDescending(a => a.DealTime)
+            .OrderByDescending(a => a.PurchaseAmount)
+            .Skip(dto.SkipCount).Take(dto.MaxResultCount)
+            .ToList();
+        if (result.IsNullOrEmpty())
+        {
+            return new NftDealInfoDtoPageResultDto();
+        }
 
-        var result = await repository.GetSortListAsync(Filter, skip: dto.SkipCount,
-            limit: dto.MaxResultCount,
-            sortFunc: GetSortFunc());
         var pageResult = new NftDealInfoDtoPageResultDto
         {
-            TotalRecordCount = result.Item1,
-            Data = objectMapper.Map<List<SoldIndex>, List<NftDealInfoDto>>(result.Item2)
+            TotalRecordCount = result.Count,
+            Data = objectMapper.Map<List<SoldIndex>, List<NftDealInfoDto>>(result)
         };
         return pageResult;
     }
 
-    private static Func<SortDescriptor<SoldIndex>, IPromise<IList<ISort>>> GetSortFunc()
+    /*private static Func<SortDescriptor<SoldIndex>, IPromise<IList<ISort>>> GetSortFunc()
     {
         SortDescriptor<SoldIndex> sortDescriptor = new SortDescriptor<SoldIndex>();
         sortDescriptor.Descending(a => a.DealTime)
             .Descending(a => a.PurchaseAmount);
         return s => sortDescriptor;
-    }
+    }*/
 }

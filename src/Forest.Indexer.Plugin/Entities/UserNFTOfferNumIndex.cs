@@ -1,10 +1,9 @@
-using AElf.Indexing.Elasticsearch;
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class UserNFTOfferNumIndex : AElfIndexerClientEntity<string>, IIndexBuild
+public class UserNFTOfferNumIndex : AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
 

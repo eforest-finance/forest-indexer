@@ -1,18 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C3022ECE-9FC4-4F50-8EDB-85532F6ADC8B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F07E638D-DEC9-4D0B-A815-791C0AED81C0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BCA05EEC-6025-4CE7-8428-3E469E7BB9DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drop.Indexer.Plugin", "src\Drop.Indexer.Plugin\Drop.Indexer.Plugin.csproj", "{C00C5349-FF95-41F5-A56B-299986F157EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forest.Indexer.Plugin", "src\Forest.Indexer.Plugin\Forest.Indexer.Plugin.csproj", "{6BF510F9-17E9-4ECE-B084-1A0BAF7715B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBD}") = "Forest.Indexer.Plugin", "src\Forest.Indexer.Plugin\Forest.Indexer.Plugin.csproj", "{C00C5349-FF95-41F5-A56B-299986F157EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forest.Indexer.TestBase", "test\Forest.Indexer.TestBase\Forest.Indexer.TestBase.csproj", "{A6A16EA3-98FA-48D9-92F5-05A866CCD751}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{CF8ECC12-55BE-457D-A3EE-D4283041B686}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forest.Indexer.Orleans.TestBase", "test\Forest.Indexer.Orleans.TestBase\Forest.Indexer.Orleans.TestBase.csproj", "{18F99155-F203-4BAA-A407-91593CDE3693}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drop.Indexer.Plugin.Tests", "test\Drop.Indexer.Plugin.Tests\Drop.Indexer.Plugin.Tests.csproj", "{1DA69092-9C61-4660-8A61-3BA30ED892E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forest.Indexer.Plugin.Tests", "test\Forest.Indexer.Plugin.Tests\Forest.Indexer.Plugin.Tests.csproj", "{0AF66A42-DAF9-4FC4-B268-C92418F2FD94}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drop.Indexer.Plugin", "src\Drop.Indexer.Plugin\Drop.Indexer.Plugin.csproj", "{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBD}") = "Forest.Indexer.Plugin.Tests", "test\Forest.Indexer.Plugin.Tests\Forest.Indexer.Plugin.Tests.csproj", "{1DA69092-9C61-4660-8A61-3BA30ED892E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,32 +18,26 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{6BF510F9-17E9-4ECE-B084-1A0BAF7715B6} = {C3022ECE-9FC4-4F50-8EDB-85532F6ADC8B}
-		{A6A16EA3-98FA-48D9-92F5-05A866CCD751} = {BCA05EEC-6025-4CE7-8428-3E469E7BB9DA}
-		{18F99155-F203-4BAA-A407-91593CDE3693} = {BCA05EEC-6025-4CE7-8428-3E469E7BB9DA}
-		{0AF66A42-DAF9-4FC4-B268-C92418F2FD94} = {BCA05EEC-6025-4CE7-8428-3E469E7BB9DA}
-		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3} = {C3022ECE-9FC4-4F50-8EDB-85532F6ADC8B}
+		{C00C5349-FF95-41F5-A56B-299986F157EB} = {F07E638D-DEC9-4D0B-A815-791C0AED81C0}
+		{C00C5349-FF95-41F5-A56B-299986F157EC} = {F07E638D-DEC9-4D0B-A815-791C0AED81C0}
+		{1DA69092-9C61-4660-8A61-3BA30ED892E0} = {CF8ECC12-55BE-457D-A3EE-D4283041B686}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6BF510F9-17E9-4ECE-B084-1A0BAF7715B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BF510F9-17E9-4ECE-B084-1A0BAF7715B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6BF510F9-17E9-4ECE-B084-1A0BAF7715B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BF510F9-17E9-4ECE-B084-1A0BAF7715B6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6A16EA3-98FA-48D9-92F5-05A866CCD751}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6A16EA3-98FA-48D9-92F5-05A866CCD751}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6A16EA3-98FA-48D9-92F5-05A866CCD751}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6A16EA3-98FA-48D9-92F5-05A866CCD751}.Release|Any CPU.Build.0 = Release|Any CPU
-		{18F99155-F203-4BAA-A407-91593CDE3693}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{18F99155-F203-4BAA-A407-91593CDE3693}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{18F99155-F203-4BAA-A407-91593CDE3693}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{18F99155-F203-4BAA-A407-91593CDE3693}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0AF66A42-DAF9-4FC4-B268-C92418F2FD94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0AF66A42-DAF9-4FC4-B268-C92418F2FD94}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0AF66A42-DAF9-4FC4-B268-C92418F2FD94}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0AF66A42-DAF9-4FC4-B268-C92418F2FD94}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A82841A-CF0A-4C48-9A66-19A7B42AD6F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C00C5349-FF95-41F5-A56B-299986F157EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C00C5349-FF95-41F5-A56B-299986F157EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C00C5349-FF95-41F5-A56B-299986F157EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C00C5349-FF95-41F5-A56B-299986F157EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C00C5349-FF95-41F5-A56B-299986F157EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C00C5349-FF95-41F5-A56B-299986F157EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C00C5349-FF95-41F5-A56B-299986F157EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C00C5349-FF95-41F5-A56B-299986F157EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DA69092-9C61-4660-8A61-3BA30ED892E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DA69092-9C61-4660-8A61-3BA30ED892E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DA69092-9C61-4660-8A61-3BA30ED892E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DA69092-9C61-4660-8A61-3BA30ED892E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DA69092-9C61-4660-8A61-3BA30ED892E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {1DA69092-9C61-4660-8A61-3BA30ED892E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {1DA69092-9C61-4660-8A61-3BA30ED892E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {1DA69092-9C61-4660-8A61-3BA30ED892E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

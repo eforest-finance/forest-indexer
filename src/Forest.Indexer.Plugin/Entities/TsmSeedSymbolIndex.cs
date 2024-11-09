@@ -1,12 +1,11 @@
-using AElf.Indexing.Elasticsearch;
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.enums;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class TsmSeedSymbolIndex: AElfIndexerClientEntity<string>, IIndexBuild
+public class TsmSeedSymbolIndex : AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     
@@ -24,8 +23,10 @@ public class TsmSeedSymbolIndex: AElfIndexerClientEntity<string>, IIndexBuild
     public long ExpireTime { get; set; }
 
     public TokenType TokenType { get; set; }
+    public int IntTokenType { get; set; }
 
     public SeedType SeedType { get; set; }
+    public int IntSeedType { get; set; }
     
     public AuctionType AuctionType { get; set; }
 
@@ -45,4 +46,27 @@ public class TsmSeedSymbolIndex: AElfIndexerClientEntity<string>, IIndexBuild
     public long AuctionEndTime { get; set; }
     
     public TokenPriceInfo TopBidPrice { get; set; }
+    
+    [Keyword]
+    public string ChainId { get; set; }
+
+    [Keyword]
+    public string BlockHash { get; set; }
+
+    public long BlockHeight { get; set; }
+
+    [Keyword]
+    public string PreviousBlockHash { get; set; }
+
+    public bool IsDeleted { get; set; }
+    public void OfType(TokenType tokenType)
+    {
+        TokenType = tokenType;
+        IntTokenType = (int)tokenType;
+    }
+    public void OfType(SeedType seedType)
+    {
+        SeedType = seedType;
+        IntSeedType = (int)seedType;
+    }
 }

@@ -1,12 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="AElfIndexer.Client" Version="1.0.0-28" />
+      <PackageReference Include="AeFinder.Sdk" Version="1.3.0" />
+      <PackageReference Include="AElf.Client.Protobuf" Version="1.2.1" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Drop.Indexer.Plugin\Drop.Indexer.Plugin.csproj" />
+    </ItemGroup>
+
 
 </Project>

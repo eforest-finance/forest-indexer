@@ -1,7 +1,8 @@
-using AElf.Indexing.Elasticsearch;
+
+using AeFinder.Sdk.Entities;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class WhitelistAddressInfoIndex : WhitelistAddressInfoBase, IIndexBuild
+public class WhitelistAddressInfoIndex : AeFinderEntity, IAeFinderEntity
 {
 }

@@ -1,11 +1,11 @@
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class UserBalanceBase : AElfIndexerClientEntity<string>
+public class UserBalanceBase 
 {
-    [Keyword] public override string Id { get; set; }
+   // [Keyword] public override string Id { get; set; }
     
     //userAccount Address
     [Keyword] public string Address { get; set; }
@@ -17,4 +17,17 @@ public class UserBalanceBase : AElfIndexerClientEntity<string>
     [Keyword] public string Symbol { get; set; }
 
     public DateTime ChangeTime { get; set; }
+    
+    [Keyword]
+    public string ChainId { get; set; }
+    
+    [Keyword]
+    public string BlockHash { get; set; }
+
+    public long BlockHeight { get; set; }
+
+    [Keyword]
+    public string PreviousBlockHash { get; set; }
+
+    public bool IsDeleted { get; set; }
 }

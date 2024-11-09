@@ -1,9 +1,9 @@
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class NFTOfferBase: AElfIndexerClientEntity<string>
+/*public class NFTOfferBase: AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     
@@ -18,4 +18,9 @@ public class NFTOfferBase: AElfIndexerClientEntity<string>
     public long RealQuantity { get; set; }
     
     public DateTime ExpireTime { get; set; }
-}
+    
+    [Keyword]
+    public string ChainId { get; set; }
+    
+    public string BlockHeight { get; set; }
+}*/

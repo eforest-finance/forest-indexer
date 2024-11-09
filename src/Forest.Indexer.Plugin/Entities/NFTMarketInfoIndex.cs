@@ -1,10 +1,11 @@
-using AElf.Indexing.Elasticsearch;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class NFTMarketInfoIndex: NFTMarketBase, IIndexBuild
+public class NFTMarketInfoIndex: AeFinderEntity, IAeFinderEntity
 {
+    [Keyword] public override string Id { get; set; }
     [Keyword] public string NFTInfoId {get; set; }
     public string PurchaseSymbol { get; set; }
     public decimal Price { get; set; }

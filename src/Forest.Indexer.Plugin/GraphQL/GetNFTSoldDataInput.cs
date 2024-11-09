@@ -1,5 +1,3 @@
-using Volo.Abp.Application.Dtos;
-
 namespace Forest.Indexer.Plugin.GraphQL
 {
     public class GetNFTSoldDataInput

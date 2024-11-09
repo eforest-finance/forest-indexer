@@ -1,48 +1,37 @@
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk.Logging;
+using AeFinder.Sdk.Processor;
 using Drop.Indexer.Plugin.Entities;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Orleans.Runtime;
-using Volo.Abp.ObjectMapping;
 using Forest.Contracts.Drop;
+using Newtonsoft.Json;
+using Volo.Abp.ObjectMapping;
 
 namespace Drop.Indexer.Plugin.Processors;
 
-public class DropChangedLogEventProcessor : AElfLogEventProcessorBase<DropChanged, LogEventInfo>
+public class DropChangedLogEventProcessor : LogEventProcessorBase<DropChanged>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
-    private readonly IAElfIndexerClientEntityRepository<NFTDropIndex, LogEventInfo> _nftDropIndexRepository;
-    private readonly ILogger<DropChangedLogEventProcessor> _logger;
-    
-    public DropChangedLogEventProcessor(ILogger<DropChangedLogEventProcessor> logger, 
-        IObjectMapper objectMapper,
-        IAElfIndexerClientEntityRepository<NFTDropIndex, LogEventInfo> nftDropIndexRepository,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions
-        ) : base(logger)
+
+    public DropChangedLogEventProcessor(
+        IObjectMapper objectMapper
+    )
     {
-        _nftDropIndexRepository = nftDropIndexRepository;
-         _logger = logger;
-        _contractInfoOptions = contractInfoOptions.Value;
         _objectMapper = objectMapper;
     }
-    
+
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos.First(c => c.ChainId == chainId).NFTDropContractAddress;
+        return ContractInfoHelper.GetNFTDropContractAddress(chainId);
     }
-    
-    protected override async Task HandleEventAsync(DropChanged eventValue, LogEventContext context)
+
+    public override async Task ProcessAsync(DropChanged eventValue, LogEventContext context)
     {
-        _logger.Debug("DropChanged: {eventValue} context: {context}",JsonConvert.SerializeObject(eventValue), 
+        Logger.LogInformation("DropChanged: {eventValue} context: {context}", JsonConvert.SerializeObject(eventValue),
             JsonConvert.SerializeObject(context));
-        var dropIndex = await _nftDropIndexRepository.GetFromBlockStateSetAsync(eventValue.DropId.ToHex(), context.ChainId);
+        var id = eventValue.DropId.ToHex();
+        var dropIndex = await GetEntityAsync<NFTDropIndex>(id);
         if (dropIndex == null)
         {
-            _logger.Info("Drop Not Exist: {id}",eventValue.DropId.ToHex());
+            Logger.LogInformation("Drop Not Exist: {id}", eventValue.DropId.ToHex());
             return;
         }
 
@@ -53,8 +42,8 @@ public class DropChangedLogEventProcessor : AElfLogEventProcessorBase<DropChange
         var newUpdatetime = eventValue.UpdateTime.ToDateTime();
         var oldUpdatetime = dropIndex.UpdateTime;
         dropIndex.UpdateTime = DateTime.Compare(newUpdatetime, oldUpdatetime) == 1 ? newUpdatetime : oldUpdatetime;
-        
+
         _objectMapper.Map(context, dropIndex);
-        await _nftDropIndexRepository.AddOrUpdateAsync(dropIndex);
+        await SaveEntityAsync(dropIndex);
     }
 }

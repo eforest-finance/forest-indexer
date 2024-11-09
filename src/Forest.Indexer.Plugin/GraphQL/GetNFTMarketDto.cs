@@ -1,4 +1,5 @@
-using Volo.Abp.Application.Dtos;
+
+using Forest.Indexer.Plugin.GraphQLL;
 
 namespace Forest.Indexer.Plugin.GraphQL
 {

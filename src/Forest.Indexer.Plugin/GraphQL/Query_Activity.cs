@@ -1,5 +1,5 @@
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
+using System.Linq.Dynamic.Core;
+using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
 using Nest;
@@ -11,8 +11,7 @@ public partial class Query
 {
     [Name("symbolMarketActivities")]
     public static async Task<SymbolMarkerActivityPageResultDto> SymbolMarketActivities(
-        [FromServices]
-        IAElfIndexerClientEntityRepository<SymbolMarketActivityIndex, LogEventInfo> symbolMarketActivityIndexRepository,
+        [FromServices] IReadOnlyRepository<SymbolMarketActivityIndex> symbolMarketActivityIndexRepository,
         [FromServices] IObjectMapper objectMapper,
         GetActivitiesInput dto)
     {
@@ -25,16 +24,21 @@ public partial class Query
             };
         }
 
-        var mustQuery = new List<Func<QueryContainerDescriptor<SymbolMarketActivityIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Terms(i => i.Field(f => f.Address).Terms(dto.Address)));
-        mustQuery.Add(q => q.Terms(i => i.Field(f => f.Type).Terms(dto.Types)));
-        QueryContainer Filter(QueryContainerDescriptor<SymbolMarketActivityIndex> f) => f.Bool(b => b.Must(mustQuery));
-        var result = await symbolMarketActivityIndexRepository.GetListAsync(Filter, sortExp: k => k.TransactionDateTime,
-            sortType: SortOrder.Descending, skip: dto.SkipCount, limit: dto.MaxResultCount);
-        var dataList = objectMapper.Map<List<SymbolMarketActivityIndex>, List<SymbolMarkerActivityDto>>(result.Item2);
+        var queryable = await symbolMarketActivityIndexRepository.GetQueryableAsync();
+        
+        queryable = queryable.Where(q => dto.Address.Contains(q.Address) );
+        if (!dto.Types.IsNullOrEmpty())
+        {
+            var intTypes = dto.Types.Select(i => (int)i).ToList();
+            queryable = queryable.Where(q => intTypes.Contains(q.IntType));
+            
+        }
+        var result = queryable.OrderByDescending(k=>k.TransactionDateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
+        
+        var dataList = objectMapper.Map<List<SymbolMarketActivityIndex>, List<SymbolMarkerActivityDto>>(result);
         var pageResult = new SymbolMarkerActivityPageResultDto
         {
-            TotalRecordCount = result.Item1,
+            TotalRecordCount = result.Count,
             Data = dataList
         };
         return pageResult;

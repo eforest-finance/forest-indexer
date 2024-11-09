@@ -1,69 +1,45 @@
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk.Logging;
+using AeFinder.Sdk.Processor;
 using Forest.Indexer.Plugin.Entities;
-using Forest.Indexer.Plugin.Processors.Provider;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Forest.Indexer.Plugin.Util;
 using Newtonsoft.Json;
-using Orleans.Runtime;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class OfferAddedLogEventProcessor : OfferLogEventProcessorBase<OfferAdded>
+public class OfferAddedLogEventProcessor : LogEventProcessorBase<OfferAdded>
 {
-    private readonly IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> _nftOfferIndexRepository;
-    private readonly IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> _tokenIndexRepository;
-    private readonly ILogger<OfferAddedLogEventProcessor> _logger;
-    private readonly IUserBalanceProvider _userBalanceProvider;
+    private readonly IObjectMapper _objectMapper;
 
-    public OfferAddedLogEventProcessor(ILogger<OfferAddedLogEventProcessor> logger, IObjectMapper objectMapper,
-        IAElfIndexerClientEntityRepository<OfferInfoIndex, LogEventInfo> nftOfferIndexRepository,
-        IAElfIndexerClientEntityRepository<TokenInfoIndex, LogEventInfo> tokenIndexRepository,
-        IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoIndexRepository,
-        IAElfIndexerClientEntityRepository<NFTActivityIndex, LogEventInfo> nftActivityIndexRepository,
-        IAElfIndexerClientEntityRepository<ProxyAccountIndex, LogEventInfo> proxyAccountIndexRepository,
-        INFTInfoProvider infoProvider,
-        INFTOfferProvider offerProvider,
-        ICollectionProvider collectionProvider,
-        ICollectionChangeProvider collectionChangeProvider,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions,
-        IUserBalanceProvider userBalanceProvider,
-        INFTOfferChangeProvider nftOfferChangeProvider) : base(logger, objectMapper,
-            nftActivityIndexRepository, nftInfoIndexRepository, proxyAccountIndexRepository, infoProvider, offerProvider,collectionProvider,
-        collectionChangeProvider,
-        contractInfoOptions,
-        nftOfferChangeProvider)
+    public OfferAddedLogEventProcessor(IObjectMapper objectMapper)
     {
-        _nftOfferIndexRepository = nftOfferIndexRepository;
-        _tokenIndexRepository = tokenIndexRepository;
-        _logger = logger;
-        _userBalanceProvider = userBalanceProvider;
-
+        _objectMapper = objectMapper;
     }
 
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos.First(c => c.ChainId == chainId).NFTMarketContractAddress;
+        return ContractInfoHelper.GetNFTForestContractAddress(chainId);
     }
 
-    protected override async Task HandleEventAsync(OfferAdded eventValue, LogEventContext context)
+    public async override Task ProcessAsync(OfferAdded eventValue, LogEventContext context)
     {
-        _logger.Debug("OfferAddedLogEventProcessor-1 {context}",JsonConvert.SerializeObject(context));
-        _logger.Debug("OfferAddedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("OfferAddedLogEventProcessor-1 {context}",JsonConvert.SerializeObject(context));
+        Logger.LogDebug("OfferAddedLogEventProcessor-2 {eventValue}",JsonConvert.SerializeObject(eventValue));
         var offerIndexId = IdGenerateHelper.GetOfferId(context.ChainId, eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
             eventValue.OfferTo.ToBase58(), eventValue.ExpireTime.Seconds,eventValue.Price.Amount);
-        var offerIndex = await _nftOfferIndexRepository.GetFromBlockStateSetAsync(offerIndexId, context.ChainId);
-        if (offerIndex != null) return;
 
-        offerIndex = _objectMapper.Map<OfferAdded, OfferInfoIndex>(eventValue);
+        var offerIndex = _objectMapper.Map<OfferAdded, OfferInfoIndex>(eventValue);
         offerIndex.Id = offerIndexId;
         var tokenIndexId = IdGenerateHelper.GetId(context.ChainId, eventValue.Price.Symbol);
-        var tokenIndex = await _tokenIndexRepository.GetFromBlockStateSetAsync(tokenIndexId, context.ChainId);
+        var tokenIndex = await GetEntityAsync<TokenInfoIndex>(tokenIndexId);
+        if (tokenIndex == null)
+        {
+            Logger.LogError("OfferAddedLogEventProcessor token is null tokenIndexId :{A}", tokenIndexId);
+            return;
+        }
         offerIndex.Price = eventValue.Price.Amount / (decimal)Math.Pow(10, tokenIndex.Decimals);
         offerIndex.PurchaseToken = tokenIndex;
-        offerIndex.CreateTime = context.BlockTime;
+        offerIndex.CreateTime = context.Block.BlockTime;
 
         if (SymbolHelper.CheckSymbolIsSeedSymbol(eventValue.Symbol))
         {
@@ -76,16 +52,183 @@ public class OfferAddedLogEventProcessor : OfferLogEventProcessorBase<OfferAdded
         offerIndex.BizSymbol = eventValue.Symbol;
         offerIndex.RealQuantity = eventValue.Quantity;
         _objectMapper.Map(context, offerIndex);
-        await _nftOfferIndexRepository.AddOrUpdateAsync(offerIndex);
-        await _infoProvider.UpdateOfferCommonAsync(context.ChainId, eventValue.Symbol, context, offerIndex, "");
+        await SaveEntityAsync(offerIndex);
         await AddNFTActivityRecordAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
             eventValue.OfferTo.ToBase58(), eventValue.Quantity, offerIndex.Price, NFTActivityType.MakeOffer,
             context,
             tokenIndex,
             offerIndex.ExpireTime);
-        await _collectionChangeProvider.SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
-        await _offerProvider.UpdateOfferNumAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(), 1, context);
-        await _userBalanceProvider.ReCoverUserBalanceAsync(eventValue.OriginBalanceSymbol, eventValue.OfferFrom.ToBase58(), eventValue.OriginBalance, context);
-        await _nftOfferChangeProvider.SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Add);
+        await SaveCollectionPriceChangeIndexAsync(context, eventValue.Symbol);
+        await UpdateOfferNumAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(), 1, context);
+        await ReCoverUserBalanceAsync(eventValue.OriginBalanceSymbol, eventValue.OfferFrom.ToBase58(), eventValue.OriginBalance, context);
+        await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Add);
+    }
+
+    private async Task AddNFTActivityRecordAsync(string symbol, string offerFrom, string offerTo,
+        long quantity, decimal price, NFTActivityType activityType, LogEventContext context,
+        TokenInfoIndex tokenInfoIndex, DateTime expireTime)
+    {
+        var nftActivityIndexId = IdGenerateHelper.GetId(context.ChainId, symbol, offerFrom,
+            offerTo, context.Transaction.TransactionId, expireTime);
+        var nftActivityIndex = await GetEntityAsync<NFTActivityIndex>(nftActivityIndexId);
+        if (nftActivityIndex != null) return;
+
+        var nftInfoIndexId = IdGenerateHelper.GetId(context.ChainId, symbol);
+        
+        var decimals = await QueryDecimal(context.ChainId, symbol);
+        
+        nftActivityIndex = new NFTActivityIndex
+        {
+            Id = nftActivityIndexId,
+            TransactionHash = context.Transaction.TransactionId,
+            Timestamp = context.Block.BlockTime,
+            NftInfoId = nftInfoIndexId
+        };
+        nftActivityIndex.OfType(activityType);
+        _objectMapper.Map(context, nftActivityIndex);
+        nftActivityIndex.From = FullAddressHelper.ToFullAddress(offerFrom, context.ChainId);
+        nftActivityIndex.To = FullAddressHelper.ToFullAddress(await TransferAddress(offerTo), context.ChainId);
+
+        nftActivityIndex.Amount = TokenHelper.GetIntegerDivision(quantity, decimals);
+        nftActivityIndex.Price = price;
+        nftActivityIndex.PriceTokenInfo = tokenInfoIndex;
+        
+        await SaveEntityAsync(nftActivityIndex);
+    }
+
+    private async Task<string> TransferAddress(string offerToAddress)
+    {
+        if (offerToAddress.IsNullOrWhiteSpace()) return offerToAddress;
+        var proxyAccount = await GetEntityAsync<ProxyAccountIndex>(offerToAddress);
+        if (proxyAccount == null || proxyAccount.ManagersSet == null)
+        {
+            return offerToAddress;
+        }
+        return proxyAccount.ManagersSet.FirstOrDefault(offerToAddress);
+    }
+    
+    private async Task SaveNFTOfferChangeIndexAsync(LogEventContext context, string symbol, EventType eventType)
+    {
+        if (context.ChainId.Equals(ForestIndexerConstants.MainChain))
+        {
+            return;
+        }
+
+        if (symbol.Equals(ForestIndexerConstants.TokenSimpleElf))
+        {
+            return;
+        }
+
+        var nftOfferChangeIndex = new NFTOfferChangeIndex
+        {
+            Id = IdGenerateHelper.GetId(context.ChainId, symbol, Guid.NewGuid()),
+            NftId = IdGenerateHelper.GetNFTInfoId(context.ChainId, symbol),
+            EventType = eventType,
+            CreateTime = context.Block.BlockTime
+        };
+        
+        _objectMapper.Map(context, nftOfferChangeIndex);
+        await SaveEntityAsync(nftOfferChangeIndex);
+    }
+    
+    private async Task<long> ReCoverUserBalanceAsync(String symbol, String address, long amount, LogEventContext context)
+    {
+        var nftInfoIndexId = IdGenerateHelper.GetNFTInfoId(context.ChainId, symbol);
+        var userBalanceId = IdGenerateHelper.GetUserBalanceId(address, context.ChainId, nftInfoIndexId);
+        var userBalanceIndex = await GetEntityAsync<UserBalanceIndex>(userBalanceId);
+        
+        if (userBalanceIndex == null)
+        {
+            userBalanceIndex = new UserBalanceIndex()
+            {
+                Id = userBalanceId,
+                ChainId = context.ChainId,
+                NFTInfoId = nftInfoIndexId,
+                Address = address,
+                Amount = amount,
+                Symbol = symbol,
+                ChangeTime = context.Block.BlockTime
+            };
+        }
+        else
+        {
+            userBalanceIndex.Amount = amount;
+            userBalanceIndex.ChangeTime = context.Block.BlockTime;
+        }
+
+        _objectMapper.Map(context, userBalanceIndex);
+        await SaveEntityAsync(userBalanceIndex);
+        return userBalanceIndex.Amount;
+    }
+    
+    public async Task<int> QueryDecimal(string chainId,string symbol)
+    {
+        var decimals = 0;
+        if (SymbolHelper.CheckSymbolIsSeedSymbol(symbol))
+        {
+            var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, symbol);
+            var seedSymbol = await GetEntityAsync<SeedSymbolIndex>(seedSymbolId);
+            if (seedSymbol == null) return decimals;
+            decimals = seedSymbol.Decimals;
+        }
+        else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, chainId))
+        {
+            var nftIndexId = IdGenerateHelper.GetNFTInfoId(chainId, symbol);
+            var nftIndex = await GetEntityAsync<NFTInfoIndex>(nftIndexId);
+            if (nftIndex == null) return decimals;
+            decimals = nftIndex.Decimals;
+        }
+
+        return decimals;
+    }
+    
+    public async Task SaveCollectionPriceChangeIndexAsync(LogEventContext context, string symbol)
+    {
+        var collectionPriceChangeIndex = new CollectionPriceChangeIndex();
+        var nftCollectionSymbol = SymbolHelper.GetNFTCollectionSymbol(symbol);
+        if (nftCollectionSymbol == null)
+        {
+            return;
+        }
+
+        collectionPriceChangeIndex.Symbol = nftCollectionSymbol;
+        collectionPriceChangeIndex.Id = IdGenerateHelper.GetNFTCollectionId(context.ChainId, nftCollectionSymbol);
+        collectionPriceChangeIndex.UpdateTime = context.Block.BlockTime;
+        _objectMapper.Map(context, collectionPriceChangeIndex);
+        await SaveEntityAsync(collectionPriceChangeIndex);
+    }
+    
+    public async Task<int> UpdateOfferNumAsync(string symbol, string offerFrom, int change, LogEventContext context)
+    {
+        var offerNumId = IdGenerateHelper.GetOfferNumId(context.ChainId, offerFrom);
+        var nftOfferNumIndex = await GetEntityAsync<UserNFTOfferNumIndex>(offerNumId);
+        
+        if (nftOfferNumIndex == null)
+        {
+            nftOfferNumIndex = new UserNFTOfferNumIndex()
+            {
+                Id = offerNumId,
+                Address = offerFrom,
+                OfferNum = change
+            };
+        }
+        else
+        {
+            nftOfferNumIndex.OfferNum += change;
+            // deal history data
+            if (nftOfferNumIndex.OfferNum < 0)
+            {
+                Logger.LogWarning(
+                    "UpdateOfferNumAsync has history Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
+                    symbol, nftOfferNumIndex.OfferNum);
+                nftOfferNumIndex.OfferNum = 0;
+            }
+        }
+
+        Logger.LogInformation("UpdateOfferNumAsync Address {Address} symbol {Symbol} OfferNum {OfferNum}", offerFrom,
+            symbol, nftOfferNumIndex.OfferNum);
+        _objectMapper.Map(context, nftOfferNumIndex);
+        await SaveEntityAsync(nftOfferNumIndex);
+        return nftOfferNumIndex.OfferNum;
     }
 }
