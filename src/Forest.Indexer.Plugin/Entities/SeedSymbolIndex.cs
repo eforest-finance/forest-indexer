@@ -1,12 +1,13 @@
-using AElf.Indexing.Elasticsearch;
+using AeFinder.Sdk.Entities;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.enums;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class SeedSymbolIndex: TokenInfoBase, IIndexBuild
+public class SeedSymbolIndex: AeFinderEntity, IAeFinderEntity
 {
+    [Keyword] public override string Id { get; set; }
     [Wildcard] public string SeedOwnedSymbol { get; set; }
     
     public long SeedExpTimeSecond { get; set; }
@@ -22,8 +23,10 @@ public class SeedSymbolIndex: TokenInfoBase, IIndexBuild
     public bool IsDeleteFlag { get; set; }
     
     public TokenType TokenType { get; set; }
+    public int IntTokenType { get; set; }
 
     public SeedType SeedType { get; set; }
+    public int IntSeedType { get; set; }
     
     public decimal Price { get; set; }
     
@@ -77,7 +80,46 @@ public class SeedSymbolIndex: TokenInfoBase, IIndexBuild
     [Keyword] public string MaxOfferId { get; set; }
     
     [Keyword] public string SeedImage { get; set; }
+    [Keyword]
+    public string ChainId { get; set; }
+
+    [Keyword]
+    public string BlockHash { get; set; }
+
+    public long BlockHeight { get; set; }
+
+    [Keyword]
+    public string PreviousBlockHash { get; set; }
+
+    public bool IsDeleted { get; set; }
     
+    [Keyword] public string Symbol { get; set; }
+
+    /// <summary>
+    /// token contract address
+    /// </summary>
+    [Keyword] public string TokenContractAddress { get; set; }
+    
+    public int Decimals { get; set; }
+    
+    public long Supply { get; set; }
+    
+    public long TotalSupply { get; set; }
+
+    [Keyword] public string TokenName { get; set; }
+
+    [Keyword] public string Owner { get; set; }
+    [Keyword] public string Issuer { get; set; }
+
+    public bool IsBurnable { get; set; }
+
+    public int IssueChainId { get; set; }
+    
+    public long Issued { get; set; }
+
+    public DateTime CreateTime { get; set; }
+
+    public List<ExternalInfoDictionary> ExternalInfoDictionary { get; set; }
     public void OfMinNftListingInfo(NFTListingInfoIndex minNftListing)
     {
         HasListingFlag = minNftListing != null;
@@ -92,5 +134,16 @@ public class SeedSymbolIndex: TokenInfoBase, IIndexBuild
         MaxOfferPrice = maxOfferInfo?.Price ?? 0;
         MaxOfferExpireTime = maxOfferInfo?.ExpireTime;
         MaxOfferId = maxOfferInfo?.Id;
+    }
+    
+    public void OfType(TokenType tokenType)
+    {
+        TokenType = tokenType;
+        IntTokenType = (int)tokenType;
+    }
+    public void OfType(SeedType seedType)
+    {
+        SeedType = seedType;
+        IntSeedType = (int)seedType;
     }
 }

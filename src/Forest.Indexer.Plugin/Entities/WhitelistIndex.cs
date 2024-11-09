@@ -1,9 +1,9 @@
-using AElf.Indexing.Elasticsearch;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class WhitelistIndex : WhitelistBase, IIndexBuild
+public class WhitelistIndex : AeFinderEntity, IAeFinderEntity
 {
     public bool IsAvailable { get; set; }
     public bool IsCloneable { get; set; }

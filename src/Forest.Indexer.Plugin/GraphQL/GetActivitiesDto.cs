@@ -1,12 +1,12 @@
+using Forest.Indexer.Plugin.GraphQLL;
 using JetBrains.Annotations;
-using Volo.Abp.Application.Dtos;
 
 namespace Forest.Indexer.Plugin.GraphQL;
 
 public class GetActivitiesDto: PagedResultRequestDto
 {
     public String NFTInfoId { get; set; }
-    [CanBeNull] public List<int> Types { get; set; }
+    public List<int>? Types { get; set; } = new List<int>();
     public long? TimestampMin { get; set; }
     public long? TimestampMax { get; set; }
 }
@@ -14,15 +14,15 @@ public class GetActivitiesDto: PagedResultRequestDto
 public class GetCollectionActivitiesDto: PagedResultRequestDto
 {
     public string CollectionId { get; set; }
-    [CanBeNull] public List<string> BizIdList { get; set; }
-    [CanBeNull] public List<int> Types { get; set; }
+    public List<string>? BizIdList { get; set; } = new List<string>();
+    public List<int>? Types { get; set; } = new List<int>();
 }
 
 public class GetMessageActivitiesDto
 {
-    [CanBeNull] public List<int> Types { get; set; }
+    public List<int>? Types { get; set; } = new List<int>();
     
-    [CanBeNull] public string ChainId { get; set; }
+    public string? ChainId { get; set; }
     
     public long BlockHeight { get; set; }
     public int SkipCount { get; set; }

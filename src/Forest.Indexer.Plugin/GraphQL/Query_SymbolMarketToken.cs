@@ -1,9 +1,9 @@
+using AeFinder.Sdk;
 using AElf;
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Nest;
+using IdentityServer4.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -13,11 +13,11 @@ public partial class Query
     [Name("symbolMarketTokens")]
     public static async Task<SymbolMarkerTokenPageResultDto> SymbolMarketTokens(
         [FromServices]
-        IAElfIndexerClientEntityRepository<SeedSymbolMarketTokenIndex, LogEventInfo> symbolMarketTokenIndexRepository,
+        IReadOnlyRepository<SeedSymbolMarketTokenIndex> symbolMarketTokenIndexRepository,
         [FromServices] IObjectMapper objectMapper,
         GetSymbolMarketTokensInput dto)
     {
-        if (dto == null)
+        if (dto == null || dto.Address.IsNullOrEmpty())
         {
             return new SymbolMarkerTokenPageResultDto()
             {
@@ -25,27 +25,40 @@ public partial class Query
                 Data = new List<SymbolMarkerTokenDto>()
             };
         }
-
-        var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolMarketTokenIndex>, QueryContainer>>();
-
-        mustQuery.Add(q => q.Exists(exists => exists
+        var queryable = await symbolMarketTokenIndexRepository.GetQueryableAsync();
+        //var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolMarketTokenIndex>, QueryContainer>>();
+        //todo V2, need test q.Exists(exists => exists.Field(f => f.Symbol))
+        /*mustQuery.Add(q => q.Exists(exists => exists
                                .Field(f => f.Symbol))
                            && q.Term(i => i
-                               .Field(f => f.SameChainFlag).Value(true)));
-        var shouldQuery = new List<Func<QueryContainerDescriptor<SeedSymbolMarketTokenIndex>, QueryContainer>>();
-        shouldQuery.Add(q => q.Terms(i => i.Field(f => f.OwnerManagerSet).Terms(dto.Address)));
-        shouldQuery.Add(q => q.Terms(i => i.Field(f => f.IssueManagerSet).Terms(dto.Address)));
-        shouldQuery.Add(q => q.Terms(i => i.Field(f => f.IssueToSet).Terms(
-                dto.Address)));
+                               .Field(f => f.SameChainFlag).Value(true)));*/ 
+        queryable = queryable.Where(f => f.SameChainFlag);
         
-        mustQuery.Add(q => q.Bool(b => b.Should(shouldQuery)));
+        var address1 = dto.Address.Count >= 1 ? dto.Address[0] : "";
+        var address2 = dto.Address.Count >= 2 ? dto.Address[1] : "";
 
-        QueryContainer Filter(QueryContainerDescriptor<SeedSymbolMarketTokenIndex> f) => f.Bool(b => b.Must(mustQuery));
+        if (string.IsNullOrEmpty(address2))
+        {
+            queryable = queryable.Where(f =>
+                f.IssueToSet.Any(item => item == address1) 
+                || f.RandomOwnerManager == address1 
+                || f.RandomIssueManager == address1);
+        }
+        else
+        {
+            queryable = queryable.Where(f =>
+                f.IssueToSet.Any(item => item == address1) 
+                || f.RandomOwnerManager == address1 
+                || f.RandomIssueManager == address1
+                ||f.IssueToSet.Any(item => item == address2) 
+                || f.RandomOwnerManager == address2 
+                || f.RandomIssueManager == address2);
+        }
+        
 
-        var result = await symbolMarketTokenIndexRepository.GetListAsync(Filter,
-            sortExp: k => k.CreateTime, sortType: SortOrder.Descending, skip: dto.SkipCount, limit: dto.MaxResultCount);
-
-        if (result == null)
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount)
+            .ToList();
+        if (result.IsNullOrEmpty())
         {
             return new SymbolMarkerTokenPageResultDto()
             {
@@ -54,10 +67,10 @@ public partial class Query
             };
         }
 
-        var dataList = objectMapper.Map<List<SeedSymbolMarketTokenIndex>, List<SymbolMarkerTokenDto>>(result.Item2);
+        var dataList = objectMapper.Map<List<SeedSymbolMarketTokenIndex>, List<SymbolMarkerTokenDto>>(result);
         var pageResult = new SymbolMarkerTokenPageResultDto
         {
-            TotalRecordCount = result.Item1,
+            TotalRecordCount = result.Count,
             Data = dataList
         };
         return pageResult;
@@ -66,7 +79,7 @@ public partial class Query
     [Name("symbolMarketTokenIssuer")]
     public static async Task<SymbolMarketTokenIssuerDto> SymbolMarketTokenIssuer(
         [FromServices]
-        IAElfIndexerClientEntityRepository<SeedSymbolMarketTokenIndex, LogEventInfo> symbolMarketTokenIndexRepository,
+        IReadOnlyRepository<SeedSymbolMarketTokenIndex> symbolMarketTokenIndexRepository,
         GetSymbolMarketTokenIssuerInput dto)
     {
         if (dto == null)
@@ -74,39 +87,36 @@ public partial class Query
             {
                 SymbolMarketTokenIssuer = ""
             };
-
+        var queryable = await symbolMarketTokenIndexRepository.GetQueryableAsync();
         var issueChainId = ChainHelper.ConvertChainIdToBase58(dto.IssueChainId);
         var SymbolMarketTokenId = IdGenerateHelper.GetSymbolMarketTokenId(issueChainId, dto.TokenSymbol);
-        var result =
-            await symbolMarketTokenIndexRepository.GetAsync(SymbolMarketTokenId);
+        queryable = queryable.Where(f => f.Id == SymbolMarketTokenId);
+
+        var result = queryable.Skip(0).Take(1).ToList();
         return new SymbolMarketTokenIssuerDto()
         {
-            SymbolMarketTokenIssuer = result == null ? "" : result.Issuer
+            SymbolMarketTokenIssuer = result.IsNullOrEmpty() ? "" : result.FirstOrDefault().Issuer
         };
     }
     
     [Name("symbolMarketTokenExist")]
     public static async Task<SymbolMarketTokenExistDto> SymbolMarketTokenExist(
         [FromServices]
-        IAElfIndexerClientEntityRepository<SeedSymbolMarketTokenIndex, LogEventInfo> symbolMarketTokenIndexRepository,
+        IReadOnlyRepository<SeedSymbolMarketTokenIndex> symbolMarketTokenIndexRepository,
         [FromServices] IObjectMapper objectMapper,
         GetSymbolMarketTokenExistInput dto)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolMarketTokenIndex>, QueryContainer>>();
-
-        mustQuery.Add(q=>q.Term(i=>i.Field(f=>f.IssueChain).Value(dto.IssueChainId)));
-        mustQuery.Add(q=>q.Term(i=>i.Field(f=>f.Symbol).Value(dto.TokenSymbol)));
+        var queryable = await symbolMarketTokenIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.IssueChain == dto.IssueChainId);
+        queryable = queryable.Where(f => f.Symbol == dto.TokenSymbol);
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(0).Take(1).ToList();
         
-        QueryContainer Filter(QueryContainerDescriptor<SeedSymbolMarketTokenIndex> f) => f.Bool(b => b.Must(mustQuery));
-        var result = await symbolMarketTokenIndexRepository.GetListAsync(Filter,
-            sortExp: k => k.CreateTime, sortType: SortOrder.Descending);
-
-        if (result == null || result.Item2.Count == 0)
+        if (result.IsNullOrEmpty() || result.FirstOrDefault()==null)
         {
             return new SymbolMarketTokenExistDto();
         }
         
-        var symbolMarketTokenDto = objectMapper.Map<SeedSymbolMarketTokenIndex, SymbolMarketTokenExistDto>(result.Item2[0]);
+        var symbolMarketTokenDto = objectMapper.Map<SeedSymbolMarketTokenIndex, SymbolMarketTokenExistDto>(result.FirstOrDefault());
         return symbolMarketTokenDto;
     }
 }

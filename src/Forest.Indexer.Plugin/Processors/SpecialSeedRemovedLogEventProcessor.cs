@@ -1,38 +1,27 @@
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk.Processor;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Forest.Indexer.Plugin.Util;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class SpecialSeedRemovedLogEventProcessor: AElfLogEventProcessorBase<SpecialSeedRemoved, LogEventInfo>
+public class SpecialSeedRemovedLogEventProcessor: LogEventProcessorBase<SpecialSeedRemoved>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
-    private readonly IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> _seedSymbolIndexRepository;
-    
+
     public SpecialSeedRemovedLogEventProcessor(
-        ILogger<AElfLogEventProcessorBase<SpecialSeedRemoved, LogEventInfo>> logger, 
-        IObjectMapper objectMapper,
-        IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> seedSymbolIndexRepository,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
+        IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _contractInfoOptions = contractInfoOptions.Value;
-        _seedSymbolIndexRepository = seedSymbolIndexRepository;
     }
     
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos?.FirstOrDefault(c => c?.ChainId == chainId)
-            ?.SymbolRegistrarContractAddress;
+        return ContractInfoHelper.GetSymbolRegistrarContractAddress(chainId);
     }
 
-    protected override async Task HandleEventAsync(SpecialSeedRemoved eventValue, LogEventContext context)
+    public async override Task ProcessAsync(SpecialSeedRemoved eventValue, LogEventContext context)
     {
         if (eventValue == null) return;
         
@@ -40,11 +29,11 @@ public class SpecialSeedRemovedLogEventProcessor: AElfLogEventProcessorBase<Spec
         foreach (var seed in seedList)
         {
             var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, seed.Symbol);
-            var seedSymbol = await _seedSymbolIndexRepository.GetFromBlockStateSetAsync(seedSymbolId, context.ChainId);
+            var seedSymbol = await GetEntityAsync<TsmSeedSymbolIndex>(seedSymbolId);
             if(seedSymbol == null) continue;
             
             _objectMapper.Map(context, seedSymbol);
-            await _seedSymbolIndexRepository.DeleteAsync(seedSymbol);
+            await DeleteEntityAsync<TsmSeedSymbolIndex>(seedSymbolId);
         }
     }
 }

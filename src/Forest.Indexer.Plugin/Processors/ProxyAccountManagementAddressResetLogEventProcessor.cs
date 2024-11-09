@@ -1,59 +1,114 @@
+using AeFinder.Sdk;
+using AeFinder.Sdk.Processor;
 using AElf.Contracts.ProxyAccountContract;
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
 using Forest.Indexer.Plugin.Entities;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Forest.Indexer.Plugin.Util;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
 public class
-    ProxyAccountManagementAddressResetLogEventProcessor : AElfLogEventProcessorBase<ProxyAccountManagementAddressReset,
-        LogEventInfo>
+    ProxyAccountManagementAddressResetLogEventProcessor : LogEventProcessorBase<ProxyAccountManagementAddressReset>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
-    private readonly IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> _nftInfoIndexRepository;
-    private readonly IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> _nftCollectionIndexRepository;
-    private readonly IAElfIndexerClientEntityRepository<ProxyAccountIndex, LogEventInfo> _agentIndexRepository;
-    private readonly IProxyAccountProvider _proxyAccountProvider;
+    private readonly IReadOnlyRepository<CollectionIndex> _collectionIndexRepository;
+    private readonly IReadOnlyRepository<NFTInfoIndex> _nftInfoIndexRepository;
 
     public ProxyAccountManagementAddressResetLogEventProcessor(
-        ILogger<AElfLogEventProcessorBase<ProxyAccountManagementAddressReset, LogEventInfo>> logger,
-        IAElfIndexerClientEntityRepository<NFTInfoIndex, LogEventInfo> nftInfoIndexRepository,
-        IAElfIndexerClientEntityRepository<CollectionIndex, LogEventInfo> nftCollectionIndexRepository,
-        IAElfIndexerClientEntityRepository<ProxyAccountIndex, LogEventInfo> agentIndexRepository,
-        IProxyAccountProvider proxyAccountProvider,
         IObjectMapper objectMapper,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions) : base(logger)
+        IReadOnlyRepository<CollectionIndex> collectionIndexRepository,
+        IReadOnlyRepository<NFTInfoIndex> nftInfoIndexRepository
+        )
     {
         _objectMapper = objectMapper;
-        _contractInfoOptions = contractInfoOptions.Value;
+        _collectionIndexRepository = collectionIndexRepository;
         _nftInfoIndexRepository = nftInfoIndexRepository;
-        _nftCollectionIndexRepository = nftCollectionIndexRepository;
-        _agentIndexRepository = agentIndexRepository;
-        _proxyAccountProvider = proxyAccountProvider;
     }
 
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos?.FirstOrDefault(c => c?.ChainId == chainId)
-            ?.ProxyAccountContractAddress;
+        return ContractInfoHelper.GetProxyAccountContractAddress(chainId);
     }
 
-    protected override async Task HandleEventAsync(ProxyAccountManagementAddressReset eventValue,
+    public async override Task ProcessAsync(ProxyAccountManagementAddressReset eventValue,
         LogEventContext context)
     {
         if (eventValue == null || context == null) return;
         var agentId =
             IdGenerateHelper.GetProxyAccountIndexId(eventValue.ProxyAccountAddress.ToBase58());
-        var agentIndex = _objectMapper.Map<ProxyAccountManagementAddressReset, ProxyAccountIndex>(eventValue);
+        var agentIndex = new ProxyAccountIndex();
+            //_objectMapper.Map<ProxyAccountManagementAddressReset, ProxyAccountIndex>(eventValue);
         agentIndex.Id = agentId;
+        agentIndex.ProxyAccountAddress = eventValue.ProxyAccountAddress.ToBase58();
+        agentIndex.ManagersSet =
+            new HashSet<string>(eventValue.ManagementAddresses.Value
+                .Where(item => item.Address!=null)
+                .Select(item => item.Address.ToBase58()));
+        
         _objectMapper.Map(context, agentIndex);
-        await _agentIndexRepository.AddOrUpdateAsync(agentIndex);
-        await _proxyAccountProvider.UpdateProxyAccountInfoForNFTCollectionIndexAsync(agentIndex, context.ChainId,context);
-        await _proxyAccountProvider.UpdateProxyAccountInfoForNFTInfoIndexAsync(agentIndex, context.ChainId,context);
+        await SaveEntityAsync(agentIndex);
+        await UpdateProxyAccountInfoForNFTCollectionIndexAsync(agentIndex, context.ChainId,context);
+        await UpdateProxyAccountInfoForNFTInfoIndexAsync(agentIndex, context.ChainId,context);
+    }
+    
+    private async Task UpdateProxyAccountInfoForNFTCollectionIndexAsync(ProxyAccountIndex proxyAccountIndex, string chainId,LogEventContext context)
+    {
+        if (proxyAccountIndex == null || proxyAccountIndex.ProxyAccountAddress.IsNullOrEmpty() ||
+            chainId.IsNullOrEmpty()) return;
+        
+        var queryable = await _collectionIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x => x.Owner == proxyAccountIndex.ProxyAccountAddress);
+        var result = queryable.Skip(0).Take(1).ToList();
+
+        if (result.IsNullOrEmpty()) return;
+        var nftCollectionIndex = FillNFTCollectionIndex(result.FirstOrDefault(), proxyAccountIndex);
+        if (nftCollectionIndex == null) return;
+        _objectMapper.Map(context,nftCollectionIndex);
+        await SaveEntityAsync(nftCollectionIndex);
+    }
+    
+    private async Task UpdateProxyAccountInfoForNFTInfoIndexAsync(ProxyAccountIndex proxyAccountIndex, string chainId,LogEventContext context)
+    {
+        if (proxyAccountIndex == null || proxyAccountIndex.ProxyAccountAddress.IsNullOrEmpty() ||
+            chainId.IsNullOrEmpty()) return;
+        
+        var queryable = await _nftInfoIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x => x.Issuer == proxyAccountIndex.ProxyAccountAddress);
+        var result = queryable.Skip(0).Take(1).ToList();
+        
+        if (result.IsNullOrEmpty()) return;
+        var nftInfoIndex = FillNFTInfoIndex(result.FirstOrDefault(), proxyAccountIndex);
+        if (nftInfoIndex == null) return;
+        _objectMapper.Map(context,nftInfoIndex);
+        await SaveEntityAsync(nftInfoIndex);
+    }
+    private CollectionIndex FillNFTCollectionIndex(CollectionIndex collectionIndex,
+        ProxyAccountIndex proxyAccountIndex)
+    {
+        if (collectionIndex == null) return collectionIndex;
+
+        if (proxyAccountIndex != null)
+            collectionIndex.OwnerManagerSet = proxyAccountIndex.ManagersSet;
+        else
+            collectionIndex.OwnerManagerSet = new HashSet<string> { collectionIndex.Owner };
+
+        collectionIndex.RandomOwnerManager = collectionIndex.OwnerManagerSet?.FirstOrDefault("");
+
+        return collectionIndex;
+    }
+
+    private NFTInfoIndex FillNFTInfoIndex(NFTInfoIndex nftInfoIndex,
+        ProxyAccountIndex proxyAccountIndex)
+    {
+        if (nftInfoIndex == null) return nftInfoIndex;
+
+        if (proxyAccountIndex != null)
+            nftInfoIndex.IssueManagerSet = proxyAccountIndex.ManagersSet;
+        else
+            nftInfoIndex.IssueManagerSet = new HashSet<string> { nftInfoIndex.Issuer };
+
+        nftInfoIndex.RandomIssueManager = nftInfoIndex.IssueManagerSet?.FirstOrDefault("");
+
+        return nftInfoIndex;
     }
 }

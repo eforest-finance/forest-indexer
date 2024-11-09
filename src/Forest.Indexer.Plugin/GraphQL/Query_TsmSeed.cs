@@ -1,8 +1,7 @@
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
+using System.Linq.Dynamic.Core;
+using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Nest;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -11,59 +10,50 @@ public partial class Query
 {
     [Name("getTsmSeedInfos")]
     public static async Task<List<SeedInfoDto>> GetTsmSeedInfosAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<TsmSeedSymbolIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetChainBlockHeightDto dto
     )
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<TsmSeedSymbolIndex>, QueryContainer>>();
-        mustQuery.Add(q => q.Term(i
-            => i.Field(f => f.ChainId).Value(dto.ChainId)));
-
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.ChainId == dto.ChainId);
+        
         if (dto.StartBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.StartBlockHeight)));
+            queryable = queryable.Where(f => f.BlockHeight >= dto.StartBlockHeight);
         }
 
         if (dto.EndBlockHeight > 0)
         {
-            mustQuery.Add(q => q.Range(i
-                => i.Field(f => f.BlockHeight).LessThanOrEquals(dto.EndBlockHeight)));
+            queryable = queryable.Where(f => f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        QueryContainer Filter(QueryContainerDescriptor<TsmSeedSymbolIndex> f) =>
-            f.Bool(b => b.Must(mustQuery));
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(QueryCurrentSize).ToList();
+        if (result.IsNullOrEmpty())
+        {
+            return new List<SeedInfoDto>();
+        }
 
-        var result = await repository.GetListAsync(Filter, skip: 0, limit: QueryCurrentSize, sortType: SortOrder.Ascending, sortExp: o => o.BlockHeight);
-        
-        var dataList = objectMapper.Map<List<TsmSeedSymbolIndex>, List<SeedInfoDto>>(result.Item2);
+        var dataList = objectMapper.Map<List<TsmSeedSymbolIndex>, List<SeedInfoDto>>(result);
         
         return dataList;
     }
     
     [Name("seedMainChainChange")]
     public static async Task<SeedMainChainChangePageResultDto> SeedMainChainChangeAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<SeedMainChainChangeIndex, LogEventInfo> repository,
+        [FromServices] IReadOnlyRepository<SeedMainChainChangeIndex> repository,
         [FromServices] IObjectMapper objectMapper,
         GetSeedMainChainChangeDto dto)
     {
-        var mustQuery = new List<Func<QueryContainerDescriptor<SeedMainChainChangeIndex>, QueryContainer>>()
-        {
-            q => q.Term(i
-                => i.Field(f => f.ChainId).Value(dto.ChainId))
-        };
-        
-        mustQuery.Add(q => q.Range(i
-            => i.Field(f => f.BlockHeight).GreaterThanOrEquals(dto.BlockHeight)));
-        
-        QueryContainer Filter(QueryContainerDescriptor<SeedMainChainChangeIndex> f) => 
-            f.Bool(b => b.Must(mustQuery));
-        var result = await repository.GetListAsync(Filter, skip:dto.SkipCount, sortExp: o => o.BlockHeight);
-        var dataList = objectMapper.Map<List<SeedMainChainChangeIndex>, List<SeedMainChainChangeDto>>(result.Item2);
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.ChainId == dto.ChainId);
+        queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
+
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
+        var dataList = objectMapper.Map<List<SeedMainChainChangeIndex>, List<SeedMainChainChangeDto>>(result);
         var pageResult = new SeedMainChainChangePageResultDto
         {
-            TotalRecordCount = result.Item1,
+            TotalRecordCount = result.Count,
             Data = dataList
         };
         return pageResult;

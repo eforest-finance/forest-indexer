@@ -1,55 +1,46 @@
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk;
+using AeFinder.Sdk.Logging;
+using AeFinder.Sdk.Processor;
 using Forest.Contracts.Auction;
 using Forest.Indexer.Plugin.Entities;
-using Forest.Indexer.Plugin.Processors.Provider;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Forest.Indexer.Plugin.enums;
+using Forest.Indexer.Plugin.Util;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class AuctionTimeUpdatedLogEventProcessor : AElfLogEventProcessorBase<AuctionTimeUpdated, LogEventInfo>
+public class AuctionTimeUpdatedLogEventProcessor : LogEventProcessorBase<AuctionTimeUpdated>
 {
-    private readonly IAElfIndexerClientEntityRepository<SymbolAuctionInfoIndex, LogEventInfo> _symbolAuctionInfoIndexRepository;
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
-    private readonly ISeedProvider _seedProvider;
-    private readonly ITsmSeedSymbolProvider _tsmSeedSymbolProvider;
-    private readonly ILogger<AElfLogEventProcessorBase<AuctionTimeUpdated, LogEventInfo>> _logger;
-    
-    public AuctionTimeUpdatedLogEventProcessor(ILogger<AElfLogEventProcessorBase<AuctionTimeUpdated, LogEventInfo>> logger,
-                                               IObjectMapper objectMapper,
-                                               IAElfIndexerClientEntityRepository<SymbolAuctionInfoIndex, LogEventInfo> symbolAuctionInfoIndexRepository,
-                                               ISeedProvider seedProvider,
-                                               ITsmSeedSymbolProvider tsmSeedSymbolProvider,
-                                               IOptionsSnapshot<ContractInfoOptions> contractInfoOptions)
-        : base(logger)
+    private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
+    private readonly IReadOnlyRepository<TsmSeedSymbolIndex> _tsmSeedSymbolIndexRepository;
+
+    public AuctionTimeUpdatedLogEventProcessor(
+        IObjectMapper objectMapper,
+        IAElfClientServiceProvider aElfClientServiceProvider,
+        IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolIndexRepository
+    )
     {
-        _logger = logger;
         _objectMapper = objectMapper;
-        _contractInfoOptions = contractInfoOptions.Value;
-        _symbolAuctionInfoIndexRepository = symbolAuctionInfoIndexRepository;
-        _seedProvider = seedProvider;
-        _tsmSeedSymbolProvider = tsmSeedSymbolProvider;
+        _aElfClientServiceProvider = aElfClientServiceProvider;
+        _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
     }
 
 
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos?.FirstOrDefault(c => c?.ChainId == chainId)?.AuctionContractAddress;
+        return ContractInfoHelper.GetAuctionContractAddress(chainId);
     }
 
-    protected override async Task HandleEventAsync(AuctionTimeUpdated eventValue, LogEventContext context)
+    public override async Task ProcessAsync(AuctionTimeUpdated eventValue, LogEventContext context)
     {
         
         if (eventValue == null) return;
         
-        _logger.LogDebug("AuctionTimeUpdated eventValue AuctionId {AuctionId} EndTime {EndTime} MaxEndTime{MaxEndTime}",
+        Logger.LogDebug("AuctionTimeUpdated eventValue AuctionId {AuctionId} EndTime {EndTime} MaxEndTime{MaxEndTime}",
             eventValue.AuctionId.ToHex(), eventValue.EndTime.Seconds, eventValue.MaxEndTime.Seconds);
         
-        var auctionInfoIndex = await _symbolAuctionInfoIndexRepository.GetFromBlockStateSetAsync(eventValue.AuctionId.ToHex(), context.ChainId);
+        var auctionInfoIndex = await GetEntityAsync<SymbolAuctionInfoIndex>(eventValue.AuctionId.ToHex());
 
         if (auctionInfoIndex != null)
         {
@@ -67,11 +58,43 @@ public class AuctionTimeUpdatedLogEventProcessor : AElfLogEventProcessorBase<Auc
             {
                 auctionInfoIndex.MaxEndTime = eventValue.MaxEndTime.Seconds;
             }
-            auctionInfoIndex.TransactionHash = context.TransactionId;
-            
+            auctionInfoIndex.TransactionHash = context.Transaction.TransactionId;
             _objectMapper.Map(context, auctionInfoIndex);
-            await _symbolAuctionInfoIndexRepository.AddOrUpdateAsync(auctionInfoIndex);
-            await _tsmSeedSymbolProvider.UpdateAuctionEndTimeAsync(context, auctionInfoIndex.Symbol, eventValue.EndTime.Seconds);
+            await SaveEntityAsync(auctionInfoIndex);
+            await UpdateAuctionEndTimeAsync(context, auctionInfoIndex.Symbol, eventValue.EndTime.Seconds);
         }
+    }
+    public async Task UpdateAuctionEndTimeAsync(LogEventContext context, string symbol, long auctionEndTime)
+    {
+        var tsmSeed = await GetTsmSeedAsync(context.ChainId, symbol);
+        if (tsmSeed == null)
+        {
+            Logger.LogInformation("UpdateAuctionEndTimeAsync tsmSeed is null, chainId:{chainId} symbol:{symbol}",
+                context.ChainId, symbol);
+            return;
+        }
+
+        var seedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeed.Id);
+        if (seedSymbolIndex == null)
+        {
+            return;
+        }
+
+        _objectMapper.Map(context, seedSymbolIndex);
+        seedSymbolIndex.AuctionEndTime = auctionEndTime;
+        Logger.LogInformation(
+            "UpdateAuctionEndTimeAsync tsmSeedSymbolId {tsmSeedSymbolId} auctionEndTime:{auctionEndTime}",
+            tsmSeed.Id, auctionEndTime);
+        await SaveEntityAsync(seedSymbolIndex);
+
+    }
+    private async Task<TsmSeedSymbolIndex> GetTsmSeedAsync(string chainId, string seedSymbol)
+    {
+        //todo V2 GetTsmSeedAsync //code: done, need test
+
+        var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
+        List<TsmSeedSymbolIndex> list = queryable.Skip(0).Take(1).ToList();
+        return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }
 }

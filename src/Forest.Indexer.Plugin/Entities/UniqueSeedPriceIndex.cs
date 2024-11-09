@@ -1,10 +1,9 @@
-using AElf.Indexing.Elasticsearch;
-using AElfIndexer.Client;
+using AeFinder.Sdk.Entities;
 using Nest;
 
 namespace Forest.Indexer.Plugin.Entities;
 
-public class UniqueSeedPriceIndex : AElfIndexerClientEntity<string>, IIndexBuild
+public class UniqueSeedPriceIndex : AeFinderEntity, IAeFinderEntity
 {
     [Keyword] public override string Id { get; set; }
     
@@ -13,4 +12,16 @@ public class UniqueSeedPriceIndex : AElfIndexerClientEntity<string>, IIndexBuild
     public int SymbolLength { get; set; }
     
     public TokenPriceInfo TokenPrice { get; set; }
+    [Keyword]
+    public string ChainId { get; set; }
+
+    [Keyword]
+    public string BlockHash { get; set; }
+
+    public long BlockHeight { get; set; }
+
+    [Keyword]
+    public string PreviousBlockHash { get; set; }
+
+    public bool IsDeleted { get; set; }
 }

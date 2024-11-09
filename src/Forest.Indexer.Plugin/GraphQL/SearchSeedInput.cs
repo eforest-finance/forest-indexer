@@ -1,5 +1,3 @@
-using Forest.Indexer.Plugin.enums;
-
 namespace Forest.Indexer.Plugin.GraphQL;
 
 public class SearchSeedInput

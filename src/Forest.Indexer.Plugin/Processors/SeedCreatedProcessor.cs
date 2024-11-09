@@ -1,90 +1,63 @@
-using System.Diagnostics;
-using AElfIndexer.Client;
-using AElfIndexer.Client.Handlers;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk.Logging;
+using AeFinder.Sdk.Processor;
 using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
-using Forest.Indexer.Plugin.Processors.Provider;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Forest.Indexer.Plugin.Util;
 using Newtonsoft.Json;
-using Orleans.Runtime;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
 
-public class SeedCreatedProcessor: AElfLogEventProcessorBase<SeedCreated, LogEventInfo>
+public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly ContractInfoOptions _contractInfoOptions;
-    private readonly IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> _tsmSeedSymbolIndexRepository;
-    private readonly ISeedProvider _seedProvider;
-    private readonly ILogger<SeedCreatedProcessor> _loggerProcessor;
-    private readonly IAElfIndexerClientEntityRepository<SeedMainChainChangeIndex, LogEventInfo>
-        _seedMainChainChangeIndexRepository;
-    private readonly ILogger<AElfLogEventProcessorBase<SeedCreated, LogEventInfo>> _logger;
-
     public SeedCreatedProcessor(
-        ILogger<AElfLogEventProcessorBase<SeedCreated, LogEventInfo>> logger,
-        IObjectMapper objectMapper,
-        IAElfIndexerClientEntityRepository<TsmSeedSymbolIndex, LogEventInfo> tsmSeedSymbolIndexRepository,
-        ISeedProvider seedProvider,
-        IAElfIndexerClientEntityRepository<SeedMainChainChangeIndex, LogEventInfo>
-            seedMainChainChangeIndexRepository,
-        IOptionsSnapshot<ContractInfoOptions> contractInfoOptions,ILogger<SeedCreatedProcessor> loggerProcessor) : base(logger)
+        IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _contractInfoOptions = contractInfoOptions.Value;
-        _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
-        _seedProvider = seedProvider;
-        _loggerProcessor = loggerProcessor;
-        _seedMainChainChangeIndexRepository = seedMainChainChangeIndexRepository;
-        _logger = logger;
     }
-
+    
     public override string GetContractAddress(string chainId)
     {
-        return _contractInfoOptions.ContractInfos?.FirstOrDefault(c => c?.ChainId == chainId)
-            ?.SymbolRegistrarContractAddress;
+        return ContractInfoHelper.GetSymbolRegistrarContractAddress(chainId);
     }
 
-    protected override async Task HandleEventAsync(SeedCreated eventValue, LogEventContext context)
+    public async override Task ProcessAsync(SeedCreated eventValue, LogEventContext context)
     {
-        _logger.Debug("SeedCreatedProcessor-1"+JsonConvert.SerializeObject(eventValue));
-        _logger.Debug("SeedCreatedProcessor-2"+JsonConvert.SerializeObject(context));
-        var seedSymbolIndex = await _seedProvider.GetSeedSymbolIndexAsync(context.ChainId, eventValue.OwnedSymbol);
-        _loggerProcessor.LogDebug("SeedCreatedProcessor ImageUrl:{ImageUrl}", eventValue.ImageUrl);
+        Logger.LogDebug("SeedCreatedProcessor-1 {A}",JsonConvert.SerializeObject(eventValue));
+        Logger.LogDebug("SeedCreatedProcessor-2 {B}",JsonConvert.SerializeObject(context));
+        var seedSymbolIndex = await GetSeedSymbolIndexAsync(context.ChainId, eventValue.OwnedSymbol);
+        Logger.LogDebug("SeedCreatedProcessor ImageUrl:{ImageUrl}", eventValue.ImageUrl);
         _objectMapper.Map(context, seedSymbolIndex);
         seedSymbolIndex.SeedSymbol = eventValue.Symbol;
         seedSymbolIndex.Symbol = eventValue.OwnedSymbol;
         seedSymbolIndex.Status = SeedStatus.UNREGISTERED;
-        seedSymbolIndex.RegisterTime = DateTimeHelper.ToUnixTimeMilliseconds(context.BlockTime);
+        seedSymbolIndex.RegisterTime = DateTimeHelper.ToUnixTimeMilliseconds(context.Block.BlockTime);
         seedSymbolIndex.ExpireTime = eventValue.ExpireTime;
-        seedSymbolIndex.SeedType = eventValue.SeedType;
+        seedSymbolIndex.OfType(eventValue.SeedType);
         seedSymbolIndex.Owner = eventValue.To.ToBase58();
         seedSymbolIndex.SeedImage = eventValue.ImageUrl;
         if (eventValue.SeedType == SeedType.Disable)
         {
             seedSymbolIndex.Status = SeedStatus.NOTSUPPORT;
         }
-        await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(seedSymbolIndex);
-
-        if (seedSymbolIndex.SeedType != SeedType.Unique)
+        await SaveEntityAsync(seedSymbolIndex);
+        if (seedSymbolIndex.IntSeedType != (int)SeedType.Unique)
         {
-            _logger.Debug("SeedCreatedProcessor-3");
+            Logger.LogDebug("SeedCreatedProcessor-3");
             var seedMainChainChangeIndex = new SeedMainChainChangeIndex
             {
                 Symbol = eventValue.Symbol,
-                UpdateTime = context.BlockTime,
-                TransactionId = context.TransactionId,
+                UpdateTime = context.Block.BlockTime,
+                TransactionId = context.Transaction.TransactionId,
                 Id = IdGenerateHelper.GetSeedMainChainChangeId(context.ChainId, seedSymbolIndex.SeedSymbol)
             };
-            _logger.Debug("SeedCreatedProcessor-4"+JsonConvert.SerializeObject(seedMainChainChangeIndex));
+            Logger.LogDebug("SeedCreatedProcessor-4 {A}",JsonConvert.SerializeObject(seedMainChainChangeIndex));
             _objectMapper.Map(context, seedMainChainChangeIndex);
-            _logger.Debug("SeedCreatedProcessor-5"+JsonConvert.SerializeObject(seedMainChainChangeIndex));
-            await _seedMainChainChangeIndexRepository.AddOrUpdateAsync(seedMainChainChangeIndex);
-            _logger.Debug("SeedCreatedProcessor-6");
+            Logger.LogDebug("SeedCreatedProcessor-5 {A}",JsonConvert.SerializeObject(seedMainChainChangeIndex));
+            await SaveEntityAsync(seedMainChainChangeIndex);
+            Logger.LogDebug("SeedCreatedProcessor-6");
         }
         
         //update the same prefix nft or ft seed symbol status
@@ -93,23 +66,43 @@ public class SeedCreatedProcessor: AElfLogEventProcessorBase<SeedCreated, LogEve
         {
             var nftSymbol= TokenHelper.GetNftSymbol(eventValue.OwnedSymbol);
             var nftSeedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, nftSymbol);
-            var nftSeedSymbolIndex = await _tsmSeedSymbolIndexRepository.GetFromBlockStateSetAsync(nftSeedSymbolId, context.ChainId);
+            var nftSeedSymbolIndex = 
+            await GetEntityAsync<TsmSeedSymbolIndex>(nftSeedSymbolId);
             if(nftSeedSymbolIndex==null) {return;}
             
             _objectMapper.Map(context, nftSeedSymbolIndex);
             nftSeedSymbolIndex.Status = SeedStatus.NOTSUPPORT;
-            await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(nftSeedSymbolIndex);
+            await SaveEntityAsync(nftSeedSymbolIndex);
         }
         else
         {
             var ftSymbol= TokenHelper.GetFtSymbol(eventValue.OwnedSymbol);
             var ftSeedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, ftSymbol);
-            var ftSeedSymbolIndex = await _tsmSeedSymbolIndexRepository.GetFromBlockStateSetAsync(ftSeedSymbolId, context.ChainId);
+            var ftSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(ftSeedSymbolId);
             if(ftSeedSymbolIndex==null) {return;}
             
             _objectMapper.Map(context, ftSeedSymbolIndex);
             ftSeedSymbolIndex.Status = SeedStatus.NOTSUPPORT;
-            await _tsmSeedSymbolIndexRepository.AddOrUpdateAsync(ftSeedSymbolIndex);
+            await SaveEntityAsync(ftSeedSymbolIndex);
         }
+    }
+    
+    public async Task<TsmSeedSymbolIndex> GetSeedSymbolIndexAsync(string chainId, string symbol)
+    {
+        var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, symbol);
+        var seedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(seedSymbolId);
+        
+        if (seedSymbolIndex == null)
+        {
+            seedSymbolIndex = new TsmSeedSymbolIndex
+            {
+                Id = seedSymbolId,
+                Symbol = symbol,
+                SeedName = IdGenerateHelper.GetSeedName(symbol)
+            };
+            seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
+        }
+
+        return seedSymbolIndex;
     }
 }

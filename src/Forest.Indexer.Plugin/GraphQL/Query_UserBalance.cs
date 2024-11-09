@@ -1,9 +1,6 @@
-using AElfIndexer.Client;
-using AElfIndexer.Grains.State.Client;
+using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
-using Microsoft.Extensions.Logging;
-using Nest;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -12,48 +9,40 @@ public partial class Query
 {
     [Name("queryUserBalanceByNftId")]
     public static async Task<NFTUserBalanceDto> QueryUserBalanceByNftIdAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepo,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepo,
         [FromServices] IObjectMapper objectMapper,
         GetUserBalanceDto dto)
     {
-        var userBalanceQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>
+        var queryable = await userBalanceRepo.GetQueryableAsync();
+        queryable = queryable.Where(index => index.NFTInfoId == dto.nftInfoId && index.Amount>0);
+
+        var totalCount = queryable.Count();
+        var result = queryable.Skip(0).Take((int)ForestIndexerConstants.EsLimitTotalNumber).ToList();
+        
+        if (result?.Count == ForestIndexerConstants.EsLimitTotalNumber)
         {
-            q => q.Term(i 
-                => i.Field(index => index.NFTInfoId).Value(dto.nftInfoId)),
-            q => q.Range(i 
-                => i.Field(index => index.Amount).GreaterThan(0))
-        };
-
-        QueryContainer UserBalanceFilter(QueryContainerDescriptor<UserBalanceIndex> f) =>
-            f.Bool(b => b.Must(userBalanceQuery));
-
-        var result = await userBalanceRepo.GetListAsync(UserBalanceFilter, limit: 1);
-
-        var totalCount = result?.Item1;
-        if (result?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
-        {
-            totalCount =
-                await QueryRealCountAsync(userBalanceRepo, userBalanceQuery, null);
+            var queryableCount = await userBalanceRepo.GetQueryableAsync();
+            queryableCount = queryableCount.Where(index => index.NFTInfoId == dto.nftInfoId && index.Amount>0);
+            totalCount = queryableCount.Count();
         }
         
         return new NFTUserBalanceDto
         {
-            Owner = result?.Item1 > 0 ? result.Item2[0].Address : string.Empty,
-            OwnerCount =  (long)(totalCount == null ? 0 : totalCount),
+            Owner = result?.Count > 0 ? result.FirstOrDefault().Address : string.Empty,
+            OwnerCount =  totalCount,
         };
     }
-    
+
     [Name("queryUserNftIds")]
     public static async Task<UserMatchedNftIds> QueryUserNftIdsAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepository,
-        [FromServices] ILogger<UserBalanceIndex> logger,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
         GetNFTInfosDto dto)
     {
         //query match nft
         var script = dto.IsSeed
             ? ForestIndexerConstants.UserBalanceScriptForSeed
             : ForestIndexerConstants.UserBalanceScriptForNft;
-        var nftIds = await GetMatchedNftIdsAsync(userBalanceRepository, logger, dto, script);
+        var nftIds = await GetMatchedNftIdsAsync(userBalanceRepository, dto, script);
 
         return new UserMatchedNftIds
         {
@@ -61,17 +50,20 @@ public partial class Query
         };
     }
     
+    
     [Name("queryUserNftIdsPage")]
     public static async Task<UserMatchedNftIdsPage> QueryUserNftIdsPageAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepository,
-        [FromServices] ILogger<UserBalanceIndex> logger,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
         GetNFTInfosDto dto)
     {
         //query match nft
-        var script = dto.IsSeed
+        /*var script = dto.IsSeed
             ? ForestIndexerConstants.UserBalanceScriptForSeed
-            : ForestIndexerConstants.UserBalanceScriptForNft;
-        var result = await GetMatchedNftIdsPageAsync(userBalanceRepository, logger, dto, script);
+            : ForestIndexerConstants.UserBalanceScriptForNft;*/
+        var script = dto.IsSeed
+            ? "UserBalanceScriptForSeed"
+            : "UserBalanceScriptForNft";
+        var result = await GetMatchedNftIdsPageAsync(userBalanceRepository, dto, script);
 
         return new UserMatchedNftIdsPage
         {
@@ -82,89 +74,79 @@ public partial class Query
 
     [Name("queryOwnersByNftId")]
     public static async Task<NFTOwnersPageResultDto> QueryOwnersByNftIdAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepo,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepo,
         [FromServices] IObjectMapper objectMapper,
         GetNFTOwnersDto input)
     {
-        var userBalanceQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>
-        {
-            q => q.Term(i 
-                => i.Field(index => index.NFTInfoId).Value(input.NftInfoId)),
-            q => q.Range(i 
-                => i.Field(index => index.Amount).GreaterThan(0))
-        };
-        
+        var queryable = await userBalanceRepo.GetQueryableAsync();
+        queryable = queryable.Where(index => index.NFTInfoId == input.NftInfoId);
+        queryable = queryable.Where(index => index.Amount > 0);
+
         if (!input.ChainId.IsNullOrEmpty())
-            userBalanceQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(input.ChainId)));
+            queryable = queryable.Where(index => index.ChainId == input.ChainId);
 
-        
-        QueryContainer UserBalanceFilter(QueryContainerDescriptor<UserBalanceIndex> f) =>
-            f.Bool(b => b.Must(userBalanceQuery));
-
-        var result = await userBalanceRepo.GetSortListAsync(UserBalanceFilter, 
-            sortFunc:GetSortForUserBalance(), skip: input.SkipCount, limit: input.MaxResultCount);
-
-        var totalCount = result?.Item1;
-        if (result?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        var result = queryable
+            .OrderByDescending(a => a.Amount)
+            .OrderBy(a => a.Address)
+            .Skip(input.SkipCount)
+            .Take(input.MaxResultCount)
+            .ToList();
+        var totalCount = result?.Count;
+        if (result?.Count == ForestIndexerConstants.EsLimitTotalNumber)
         {
-            totalCount =
-                await QueryRealCountAsync(userBalanceRepo, userBalanceQuery, null);
+            totalCount = queryable.Count();
         }
         
         return new NFTOwnersPageResultDto
         {
             TotalCount = (long)(totalCount == null ? 0 : totalCount),
-            Data = objectMapper.Map<List<UserBalanceIndex>, List<NFTOwnerInfoDto>>(result.Item2)
+            Data = objectMapper.Map<List<UserBalanceIndex>, List<NFTOwnerInfoDto>>(result)
         };
     }
     
     [Name("queryUserBalanceList")]
     public static async Task<UserBalancePageResultDto> queryUserBalanceListAsync(
-        [FromServices] IAElfIndexerClientEntityRepository<UserBalanceIndex, LogEventInfo> userBalanceRepo,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepo,
         [FromServices] IObjectMapper objectMapper,
         GetUserBalancesDto input)
     {
-        var userBalanceQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
-        if (!input.ChainId.IsNullOrEmpty()){
-            userBalanceQuery.Add(q => q.Term(i => i.Field(f => f.ChainId).Value(input.ChainId)));
-        }
-        userBalanceQuery.Add(q => q.Range(i
-            => i.Field(f => f.BlockHeight).GreaterThanOrEquals(input.BlockHeight)));
-        
-        QueryContainer UserBalanceFilter(QueryContainerDescriptor<UserBalanceIndex> f) =>
-            f.Bool(b => b.Must(userBalanceQuery));
+        var queryable = await userBalanceRepo.GetQueryableAsync();
 
-        var result = await userBalanceRepo.GetSortListAsync(UserBalanceFilter, 
-            sortFunc:GetSortForUserBalanceByBolockHeight(), skip: input.SkipCount
-            , limit:ForestIndexerConstants.QueryUserBalanceListDefaultSize
-            );
-
-        var totalCount = result?.Item1;
-        if (result?.Item1 == ForestIndexerConstants.EsLimitTotalNumber)
+        // var userBalanceQuery = new List<Func<QueryContainerDescriptor<UserBalanceIndex>, QueryContainer>>();
+        if (!input.ChainId.IsNullOrEmpty())
         {
-            totalCount =
-                await QueryRealCountAsync(userBalanceRepo, userBalanceQuery, null);
+            queryable = queryable.Where(q=>q.ChainId == input.ChainId);
+        }
+        queryable = queryable.Where(f => f.BlockHeight >= input.BlockHeight);
+
+        var result = queryable.OrderBy(a=>a.BlockHeight).Skip(input.SkipCount).Take(ForestIndexerConstants.QueryUserBalanceListDefaultSize)
+            .ToList();
+
+        var totalCount = result?.Count;
+        if (result?.Count == ForestIndexerConstants.EsLimitTotalNumber)
+        {
+            totalCount = queryable.Count();
         }
         
         return new UserBalancePageResultDto
         {
             TotalCount = (long)(totalCount == null ? 0 : totalCount),
-            Data = objectMapper.Map<List<UserBalanceIndex>, List<UserBalanceDto>>(result.Item2)
+            Data = objectMapper.Map<List<UserBalanceIndex>, List<UserBalanceDto>>(result)
         };
     }
-    private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalanceByBolockHeight()
+    /*private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalanceByBolockHeight()
     {
         SortDescriptor<UserBalanceIndex> sortDescriptor = new SortDescriptor<UserBalanceIndex>();
         sortDescriptor.Ascending(a=>a.BlockHeight);
         IPromise<IList<ISort>> promise = sortDescriptor;
         return s => promise;
-    }
-    private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalance()
+    }*/
+    /*private static Func<SortDescriptor<UserBalanceIndex>, IPromise<IList<ISort>>> GetSortForUserBalance()
     {
         SortDescriptor<UserBalanceIndex> sortDescriptor = new SortDescriptor<UserBalanceIndex>();
         sortDescriptor.Descending(a=>a.Amount);
         sortDescriptor.Ascending(a=>a.Address);
         IPromise<IList<ISort>> promise = sortDescriptor;
         return s => promise;
-    }
+    }*/
 }
