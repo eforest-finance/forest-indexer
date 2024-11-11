@@ -47,7 +47,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol,
             eventValue.Burner.ToBase58(),
             -eventValue.Amount, context);
-        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context);
+        // await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.Burner.ToBase58(), context); todo v2
         
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
@@ -116,6 +116,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
         }
         int skip = 0;
         int limit = 80;
+        return;//todo v2 tem
         
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
@@ -371,12 +372,6 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
     public async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
     {
         // NFT activity
-        var nftActivityIndexExists = await GetEntityAsync<NFTActivityIndex>(nftActivityIndex.Id);
-        if (nftActivityIndexExists != null)
-        {
-            Logger.LogDebug("[AddNFTActivityAsync] FAIL: activity EXISTS, nftActivityIndexId={Id}", nftActivityIndex.Id);
-            return false;
-        }
 
         var from = nftActivityIndex.From;
         var to = nftActivityIndex.To;

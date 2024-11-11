@@ -35,7 +35,7 @@ public partial class Query
         
         if (!dto.CollectionType.IsNullOrEmpty())
         {
-            queryable = queryable.Where(q => dto.CollectionType.Contains((int)q.CollectionType));
+            queryable = queryable.Where(q => dto.CollectionType.Contains(q.IntCollectionType));
         }
 
         if (!dto.Param.IsNullOrEmpty())
@@ -45,7 +45,7 @@ public partial class Query
             
         }
 
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount).OrderByDescending(k => k.CreateTime).ToList();
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
         var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result);
         var pageResult = new NFTCollectionPageResultDto
         {
@@ -61,7 +61,7 @@ public partial class Query
         [FromServices] IObjectMapper objectMapper,
         GetNFTCollectionsByAddressListDto dto)
     {
-        var queryable = await repository.GetQueryableAsync();
+       
         if (dto == null)
             return new NFTCollectionPageResultDto
             {
@@ -69,14 +69,27 @@ public partial class Query
                 Data = new List<NFTCollectionDto>()
             };
 
+        var queryable = await repository.GetQueryableAsync();
         if (!dto.AddressList.IsNullOrEmpty())
         {
-            queryable = queryable.Where(q => q.OwnerManagerSet.Any(i=>dto.AddressList.Contains(i)));
+            var address1 = dto.AddressList.Count >= 1 ? dto.AddressList[0] : "";
+            var address2 = dto.AddressList.Count >= 2 ? dto.AddressList[1] : "";
+            
+            if (!string.IsNullOrEmpty(address1) && string.IsNullOrEmpty(address2))
+            {
+                queryable = queryable.Where(q =>
+                    q.RandomOwnerManager == address1);
+            }
+            else if(!string.IsNullOrEmpty(address1) && !string.IsNullOrEmpty(address2))
+            {
+                queryable = queryable.Where(q =>
+                    q.RandomOwnerManager == address1 || q.RandomOwnerManager == address2);
+            }
         }
         
         if (!dto.CollectionType.IsNullOrEmpty())
         {
-            queryable = queryable.Where(q => dto.CollectionType.Contains((int)q.CollectionType));
+            queryable = queryable.Where(q => dto.CollectionType.Contains(q.IntCollectionType));
             
         }
 
@@ -85,7 +98,7 @@ public partial class Query
             queryable = queryable.Where(q => (q.Symbol == dto.Param || q.TokenName == dto.Param));
         }
 
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount).OrderByDescending(k => k.CreateTime)
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount)
             .ToList();
         var dataList = objectMapper.Map<List<CollectionIndex>, List<NFTCollectionDto>>(result);
         var pageResult = new NFTCollectionPageResultDto
@@ -134,7 +147,7 @@ public partial class Query
         if (dto == null || dto.Id.IsNullOrWhiteSpace()) return null;
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(q => q.Id == dto.Id);
-        var nftCollectionIndex = queryable.ToList();
+        var nftCollectionIndex = queryable.Skip(0).Take(1).ToList();
         if (nftCollectionIndex.IsNullOrEmpty()) return null;
 
         return objectMapper.Map<CollectionIndex, NFTCollectionDto>(nftCollectionIndex.FirstOrDefault());
@@ -168,13 +181,14 @@ public partial class Query
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
         queryable = queryable.Where(f => f.ChainId == dto.ChainId);
-        var result = queryable.Skip(dto.SkipCount).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(dto.SkipCount)
+            .Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         if (result.IsNullOrEmpty())
         {
             return new CollectionChangePageResultDto
             {
                 TotalRecordCount = 0,
-                Data = null
+                Data = new List<CollectionChangeDto>()
             };
         }
         var dataList = objectMapper.Map<List<CollectionChangeIndex>, List<CollectionChangeDto>>(result);
@@ -195,7 +209,8 @@ public partial class Query
         var queryable = await repository.GetQueryableAsync();
         queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
         queryable = queryable.Where(f => f.ChainId == dto.ChainId);
-        var result = queryable.Skip(dto.SkipCount).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(dto.SkipCount)
+            .Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         if (result.IsNullOrEmpty())
         {
             return new CollectionPriceChangePageResultDto
@@ -283,9 +298,9 @@ public partial class Query
         var dataList = new List<NFTInfoIndex>();
         do
         {
-            var result = queryable.Skip(itemTotal).Take(QuerySize).OrderBy(o => o.BlockHeight).ToList();
+            var result = queryable.OrderBy(o => o.BlockHeight).Skip(itemTotal).Take(QuerySize).ToList();
             var count = result.IsNullOrEmpty() ? 0 : result.Count;
-            Logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",count);
+            // Logger.LogInformation("[GenerateNFTCollectionExtensionByIds] : dataList totalCount:{totalCount}",count);
             dataList = result;
             if (dataList.IsNullOrEmpty())
             {
@@ -330,8 +345,8 @@ public partial class Query
         var dataList = new List<UserBalanceIndex>();
         do
         {
-            var result = queryable.Skip(skipCount).Take(QuerySize).OrderBy(o => o.BlockHeight).ToList();
-            Logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result?.Count);
+            var result = queryable.OrderBy(o => o.BlockHeight).Skip(skipCount).Take(QuerySize).ToList();
+            // Logger.LogInformation("[GenerateUserCountByNFTIds] : nftInfoList totalCount:{totalCount}", result?.Count);
             dataList = result;
             if (dataList.IsNullOrEmpty())
             {
@@ -362,7 +377,7 @@ public partial class Query
         {
             var result = queryable.Skip(itemTotal).Take(QuerySize).ToList();
             var count = result.IsNullOrEmpty() ? 0 : result.Count;
-            Logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", count);
+            // Logger.LogInformation("[GenerateUserCountByNFTIds] : SeedSymbolIndexList totalCount:{totalCount}", count);
             dataList = result;
             if (dataList.IsNullOrEmpty())
             {

@@ -35,7 +35,7 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
         seedSymbolIndex.Status = SeedStatus.UNREGISTERED;
         seedSymbolIndex.RegisterTime = DateTimeHelper.ToUnixTimeMilliseconds(context.Block.BlockTime);
         seedSymbolIndex.ExpireTime = eventValue.ExpireTime;
-        seedSymbolIndex.SeedType = eventValue.SeedType;
+        seedSymbolIndex.OfType(eventValue.SeedType);
         seedSymbolIndex.Owner = eventValue.To.ToBase58();
         seedSymbolIndex.SeedImage = eventValue.ImageUrl;
         if (eventValue.SeedType == SeedType.Disable)
@@ -43,7 +43,7 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
             seedSymbolIndex.Status = SeedStatus.NOTSUPPORT;
         }
         await SaveEntityAsync(seedSymbolIndex);
-        if (seedSymbolIndex.SeedType != SeedType.Unique)
+        if (seedSymbolIndex.IntSeedType != (int)SeedType.Unique)
         {
             Logger.LogDebug("SeedCreatedProcessor-3");
             var seedMainChainChangeIndex = new SeedMainChainChangeIndex
@@ -98,9 +98,9 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
             {
                 Id = seedSymbolId,
                 Symbol = symbol,
-                SeedName = IdGenerateHelper.GetSeedName(symbol),
-                TokenType = TokenHelper.GetTokenType(symbol)
+                SeedName = IdGenerateHelper.GetSeedName(symbol)
             };
+            seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
         }
 
         return seedSymbolIndex;

@@ -134,10 +134,12 @@ public class NFTInfoProvider : INFTInfoProvider, ISingletonDependency
             offerInfos.Add(current);
         }
         //order by price desc, expireTime desc
-        offerInfos = offerInfos.Where(index =>
+        offerInfos = offerInfos.Where(i=>i!=null).Where(index =>
                 index.ExpireTime >= DateTime.UtcNow)
             .OrderByDescending(info => info.Price)
             .ThenByDescending(info => info.ExpireTime)
+            .Skip(0)
+            .Take(1)
             .ToList();
         var maxOfferInfo = offerInfos.FirstOrDefault();
         Logger.LogDebug(

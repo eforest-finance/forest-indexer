@@ -30,6 +30,7 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
 
     public async override Task ProcessAsync(TransactionFeeCharged eventValue, LogEventContext context)
     {
+        return;//todo v2
         // Logger.LogDebug("TransactionFeeChargedLogEventProcessor-1 {A}",JsonConvert.SerializeObject(eventValue));
         // Logger.LogDebug("TransactionFeeChargedLogEventProcessor-2 {A}",JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
@@ -91,6 +92,7 @@ public class TransactionFeeChargedLogEventProcessor : LogEventProcessorBase<Tran
         }
         int skip = 0;
         int limit = 80;
+        return;//todo v2 tem
         
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();

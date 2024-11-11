@@ -9,7 +9,7 @@ public class SymbolMarkerTokenPageResultDto
 
 public class SymbolMarkerTokenDto
 {
-    public string SymbolMarketTokenLogoImage { get; set; }
+    public string? SymbolMarketTokenLogoImage { get; set; }
     public string Symbol { get; set; }
     public string TokenName { get; set; }
     public int Decimals { get; set; }

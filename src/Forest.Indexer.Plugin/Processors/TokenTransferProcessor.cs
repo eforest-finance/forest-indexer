@@ -167,9 +167,9 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
             eventValue.From.ToBase58(),
             -eventValue.Amount, context);
         await UpdateOfferRealQualityAsync(eventValue.Symbol, fromUserBalance,
-            eventValue.From.ToBase58(),
-            context); 
-        await   UpdateListingInfoRealQualityAsync(eventValue.Symbol, fromUserBalance,
+             eventValue.From.ToBase58(),
+             context);
+         await   UpdateListingInfoRealQualityAsync(eventValue.Symbol, fromUserBalance,
             eventValue.From.ToBase58(), context);
     }
     public async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
@@ -251,13 +251,13 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         var userBalanceTo = await QueryUserBalanceByIdAsync(userBalanceToId, context.ChainId);
         if (userBalanceTo == null)
         {
-            var lastNFTListingInfoDic =
-                await QueryLatestNFTListingInfoByNFTIdsAsync(new List<string> { nftInfoIndexId },
-                    "");
-
-            var lastNFTListingInfo = lastNFTListingInfoDic != null && lastNFTListingInfoDic.ContainsKey(nftInfoIndexId)
-                ? lastNFTListingInfoDic[nftInfoIndexId]
-                : new NFTListingInfoIndex();
+            // var lastNFTListingInfoDic =
+            //     await QueryLatestNFTListingInfoByNFTIdsAsync(new List<string> { nftInfoIndexId },
+            //         "");
+            //
+            // var lastNFTListingInfo = lastNFTListingInfoDic != null && lastNFTListingInfoDic.ContainsKey(nftInfoIndexId)
+            //     ? lastNFTListingInfoDic[nftInfoIndexId]
+            //     : new NFTListingInfoIndex(); todo v2
             userBalanceTo = new UserBalanceIndex
             {
                 Id = userBalanceToId,
@@ -267,8 +267,8 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
                 Address = eventValue.To.ToBase58(),
                 Amount = eventValue.Amount,
                 ChangeTime = context.Block.BlockTime,
-                ListingPrice = lastNFTListingInfo.Prices,
-                ListingTime = lastNFTListingInfo.StartTime
+                //ListingPrice = lastNFTListingInfo.Prices,
+                //ListingTime = lastNFTListingInfo.StartTime todo v2
             };
         }
         else
@@ -284,7 +284,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalanceTo.Amount, eventValue.To.ToBase58(), context);
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
     }
-    private async Task<Dictionary<string, NFTListingInfoIndex>> QueryLatestNFTListingInfoByNFTIdsAsync(
+    private async Task<Dictionary<string, NFTListingInfoIndex>> QueryLatestNFTListingInfoByNFTIdsAsync1(
         List<string> nftInfoIds, string noListingId)
     {
         if (nftInfoIds == null) return new Dictionary<string, NFTListingInfoIndex>();
@@ -322,7 +322,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
             queryable = queryable.Where(index => index.Id != noListingId);
         }
 
-        var result = queryable.Skip(0).Take(1).OrderByDescending(k => k.BlockHeight).ToList();
+        var result = queryable.OrderByDescending(k => k.BlockHeight).Skip(0).Take(1).ToList();
         return result?.FirstOrDefault();
     }
     private async Task UpdateListingInfoRealQualityAsync(string symbol, long balance, string ownerAddress, LogEventContext context)
@@ -343,22 +343,11 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
 
         int skip = 0;
         var nftListings = new List<NFTListingInfoIndex>();
-        int queryCount = 0;
-        while (queryCount < ForestIndexerConstants.MaxQueryCount)
-        {
+        int limit = 80;
 
-            var result = queryable.Skip(skip).Take(ForestIndexerConstants.MaxQuerySize).OrderByDescending(x=>x.BlockHeight).ToList();
-            if (result.IsNullOrEmpty())
-            {
-                break;
-            }
-            if(result.Count < ForestIndexerConstants.MaxQuerySize)
-            {
-                nftListings.AddRange(result);
-                break;
-            }
-            skip += ForestIndexerConstants.MaxQuerySize;
-            queryCount++;
+        {
+            var result = queryable.OrderByDescending(x=>x.BlockHeight).Skip(skip).Take(limit).ToList();
+            nftListings.AddRange(result);
         }
 
         var writeCount = 0;
@@ -396,7 +385,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         }
         int skip = 0;
         int limit = 80;
-        
+
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
             var utcNow = DateTime.UtcNow;

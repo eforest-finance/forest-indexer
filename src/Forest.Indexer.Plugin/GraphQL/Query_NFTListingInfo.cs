@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
@@ -24,7 +25,7 @@ public partial class Query
         var tokenId = IdGenerateHelper.GetTokenInfoId(input.ChainId, input.Symbol);
         var queryableToken = await tokenIndexRepository.GetQueryableAsync();
         queryableToken = queryableToken.Where(i => i.Id == tokenId);
-        var tokenInfoIndex = queryableToken.FirstOrDefault();
+        var tokenInfoIndex = queryableToken.Skip(0).Take(1).ToList().FirstOrDefault();
         if (tokenInfoIndex != null)
         {
             decimals = tokenInfoIndex.Decimals;
@@ -55,10 +56,10 @@ public partial class Query
         }
 
         var result = queryableListing
-            .Skip(input.SkipCount).Take(input.MaxResultCount)
             .OrderBy(a => a.Prices)
             .ThenBy(a => a.StartTime)
             .ThenBy(a => a.ExpireTime)
+            .Skip(input.SkipCount).Take(input.MaxResultCount)
             .ToList();
         
         // Logger.LogDebug(
@@ -113,10 +114,11 @@ public partial class Query
             queryable = queryable.Where(index => index.Owner == dto.Owner);
         }
 
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
+        var result = queryable
             .OrderBy(a=>a.Prices)
             .OrderBy(a=>a.StartTime)
             .OrderBy(a => a.ExpireTime)
+            .Skip(dto.SkipCount).Take(dto.MaxResultCount)
             .ToList();
 
         var dataList = result.Select(i =>
@@ -226,27 +228,27 @@ public partial class Query
         var utcNow = DateTime.UtcNow;
         var queryable = await nftListingRepo.GetQueryableAsync();
 
-        Logger.LogDebug($"[getMinPriceNft] INPUT: chainId={input.ChainId}, expired={input.ExpireTimeGt}");
+        //Logger.LogDebug("[getMinPriceNft] INPUT: chainId={A}, expired={B}", input.ChainId, input.ExpireTimeGt);
         
         queryable = queryable.Where(index => index.ChainId == input.ChainId);
         
         if (input.ExpireTimeGt != null && (long)input.ExpireTimeGt > 0)
         {
             queryable = queryable.Where(index =>
-                index.ExpireTime >= DateTimeHelper.FromUnixTimeMilliseconds((long)input.ExpireTimeGt));
+                index.ExpireTime >= DateTimeHelper.FromUnixTimeSeconds((long)input.ExpireTimeGt));
         }
         
         queryable = queryable.Where(index => index.ExpireTime < utcNow);
 
-        var result = queryable.Skip(0).ToList();
-        Logger.LogDebug($"[NFTListingInfo] STEP: query chainId={input.ChainId}, count={result?.Count}");
+        var result = queryable.Skip(0).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
+        //Logger.LogDebug("[NFTListingInfo] STEP: query chainId={A}, count={B}", input.ChainId, result?.Count);
         
         List<ExpiredNftMinPriceDto> data = new();
         foreach (var item in result)
         {
             var queryableListing = await nftListingRepo.GetQueryableAsync();
             queryableListing = queryableListing.Where(i => i.Id == item.NftInfoId);
-            var listingInfo = queryableListing.ToList();
+            var listingInfo = queryableListing.Skip(0).Take(1).ToList();
             if (listingInfo.IsNullOrEmpty())
             {
                 ExpiredNftMinPriceDto priceDto = new ExpiredNftMinPriceDto()
@@ -306,7 +308,7 @@ public partial class Query
         queryableListing = queryableListing.Where(index => index.ExpireTime >= expiredTime);
         queryableListing = queryableListing.Where(index => index.ExpireTime < utcNow);
 
-        var result = queryableListing.ToList();
+        var result = queryableListing.Skip(0).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
 
         return result ?? new List<NFTListingInfoIndex>();
     }
@@ -321,9 +323,9 @@ public partial class Query
         queryable = queryable.Where(f=>f.ChainId == dto.ChainId);
         queryable = queryable.Where(f=>f.BlockHeight >= dto.BlockHeight);
 
-        var result = queryable.Skip(dto.SkipCount)
-            .OrderBy(o => o.BlockHeight).ToList();
-        var dataList = objectMapper.Map<List<NFTListingChangeIndex>, List<NFTListingChangeDto>>(result);
+         var result = queryable
+             .OrderBy(o => o.BlockHeight).Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
+         var dataList = objectMapper.Map<List<NFTListingChangeIndex>, List<NFTListingChangeDto>>(result);
         var pageResult = new NFTListingChangeDtoPageResultDto
         {
             TotalRecordCount = result.Count,
@@ -341,21 +343,21 @@ public partial class Query
         if (input.ChainId.IsNullOrWhiteSpace())
             return new NftListingPageResultDto("invalid input param");
 
-        Logger.LogDebug("[NFTListingInfoAll] INPUT: chainId={A}, blockHeight={B}", input.ChainId, input.BlockHeight);
+        //Logger.LogDebug("[NFTListingInfoAll] INPUT: chainId={A}, blockHeight={B}", input.ChainId, input.BlockHeight);
         var queryable = await nftListingRepo.GetQueryableAsync();
         // query listing info
         queryable = queryable.Where(f=>f.ChainId == input.ChainId);
         queryable = queryable.Where(f=>f.BlockHeight >= input.BlockHeight);
         if (input.ExpireTimeGt != null)
         {
-            var expiredTime = DateTimeHelper.FromUnixTimeMilliseconds((long)input.ExpireTimeGt);
+            var expiredTime = DateTimeHelper.FromUnixTimeSeconds((long)input.ExpireTimeGt);
             queryable = queryable.Where(index=>index.ExpireTime > expiredTime);
         }
 
-        var result = queryable.Skip(input.SkipCount).Take(input.MaxResultCount).OrderBy(a=>a.BlockHeight).ToList();
+        var result = queryable.OrderBy(a=>a.BlockHeight).Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
         var count = result.IsNullOrEmpty() ? 0 : result.Count;
-        Logger.LogDebug(
-            "[NFTListingInfoAll] SETP: query Pager chainId={A}, height={B}, count={C}", input.ChainId, input.BlockHeight,count);
+        // Logger.LogDebug(
+        //     "[NFTListingInfoAll] SETP: query Pager chainId={A}, height={B}, count={C}", input.ChainId, input.BlockHeight,count);
         
         var dataList = result.Select(i =>
         {
@@ -366,8 +368,8 @@ public partial class Query
             return item;
         }).ToList();
 
-        Logger.LogDebug(
-            "[NFTListingInfoAll] SETP: Convert Data chainId={A}, height={B}, count={C}",input.ChainId, input.BlockHeight,dataList.Count);
+        // Logger.LogDebug(
+        //     "[NFTListingInfoAll] SETP: Convert Data chainId={A}, height={B}, count={C}",input.ChainId, input.BlockHeight,dataList.Count);
         return new NftListingPageResultDto(result.Count, dataList);
     }
 }

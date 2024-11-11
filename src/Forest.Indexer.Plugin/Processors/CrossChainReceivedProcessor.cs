@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
@@ -47,8 +48,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
             eventValue.Amount,
             context);
-        await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
-        await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
+         await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
+         await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
         if (SymbolHelper.CheckSymbolIsSeedSymbol(eventValue.Symbol))
@@ -73,7 +74,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         }
         int skip = 0;
         int queryCount;
-        int limit = 1000;
+        int limit = 80;
         do
         {
             var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
@@ -102,8 +103,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
                 writeCount++;
                 if (writeCount >= ForestIndexerConstants.MaxWriteDBRecord)
                 {
-                    Logger.LogInformation("CrossChainReceivedProcessor.UpdateOfferRealQualityAsync recordCount:{A} ,limit:{B}, offerFrom:{C},symbol:{D}, balance:{E}",
-                        result.Count,ForestIndexerConstants.MaxWriteDBRecord, offerFrom, symbol, balance);
+                    // Logger.LogInformation("CrossChainReceivedProcessor.UpdateOfferRealQualityAsync recordCount:{A} ,limit:{B}, offerFrom:{C},symbol:{D}, balance:{E}",
+                    //     result.Count,ForestIndexerConstants.MaxWriteDBRecord, offerFrom, symbol, balance);
                     break;
                 }
 
@@ -117,9 +118,9 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
                                                                 (decimal)Math.Pow(10,
                                                                     tokenIndex.Decimals))));
                     canBuyNum = (long)(canBuyNum * (decimal)Math.Pow(10, symbolTokenInfo.Decimals));
-                    Logger.LogInformation(
-                        "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
-                        offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
+                    // Logger.LogInformation(
+                    //     "UpdateOfferRealQualityAsync  offerInfoIndex.BizSymbol {BizSymbol} canBuyNum {CanBuyNum} Quantity {Quantity} RealQuantity {RealQuantity}",
+                    //     offerInfoIndex.BizSymbol, canBuyNum, offerInfoIndex.Quantity, offerInfoIndex.RealQuantity);
                     var realQuantity = Math.Min((long)offerInfoIndex.Quantity, canBuyNum);
                     if (realQuantity != offerInfoIndex.RealQuantity)
                     {
@@ -128,9 +129,9 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
                         var research = await GetEntityAsync<OfferInfoIndex>(offerInfoIndex.Id);
                         if (research == null)
                         {
-                            Logger.LogInformation(
-                                "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
-                                offerInfoIndex.Id);
+                            // Logger.LogInformation(
+                            //     "UpdateOfferRealQualityAsync offerInfoIndex.Id is not exist,not update {OfferInfoIndexId}",
+                            //     offerInfoIndex.Id);
                             continue;
                         }
                         await SaveEntityAsync(offerInfoIndex);
@@ -140,7 +141,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
 
             queryCount = result.Count;
             skip += limit;
-        } while (queryCount == limit);
+        } while (queryCount >= limit);
     }
     private async Task<bool> NeedRecordBalance(string symbol, string offerFrom, string chainId)
     {
@@ -215,11 +216,11 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         _objectMapper.Map(context, seedSymbolIndexToChain);
         seedSymbolIndexToChain.Supply = eventValue.Amount;
         //add calc minNftListing
-        var minNftListing = await GetMinListingNftAsync(seedSymbolIndexIdToChainId);
-        if (minNftListing != null)
-        {
-            seedSymbolIndexToChain.OfMinNftListingInfo(minNftListing);
-        }
+        // var minNftListing = await GetMinListingNftAsync(seedSymbolIndexIdToChainId);
+        // if (minNftListing != null)
+        // {
+        //     seedSymbolIndexToChain.OfMinNftListingInfo(minNftListing);
+        // }
         
         await SaveEntityAsync(seedSymbolIndexToChain);
 
@@ -323,7 +324,7 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
              queryable = queryable.Where(q => !excludeListingIds.Contains(q.Id));
          }
 
-         var dataList = queryable.Skip(0).OrderBy(x=>x.Prices).ToList();
+         var dataList = queryable.OrderBy(x=>x.Prices).ToList();
          if (dataList.IsNullOrEmpty())
          {
              return new List<NFTListingInfoIndex>();
@@ -340,8 +341,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
         Logger.LogDebug("CrossChainReceived-5-nftInfoId {A}", nftInfoId);
         Logger.LogDebug("CrossChainReceived-6-nftInfo {B}",JsonConvert.SerializeObject(nftInfoIndex));
         if(nftInfoIndex == null) return;
-        var minNftListing = await GetMinListingNftAsync(nftInfoIndex.Id);
-        nftInfoIndex.OfMinNftListingInfo(minNftListing);
+        // var minNftListing = await GetMinListingNftAsync(nftInfoIndex.Id);
+        // nftInfoIndex.OfMinNftListingInfo(minNftListing);
         _objectMapper.Map(context, nftInfoIndex);
         nftInfoIndex.Supply += eventValue.Amount;
         await SaveEntityAsync(nftInfoIndex);
@@ -388,22 +389,10 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
 
         int skip = 0;
         var nftListings = new List<NFTListingInfoIndex>();
-        int queryCount = 0;
-        while (queryCount < MaxQueryCount)
+        int limit = 80;
         {
-
-            var result = queryable.Skip(skip).Take(MaxQuerySize).OrderByDescending(x=>x.BlockHeight).ToList();
-            if (result.IsNullOrEmpty())
-            {
-                break;
-            }
-            if(result.Count < MaxQuerySize)
-            {
-                nftListings.AddRange(result);
-                break;
-            }
-            skip += MaxQuerySize;
-            queryCount++;
+            var result = queryable.OrderByDescending(x=>x.BlockHeight).Skip(skip).Take(limit).ToList();
+            nftListings.AddRange(result);
         }
 
         var writeCount = 0;
@@ -413,8 +402,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
             writeCount++;
             if (writeCount >= ForestIndexerConstants.MaxWriteDBRecord)
             {
-                Logger.LogInformation("CrossChainReceivedProcessor.UpdateListingInfoRealQualityAsync recordCount:{A} ,limit:{B}, user:{C},symbol:{D}, balance:{E}",
-                    nftListings.Count,ForestIndexerConstants.MaxWriteDBRecord, ownerAddress, symbol, balance);
+                // Logger.LogInformation("CrossChainReceivedProcessor.UpdateListingInfoRealQualityAsync recordCount:{A} ,limit:{B}, user:{C},symbol:{D}, balance:{E}",
+                //     nftListings.Count,ForestIndexerConstants.MaxWriteDBRecord, ownerAddress, symbol, balance);
                 break;
             }
             var realNftListingInfoIndex = await GetEntityAsync<NFTListingInfoIndex>(nftListingInfoIndex.Id);
@@ -454,8 +443,8 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
          }
 
          _objectMapper.Map(context, userBalanceIndex);
-         Logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
-             symbol, userBalanceIndex.Amount);
+         // Logger.LogInformation("SaveUserBalanceAsync Address {Address} symbol {Symbol} balance {Balance}", address,
+         //     symbol, userBalanceIndex.Amount);
          await SaveEntityAsync(userBalanceIndex);
          return userBalanceIndex.Amount;
      }

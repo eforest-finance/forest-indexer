@@ -26,7 +26,7 @@ public partial class Query
         if (isSeed)
         {
             seedSymbolQueryable = seedSymbolQueryable.Where(i => i.Id == dto.Id);
-            var result = seedSymbolQueryable.ToList();
+            var result = seedSymbolQueryable.Skip(0).Take(1).ToList();
             if (result.IsNullOrEmpty())
             {
                 res = null;
@@ -39,7 +39,7 @@ public partial class Query
         else
         {
             nftInfoQueryable = nftInfoQueryable.Where(i => i.Id == dto.Id);
-            var result = nftInfoQueryable.ToList();
+            var result = nftInfoQueryable.Skip(0).Take(1).ToList();
             if (result.IsNullOrEmpty())
             {
                 res = null;
@@ -110,7 +110,7 @@ public partial class Query
             queryable = queryable.Where(f => f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         if (result.IsNullOrEmpty())
         {
             return new List<NFTInfoSyncDto>();
@@ -127,15 +127,15 @@ public partial class Query
     {
         if (dto == null || dto.Id.IsNullOrEmpty() || dto.ChainId.IsNullOrEmpty()) return null;
         var queryable = await repository.GetQueryableAsync();
-        queryable = queryable.Where(f => f.Id == dto.Id);
+        queryable = queryable.Where(f => f.Id == dto.Id && f.ChainId == dto.ChainId);
 
-        var result = queryable.ToList();
-        if (result.IsNullOrEmpty())
+        var result = queryable.Skip(0).Take(1).ToList().FirstOrDefault();
+        if (result == null)
         {
             return null;
         }
 
-        return objectMapper.Map<NFTInfoIndex, NFTInfoSyncDto>(result.FirstOrDefault());
+        return objectMapper.Map<NFTInfoIndex, NFTInfoSyncDto>(result);
     }
 
     /*private static Tuple<SortOrder, Expression<Func<NFTInfoIndex, object>>> GetSorting(string sorting)

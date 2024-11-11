@@ -21,10 +21,26 @@ public class ForestIndexerAutoMapperProfile : Profile
         CreateMap<SymbolMarketActivityIndex,SymbolMarkerActivityDto>();
         CreateMap<NFTListingChangeIndex,NFTListingChangeDto>();
         CreateMap<SeedSymbolIndex, SeedSymbolIndex>();
-        CreateMap<LogEventContext, OfferInfoIndex>();
-        CreateMap<LogEventContext, SeedMainChainChangeIndex>();
-        CreateMap<LogEventContext, NFTListingChangeIndex>();
-        CreateMap<LogEventContext, UserBalanceIndex>();
+        CreateMap<LogEventContext, OfferInfoIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.CreateTime,
+                opt => opt.MapFrom(source => source.Block.BlockTime));
+        CreateMap<LogEventContext, SeedMainChainChangeIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
+        CreateMap<LogEventContext, NFTListingChangeIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
+        CreateMap<LogEventContext, UserBalanceIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
         CreateMap<LogEventContext, NFTMarketDayIndex>();
         CreateMap<LogEventContext, NFTMarketWeekIndex>();
 
@@ -47,9 +63,17 @@ public class ForestIndexerAutoMapperProfile : Profile
             .Ignore(o => o.Price);
 
         CreateMap<LogEventContext, WhitelistIndex>();
-        CreateMap<LogEventContext, NFTActivityIndex>();
-        CreateMap<LogEventContext, UserBalanceIndex>();
-        CreateMap<SeedMainChainChangeIndex,SeedMainChainChangeDto>();
+        CreateMap<LogEventContext, NFTActivityIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.TransactionHash,
+                opt => opt.MapFrom(source => source.Transaction.TransactionId));
+        CreateMap<LogEventContext, UserBalanceIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
+        CreateMap<SeedMainChainChangeIndex, SeedMainChainChangeDto>();
 
         CreateMap<OfferInfoIndex, NFTOfferDto>()
             .ForMember(des => des.From, opt
@@ -59,25 +83,68 @@ public class ForestIndexerAutoMapperProfile : Profile
             .ForMember(des => des.ExpireTime, opt
                 => opt.MapFrom(source => source.ExpireTime));
         CreateMap<TokenInfoIndex, TokenInfoDto>();
-
-        CreateMap<LogEventContext, NFTActivityIndex>();
+        
         CreateMap<NFTActivityIndex, NFTActivityDto>().ForMember(destination => destination.NftInfoId,
             opt => opt.MapFrom(source => source.NftInfoId));
-        CreateMap<LogEventContext, NFTInfoIndex>();
-        CreateMap<LogEventContext, CollectionIndex>();
-        CreateMap<LogEventContext, TokenInfoIndex>();
+        CreateMap<LogEventContext, NFTInfoIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.CreateTime,
+                opt => opt.MapFrom(source => source.Block.BlockTime))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
+        CreateMap<LogEventContext, CollectionIndex>()
+            .ForMember(destination => destination.CreateTime,
+                opt => opt.MapFrom(source => source.Block.BlockTime));
+        CreateMap<LogEventContext, TokenInfoIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.CreateTime,
+                opt => opt.MapFrom(source => source.Block.BlockTime))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
         CreateMap<LogEventContext, NFTMarketInfoIndex>();
-        CreateMap<LogEventContext, SoldIndex>();
+        CreateMap<LogEventContext, SoldIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
 
-        CreateMap<LogEventContext, SeedSymbolIndex>();
+        CreateMap<LogEventContext, SeedSymbolIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.CreateTime,
+                opt => opt.MapFrom(source => source.Block.BlockTime))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
         CreateMap<LogEventContext, WhiteListManagerIndex>();
         CreateMap<LogEventContext, WhiteListExtraInfoIndex>();
-        CreateMap<TokenCreated, NFTInfoIndex>();
-        CreateMap<TokenCreated, SeedSymbolIndex>();
-        CreateMap<TokenCreated, CollectionIndex>();
-        CreateMap<TokenCreated, TokenInfoIndex>();
+        CreateMap<TokenCreated, NFTInfoIndex>()
+            .ForMember(destination => destination.Issuer,
+                opt => opt.MapFrom(source => source.Issuer.Value.Length != 0 ? source.Issuer.ToBase58() : ""))
+            .ForMember(destination => destination.Owner,
+                opt => opt.MapFrom(source => source.Owner.Value.Length != 0?source.Owner.ToBase58():""));
+        CreateMap<TokenCreated, SeedSymbolIndex>()
+            .ForMember(destination => destination.Issuer,
+                opt => opt.MapFrom(source => source.Issuer.Value.Length != 0 ? source.Issuer.ToBase58() : ""))
+            .ForMember(destination => destination.Owner,
+                opt => opt.MapFrom(source => source.Owner.Value.Length != 0?source.Owner.ToBase58():""));
+        CreateMap<TokenCreated, CollectionIndex>()
+            .ForMember(destination => destination.Issuer,
+                opt => opt.MapFrom(source => source.Issuer.Value.Length != 0 ? source.Issuer.ToBase58() : ""))
+            .ForMember(destination => destination.Owner,
+                opt => opt.MapFrom(source => source.Owner.Value.Length != 0?source.Owner.ToBase58():""));
+        CreateMap<TokenCreated, TokenInfoIndex>()
+            .ForMember(destination => destination.Issuer,
+                opt => opt.MapFrom(source => source.Issuer.Value.Length != 0 ? source.Issuer.ToBase58() : ""))
+            .ForMember(destination => destination.Owner,
+                opt => opt.MapFrom(source => source.Owner.Value.Length != 0?source.Owner.ToBase58():""));
 
-        CreateMap<LogEventContext, NFTListingInfoIndex>();
+        CreateMap<LogEventContext, NFTListingInfoIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight)) 
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
 
         CreateMap<ListedNFTAdded, NFTListingInfoIndex>()
             .ForMember(des => des.Owner, opt
@@ -156,30 +223,69 @@ public class ForestIndexerAutoMapperProfile : Profile
         // white list query
 
         // agent
-        CreateMap<LogEventContext, ProxyAccountIndex>();
+        CreateMap<LogEventContext, ProxyAccountIndex>()
+            .ForMember(destination => destination.CreateTime,
+                opt => opt.MapFrom(source => source.Block.BlockTime));
         
-        CreateMap<LogEventContext, SymbolMarketActivityIndex>();
+        CreateMap<LogEventContext, SymbolMarketActivityIndex>()
+            .ForMember(destination => destination.TransactionId,
+                opt => opt.MapFrom(source => source.Transaction.TransactionId));
         CreateMap<LogEventContext, SeedSymbolMarketTokenIndex>()
-            .ForMember(d=>d.CreateTime,opt=>opt.MapFrom(o=>o.Block.BlockTime));
+            .ForMember(destination => destination.CreateTime,
+                opt => opt.MapFrom(source => source.Block.BlockTime))
+            .ForMember(destination => destination.TransactionId,
+                opt => opt.MapFrom(source => source.Transaction.TransactionId));
         CreateMap<SeedSymbolMarketTokenIndex, SymbolMarkerTokenDto>()
             .ForMember(d => d.IssueManagerList,
                 opt => opt.MapFrom(d =>
                     d.IssueManagerSet == null ? new List<string>() : d.IssueManagerSet.ToList()));
         CreateMap<LogEventContext, TsmSeedSymbolIndex>()
-            .ForMember(dest => dest.Status, opt => opt.Ignore());
-        CreateMap<LogEventContext, SeedPriceIndex>();
-        CreateMap<LogEventContext, UniqueSeedPriceIndex>();
+            .ForMember(dest => dest.Status, opt => opt.Ignore())
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
+        CreateMap<LogEventContext, SeedPriceIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
+        CreateMap<LogEventContext, UniqueSeedPriceIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
         CreateMap<TsmSeedSymbolIndex, SeedInfoDto>();
-        CreateMap<LogEventContext, SymbolAuctionInfoIndex>();
-        CreateMap<LogEventContext, SymbolBidInfoIndex>();
+        CreateMap<LogEventContext, SymbolAuctionInfoIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash))
+            .ForMember(destination => destination.TransactionHash,
+                opt => opt.MapFrom(source => source.Transaction.TransactionId));
+        CreateMap<LogEventContext, SymbolBidInfoIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash))
+            .ForMember(destination => destination.TransactionHash,
+                opt => opt.MapFrom(source => source.Transaction.TransactionId));
         CreateMap<SymbolAuctionInfoIndex, SymbolAuctionInfoDto>();
         CreateMap<SymbolBidInfoIndex, SymbolBidInfoDto>();
         CreateMap<SeedSymbolIndex, NFTInfoDto>()
             .ForMember(d => d.CollectionId, opt => opt.MapFrom(d => d.ChainId + "-SEED-0"))
             .ForMember(d => d.CollectionSymbol, opt => opt.MapFrom(d => "SEED-0"))
             .ForMember(d => d.CollectionName, opt => opt.MapFrom(d => "SEED-0"));
-        CreateMap<LogEventContext, CollectionChangeIndex>();
-        CreateMap<LogEventContext, CollectionPriceChangeIndex>();
+        CreateMap<LogEventContext, CollectionChangeIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
+        CreateMap<LogEventContext, CollectionPriceChangeIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
         CreateMap<CollectionChangeIndex, CollectionChangeDto>();
         CreateMap<CollectionPriceChangeIndex, CollectionPriceChangeDto>();
         CreateMap<SeedPriceIndex, SeedPriceDto>();
@@ -189,14 +295,24 @@ public class ForestIndexerAutoMapperProfile : Profile
         CreateMap<NFTListingInfoIndex, NFTListingInfoResult>();
         CreateMap<SeedSymbolMarketTokenIndex, SymbolMarketTokenExistDto>();
         CreateMap<SoldIndex, NftDealInfoDto>();
-        CreateMap<LogEventContext, NFTOfferChangeIndex>();
+        CreateMap<LogEventContext, NFTOfferChangeIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.CreateTime,
+                opt => opt.MapFrom(source => source.Block.BlockTime))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
         CreateMap<NFTOfferChangeIndex, NFTOfferChangeDto>();
         CreateMap<UserBalanceIndex, NFTOwnerInfoDto>();
         CreateMap<LogEventContext, UserNFTOfferNumIndex>();
         CreateMap<UserBalanceIndex, UserBalanceDto>();
         CreateMap<TreePointsChangeRecordIndex, TreePointsChangeRecordDto>();
         CreateMap<TreePointsChangeRecordDto, TreePointsChangeRecordIndex>();
-        CreateMap<LogEventContext, TreePointsChangeRecordIndex>();
+        CreateMap<LogEventContext, TreePointsChangeRecordIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
 
     }
 }

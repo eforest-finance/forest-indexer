@@ -67,31 +67,31 @@ public partial class Query
                 case "ListingTime":
                     if (sortingArray[1] == "ASC")
                     {
-                        resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
-                            .OrderBy(o => o.ListingTime).ToList();
+                        resultUserBalanceIndex = userBalanceQueryable
+                            .OrderBy(o => o.ListingTime).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
                     }
                     else
                     {
-                        resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
-                            .OrderByDescending(o => o.ListingTime).ToList();
+                        resultUserBalanceIndex = userBalanceQueryable
+                            .OrderByDescending(o => o.ListingTime).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
                     }
                     break;
                 case "ListingPrice":
                     if (sortingArray[1] == "ASC")
                     {
-                        resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
-                            .OrderBy(o => o.ListingPrice).ToList();
+                        resultUserBalanceIndex = userBalanceQueryable
+                            .OrderBy(o => o.ListingPrice).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
                     }
                     else
                     {
-                        resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
-                            .OrderByDescending(o => o.ListingPrice).ToList();
+                        resultUserBalanceIndex = userBalanceQueryable
+                            .OrderByDescending(o => o.ListingPrice).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
                     }
                     break;
 
                 default:
-                    resultUserBalanceIndex = userBalanceQueryable.Skip(dto.SkipCount).Take(dto.MaxResultCount)
-                        .OrderByDescending(o => o.ListingTime).ToList();
+                    resultUserBalanceIndex = userBalanceQueryable
+                        .OrderByDescending(o => o.ListingTime).Skip(dto.SkipCount).Take(dto.MaxResultCount).ToList();
                     break;
             }
             
@@ -141,31 +141,31 @@ public partial class Query
             case "ListingTime":
                 if (sortingArray[1] == "ASC")
                 {
-                    result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
-                        .OrderBy(o => o.LatestListingTime).ToList();
+                    result = repositoryQueryable
+                        .OrderBy(o => o.LatestListingTime).Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount).ToList();
                 }
                 else
                 {
-                    result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
-                        .OrderByDescending(o => o.LatestListingTime).ToList();
+                    result = repositoryQueryable
+                        .OrderByDescending(o => o.LatestListingTime).Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount).ToList();
                 }
                 break;
             case "ListingPrice":
                 if (sortingArray[1] == "ASC")
                 {
-                    result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
-                        .OrderBy(o => o.ListingPrice).ToList();
+                    result = repositoryQueryable
+                        .OrderBy(o => o.ListingPrice).Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount).ToList();
                 }
                 else
                 {
-                    result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
-                        .OrderByDescending(o => o.ListingPrice).ToList();
+                    result = repositoryQueryable
+                        .OrderByDescending(o => o.ListingPrice).Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount).ToList();
                 }
                 break;
 
             default:
-                result = repositoryQueryable.Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount)
-                    .OrderByDescending(o => o.LatestListingTime).ToList();
+                result = repositoryQueryable
+                    .OrderByDescending(o => o.LatestListingTime).Skip(dto.Status == ForestIndexerConstants.NFTInfoQueryStatusSelf ? 0 : dto.SkipCount).Take(dto.MaxResultCount).ToList();
                 break;
         }
         

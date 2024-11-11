@@ -2,6 +2,8 @@ using AeFinder.Sdk;
 using AElf;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
+using IdentityServer4.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.GraphQL;
@@ -15,7 +17,7 @@ public partial class Query
         [FromServices] IObjectMapper objectMapper,
         GetSymbolMarketTokensInput dto)
     {
-        if (dto == null)
+        if (dto == null || dto.Address.IsNullOrEmpty())
         {
             return new SymbolMarkerTokenPageResultDto()
             {
@@ -24,17 +26,37 @@ public partial class Query
             };
         }
         var queryable = await symbolMarketTokenIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(f => f.SameChainFlag == true);
-        
         //var mustQuery = new List<Func<QueryContainerDescriptor<SeedSymbolMarketTokenIndex>, QueryContainer>>();
         //todo V2, need test q.Exists(exists => exists.Field(f => f.Symbol))
         /*mustQuery.Add(q => q.Exists(exists => exists
                                .Field(f => f.Symbol))
                            && q.Term(i => i
-                               .Field(f => f.SameChainFlag).Value(true)));*/
-        queryable = queryable.Where(f => (f.OwnerManagerSet.Any(item=>dto.Address.Contains(item)) || f.IssueManagerSet.Any(item=>dto.Address.Contains(item)) || f.IssueToSet.Any(item=>dto.Address.Contains(item))));
+                               .Field(f => f.SameChainFlag).Value(true)));*/ 
+        queryable = queryable.Where(f => f.SameChainFlag);
+        
+        var address1 = dto.Address.Count >= 1 ? dto.Address[0] : "";
+        var address2 = dto.Address.Count >= 2 ? dto.Address[1] : "";
 
-        var result = queryable.Skip(dto.SkipCount).Take(dto.MaxResultCount).OrderByDescending(k => k.CreateTime)
+        if (string.IsNullOrEmpty(address2))
+        {
+            queryable = queryable.Where(f =>
+                f.IssueToSet.Any(item => item == address1) 
+                || f.RandomOwnerManager == address1 
+                || f.RandomIssueManager == address1);
+        }
+        else
+        {
+            queryable = queryable.Where(f =>
+                f.IssueToSet.Any(item => item == address1) 
+                || f.RandomOwnerManager == address1 
+                || f.RandomIssueManager == address1
+                ||f.IssueToSet.Any(item => item == address2) 
+                || f.RandomOwnerManager == address2 
+                || f.RandomIssueManager == address2);
+        }
+        
+
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(dto.SkipCount).Take(dto.MaxResultCount)
             .ToList();
         if (result.IsNullOrEmpty())
         {
@@ -70,7 +92,7 @@ public partial class Query
         var SymbolMarketTokenId = IdGenerateHelper.GetSymbolMarketTokenId(issueChainId, dto.TokenSymbol);
         queryable = queryable.Where(f => f.Id == SymbolMarketTokenId);
 
-        var result = queryable.ToList();
+        var result = queryable.Skip(0).Take(1).ToList();
         return new SymbolMarketTokenIssuerDto()
         {
             SymbolMarketTokenIssuer = result.IsNullOrEmpty() ? "" : result.FirstOrDefault().Issuer
@@ -87,14 +109,14 @@ public partial class Query
         var queryable = await symbolMarketTokenIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(f => f.IssueChain == dto.IssueChainId);
         queryable = queryable.Where(f => f.Symbol == dto.TokenSymbol);
-        var result = queryable.OrderByDescending(k => k.CreateTime).ToList();
-
-        if (result.IsNullOrEmpty())
+        var result = queryable.OrderByDescending(k => k.CreateTime).Skip(0).Take(1).ToList();
+        
+        if (result.IsNullOrEmpty() || result.FirstOrDefault()==null)
         {
             return new SymbolMarketTokenExistDto();
         }
         
-        var symbolMarketTokenDto = objectMapper.Map<SeedSymbolMarketTokenIndex, SymbolMarketTokenExistDto>(result[0]);
+        var symbolMarketTokenDto = objectMapper.Map<SeedSymbolMarketTokenIndex, SymbolMarketTokenExistDto>(result.FirstOrDefault());
         return symbolMarketTokenDto;
     }
 }

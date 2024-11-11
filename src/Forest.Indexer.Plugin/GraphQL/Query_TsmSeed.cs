@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using Forest.Indexer.Plugin.Entities;
 using GraphQL;
@@ -27,10 +28,10 @@ public partial class Query
             queryable = queryable.Where(f => f.BlockHeight <= dto.EndBlockHeight);
         }
 
-        var result = queryable.Skip(0).Take(QueryCurrentSize).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(QueryCurrentSize).ToList();
         if (result.IsNullOrEmpty())
         {
-            return null;
+            return new List<SeedInfoDto>();
         }
 
         var dataList = objectMapper.Map<List<TsmSeedSymbolIndex>, List<SeedInfoDto>>(result);
@@ -48,7 +49,7 @@ public partial class Query
         queryable = queryable.Where(f => f.ChainId == dto.ChainId);
         queryable = queryable.Where(f => f.BlockHeight >= dto.BlockHeight);
 
-        var result = queryable.Skip(dto.SkipCount).OrderBy(o => o.BlockHeight).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(dto.SkipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         var dataList = objectMapper.Map<List<SeedMainChainChangeIndex>, List<SeedMainChainChangeDto>>(result);
         var pageResult = new SeedMainChainChangePageResultDto
         {

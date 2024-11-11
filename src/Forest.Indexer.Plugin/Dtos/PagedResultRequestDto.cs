@@ -10,7 +10,7 @@ public class PagedResultQueryDtoBase
     private const int MaxMaxResultCount = 10000;
 
     public int SkipCount { get; set; } = 0;
-    public int MaxResultCount { get; set; } = 10000;
+    public int MaxResultCount { get; set; } = 100;
 
     public void Validate()
     {

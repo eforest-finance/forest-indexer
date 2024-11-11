@@ -30,13 +30,6 @@ public class AuctionCreatedLogEventProcessor : LogEventProcessorBase<AuctionCrea
 
         if (eventValue == null) return;
 
-        var fromBlockStateSetAsync = await GetEntityAsync<SymbolAuctionInfoIndex>(eventValue.AuctionId.ToHex());
-
-        if (fromBlockStateSetAsync != null)
-        {
-            return;
-        }
-  
         var symbolAuctionInfoIndex = new SymbolAuctionInfoIndex
         {
             Id = eventValue.AuctionId.ToHex(),

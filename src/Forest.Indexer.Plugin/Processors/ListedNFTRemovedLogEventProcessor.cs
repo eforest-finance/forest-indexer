@@ -51,7 +51,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             var tokenIndex = await GetEntityAsync<TokenInfoIndex>(purchaseTokenId);
             if (tokenIndex == null)
             {
-                Logger.LogError($"purchase token {context.ChainId}-{purchaseTokenId} NOT FOUND");
+                Logger.LogError("purchase token {A}-{B} NOT FOUND", context.ChainId, purchaseTokenId);
                 return;
             }
 
@@ -175,20 +175,13 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             queryable = queryable.Where(index => index.Id != noListingId);
         }
 
-        var result = queryable.Skip(0).Take(1).OrderByDescending(k => k.BlockHeight).ToList();
+        var result = queryable.OrderByDescending(k => k.BlockHeight).Skip(0).Take(1).ToList();
         return result?.FirstOrDefault();
     }
 
     private async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
     {
         // NFT activity
-        var nftActivityIndexExists = await GetEntityAsync<NFTActivityIndex>(nftActivityIndex.Id);
-        if (nftActivityIndexExists != null)
-        {
-            Logger.LogDebug("[AddNFTActivityAsync] FAIL: activity EXISTS, nftActivityIndexId={Id}",
-                nftActivityIndex.Id);
-            return false;
-        }
 
         var from = nftActivityIndex.From;
         var to = nftActivityIndex.To;
@@ -283,8 +276,8 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             await CheckOtherListExistAsync(nftInfo.Id, nftInfo.ListingAddress, deleteListingId);
 
         //query history listing + current and compare.
-        var minNftListing = await GetMinListingNftAsync(nftInfo.Id, deleteListingId, listingInfoNftInfoIndex);
-        nftInfo.OfMinNftListingInfo(minNftListing);
+        // var minNftListing = await GetMinListingNftAsync(nftInfo.Id, deleteListingId, listingInfoNftInfoIndex);
+        // nftInfo.OfMinNftListingInfo(minNftListing);
 
         _objectMapper.Map(context, nftInfo);
         await SaveEntityAsync(nftInfo);
@@ -312,7 +305,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
                 await SaveEntityAsync(userBalanceIndex);
             }
 
-            await UpdateUserBanlanceBynftInfoIdAsync(nftInfoIndex, context, beginBlockHeight);
+            //await UpdateUserBanlanceBynftInfoIdAsync(nftInfoIndex, context, beginBlockHeight);
         }
     }
 
@@ -323,7 +316,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
         queryable = queryable.Where(x => x.BlockHeight > blockHeight && x.BlockHeight < temMaxBlockHeight);
         queryable = queryable.Where(x => x.NFTInfoId == nftInfoIndex.Id);
 
-        var resultUserBalanceIndex = queryable.Skip(0).Take(100).OrderBy(o => o.BlockHeight).ToList();
+        var resultUserBalanceIndex = queryable.OrderByDescending(o => o.BlockHeight).Skip(0).Take(100).ToList();
         return resultUserBalanceIndex;
     }
 
@@ -363,8 +356,8 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             await CheckOtherListExistAsync(seedSymbolIndex.Id, seedSymbolIndex.ListingAddress, deleteListingId);
 
         //query history listing + current and compare.
-        var minNftListing = await GetMinListingNftAsync(seedSymbolIndex.Id, deleteListingId, listingInfoNftInfoIndex);
-        seedSymbolIndex.OfMinNftListingInfo(minNftListing);
+        // var minNftListing = await GetMinListingNftAsync(seedSymbolIndex.Id, deleteListingId, listingInfoNftInfoIndex);
+        // seedSymbolIndex.OfMinNftListingInfo(minNftListing);
 
         _objectMapper.Map(context, seedSymbolIndex);
         await SaveEntityAsync(seedSymbolIndex);
@@ -413,7 +406,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             queryable = queryable.Where(index => index.Id != noListingId);
         }
 
-        var result = queryable.Skip(0).Take(1).OrderByDescending(k => k.BlockHeight);
+        var result = queryable.OrderByDescending(k => k.BlockHeight).Skip(0).Take(1).ToList();
         return result?.FirstOrDefault();
     }
 
@@ -507,7 +500,7 @@ public class ListedNFTRemovedLogEventProcessor : LogEventProcessorBase<ListedNFT
             queryable = queryable.Where(index => !excludeListingIds.Contains(index.Id));
         }
 
-        var result = queryable.Skip(0).OrderBy(k => k.Prices).ToList();
+        var result = queryable.OrderBy(k => k.Prices).Skip(0).Take(1).ToList();
         return result ?? new List<NFTListingInfoIndex>();
     }
 

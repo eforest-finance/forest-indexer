@@ -98,7 +98,7 @@ public class Query
             }
             default:
             {
-                Logger.LogInformation("unknown type: {totalCount}", dto.Type);
+                //Logger.LogInformation("unknown type: {totalCount}", dto.Type);
                 break;
             }
         }

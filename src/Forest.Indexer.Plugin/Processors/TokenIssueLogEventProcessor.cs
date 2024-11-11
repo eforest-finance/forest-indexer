@@ -38,7 +38,7 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         var userBalance = await SaveUserBalanceAsync(eventValue.Symbol, eventValue.To.ToBase58(),
             eventValue.Amount, context);
         await UpdateOfferRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
-         await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
+        await UpdateListingInfoRealQualityAsync(eventValue.Symbol, userBalance, eventValue.To.ToBase58(), context);
         await SaveNFTOfferChangeIndexAsync(context, eventValue.Symbol, EventType.Other);
 
         if (SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;
@@ -176,23 +176,12 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         queryable = queryable.Where(x=>x.Owner==ownerAddress);
 
         int skip = 0;
+        int limit = 80;
         var nftListings = new List<NFTListingInfoIndex>();
-        int queryCount = 0;
-        while (queryCount < ForestIndexerConstants.MaxQueryCount)
         {
 
-            var result = queryable.Skip(skip).Take(ForestIndexerConstants.MaxQuerySize).OrderByDescending(x=>x.BlockHeight).ToList();
-            if (result.IsNullOrEmpty())
-            {
-                break;
-            }
-            if(result.Count < ForestIndexerConstants.MaxQuerySize)
-            {
-                nftListings.AddRange(result);
-                break;
-            }
-            skip += ForestIndexerConstants.MaxQuerySize;
-            queryCount++;
+            var result = queryable.OrderByDescending(x=>x.BlockHeight).Skip(skip).Take(limit).ToList();
+            nftListings.AddRange(result);
         }
 
         var writeCount = 0;
@@ -257,8 +246,13 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
         
         var symbolMarketTokenIndexId = IdGenerateHelper.GetSymbolMarketTokenId(context.ChainId, eventValue.Symbol);
         var symbolMarketTokenIndex = await GetEntityAsync<SeedSymbolMarketTokenIndex>(symbolMarketTokenIndexId);
-        
-        if (symbolMarketTokenIndex == null) return;
+
+        if (symbolMarketTokenIndex == null)
+        {
+            Logger.LogDebug("TokenIssueLogEventProcessor-4-HandleForNoMainChainSeedTokenAsync result is null {A}",
+                symbolMarketTokenIndexId);
+            return;
+        }
         symbolMarketTokenIndex.Supply += eventValue.Amount;
         symbolMarketTokenIndex.Issued += eventValue.Amount;
         if (symbolMarketTokenIndex.IssueToSet.IsNullOrEmpty())
@@ -411,12 +405,6 @@ public class TokenIssueLogEventProcessor : LogEventProcessorBase<Issued>
     public async Task<bool> AddNFTActivityAsync(LogEventContext context, NFTActivityIndex nftActivityIndex)
     {
         // NFT activity
-        var nftActivityIndexExists = await GetEntityAsync<NFTActivityIndex>(nftActivityIndex.Id);
-        if (nftActivityIndexExists != null)
-        {
-            // Logger.LogDebug("[AddNFTActivityAsync] FAIL: activity EXISTS, nftActivityIndexId={Id}", nftActivityIndex.Id);
-            return false;
-        }
 
         var from = nftActivityIndex.From;
         var to = nftActivityIndex.To;

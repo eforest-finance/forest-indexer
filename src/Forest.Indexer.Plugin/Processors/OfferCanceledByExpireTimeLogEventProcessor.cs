@@ -33,14 +33,15 @@ public class OfferCanceledByExpireTimeLogEventProcessor : LogEventProcessorBase<
 
         var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(ForestQueryFilters.OfferCanceledByExpireTimeFilter(context, eventValue));
-        
-        var offerIndexList = queryable.ToList();
+
+        var offerIndexList = queryable.ToList().Where(i => i != null).ToList();
         if (offerIndexList.IsNullOrEmpty()) return;
-        foreach (var cancelOfferIndex in offerIndexList)
+        for (var i = 0; i < offerIndexList.Count; i++)
         {
+            var cancelOfferIndex = offerIndexList[i];
             await AddNFTActivityRecordAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
                 null, cancelOfferIndex.Quantity, cancelOfferIndex.Price,
-                NFTActivityType.CancelOffer, context, cancelOfferIndex.PurchaseToken, cancelOfferIndex.ExpireTime); 
+                NFTActivityType.CancelOffer, context, cancelOfferIndex.PurchaseToken, cancelOfferIndex.ExpireTime);
         }
     }
     
@@ -94,12 +95,14 @@ public class OfferCanceledByExpireTimeLogEventProcessor : LogEventProcessorBase<
         {
             var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, symbol);
             var seedSymbol = await GetEntityAsync<SeedSymbolIndex>(seedSymbolId);
+            if (seedSymbol == null) return decimals;
             decimals = seedSymbol.Decimals;
         }
         else if (SymbolHelper.CheckSymbolIsNoMainChainNFT(symbol, chainId))
         {
             var nftIndexId = IdGenerateHelper.GetNFTInfoId(chainId, symbol);
             var nftIndex = await GetEntityAsync<NFTInfoIndex>(nftIndexId);
+            if (nftIndex == null) return decimals;
             decimals = nftIndex.Decimals;
         }
 

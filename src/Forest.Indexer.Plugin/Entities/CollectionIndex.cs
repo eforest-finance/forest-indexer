@@ -1,4 +1,3 @@
-using AeFinder.Entities;
 using AeFinder.Sdk.Entities;
 using Forest.Indexer.Plugin.enums;
 using Nest;
@@ -19,6 +18,7 @@ public class CollectionIndex : AeFinderEntity, IAeFinderEntity
 
     [Keyword] public string CreatorAddress { get; set; }
     public CollectionType CollectionType { get; set; }
+    public int IntCollectionType { get; set; }
     [Keyword] public string Owner { get; set; }
     [Keyword] public string Issuer { get; set; }
     
@@ -52,4 +52,9 @@ public class CollectionIndex : AeFinderEntity, IAeFinderEntity
     public bool IsDeleted { get; set; }
 
     public List<ExternalInfoDictionary> ExternalInfoDictionary { get; set; }
+    public void OfType(CollectionType collectionType)
+    {
+        CollectionType = collectionType;
+        IntCollectionType = (int)collectionType;
+    }
 }

@@ -1,6 +1,8 @@
+using System.Linq.Dynamic.Core;
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using Forest.Indexer.Plugin.Entities;
+using Microsoft.IdentityModel.Tokens;
 using Volo.Abp.DependencyInjection;
 
 namespace Forest.Indexer.Plugin.Processors.Provider;
@@ -46,7 +48,8 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         //Calculate current FloorPrice
         //symbol is collection symbol.
         var symbolAuctionInfoIndex = await QueryMinPriceForSymbolAuctionInfoIndexAsync(chainId, symbol, 0, 0);
-        decimal? auctionMinPrice =  symbolAuctionInfoIndex?.FinishPrice.Amount;
+        
+        decimal? auctionMinPrice =  symbolAuctionInfoIndex?.FinishPrice?.Amount;
         if (auctionMinPrice !=null && auctionMinPrice.Value > 0)
         {
             auctionMinPrice = DecimalUntil.ConvertToElf(auctionMinPrice.Value);
@@ -65,7 +68,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
     {
         //Calculate current FloorPrice
         //symbol is collection symbol.
-        
+         
         var symbolAuctionInfoIndex =
             await QueryMinPriceForSymbolAuctionInfoIndexAsync(chainId, symbol, beginUtcStampSecond, endUtcStampSecond);
         decimal? auctionMinPrice = symbolAuctionInfoIndex?.FinishPrice.Amount;
@@ -73,7 +76,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         {
             auctionMinPrice = DecimalUntil.ConvertToElf(auctionMinPrice.Value);
         }
-
+        
         var nftListingInfoIndex =
             await QueryMinPriceWithTimestampForNFTListingInfoIndexAsync(chainId, symbol, beginUtcStampSecond, endUtcStampSecond);
         decimal? listingMinPrice = nftListingInfoIndex?.Prices;
@@ -118,20 +121,20 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
     {
         var collectionSymbolPre = TokenHelper.GetCollectionIdPre(collectionId);
 
-        Logger.LogDebug(
-            "CalcNFTCollectionTradeSingleAsync chainId={A} collectionId={B} skipCount={C} beginUtcStampSecond={D} endUtcStampSecond={E} beginTime={F} endTime={G}",
-            chainId, collectionId, skipCount, beginUtcStampSecond, endUtcStampSecond, DateTimeOffset
-                .FromUnixTimeSeconds(beginUtcStampSecond).ToLocalTime().DateTime.ToString("O"), DateTimeOffset
-                .FromUnixTimeSeconds(endUtcStampSecond).ToLocalTime().DateTime.ToString("O"));
+        // Logger.LogDebug(
+        //     "CalcNFTCollectionTradeSingleAsync chainId={A} collectionId={B} skipCount={C} beginUtcStampSecond={D} endUtcStampSecond={E} beginTime={F} endTime={G}",
+        //     chainId, collectionId, skipCount, beginUtcStampSecond, endUtcStampSecond, DateTimeOffset
+        //         .FromUnixTimeSeconds(beginUtcStampSecond).ToLocalTime().DateTime.ToString("O"), DateTimeOffset
+        //         .FromUnixTimeSeconds(endUtcStampSecond).ToLocalTime().DateTime.ToString("O"));
         var queryable = await _nftActivityIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(f => f.ChainId == chainId);
         var intTypeList = new List<int> { (int)NFTActivityType.Sale,(int)NFTActivityType.PlaceBid};
         queryable = queryable.Where(f => intTypeList.Contains(f.IntType));
-        queryable = queryable.Where(f => f.Timestamp > DateTimeHelper.FromUnixTimeMilliseconds(beginUtcStampSecond));
-        queryable = queryable.Where(f => f.Timestamp < DateTimeHelper.FromUnixTimeMilliseconds(endUtcStampSecond));
-        queryable = queryable.Where(f=>f.NftInfoId.Contains(collectionSymbolPre));
+        queryable = queryable.Where(f => f.Timestamp > DateTimeHelper.FromUnixTimeSeconds(beginUtcStampSecond));
+        queryable = queryable.Where(f => f.Timestamp < DateTimeHelper.FromUnixTimeSeconds(endUtcStampSecond));
+        queryable = queryable.Where(f=>f.NftInfoId.StartsWith(collectionSymbolPre));
 
-        var result = queryable.Skip(skipCount).OrderBy(k => k.Id).ToList();
+        var result = queryable.OrderBy(k => k.Id).Skip(skipCount).Take(ForestIndexerConstants.DefaultMaxCountNumber).ToList();
         return new Tuple<long, List<NFTActivityIndex>>(result.Count,result);
     }
 
@@ -139,9 +142,16 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         string symbol,long beginStampSecond,long endStampSecond)
     {
         var queryable = await _symbolAuctionInfoIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(f => f.CollectionSymbol == symbol);
-        queryable = queryable.Where(f => f.ChainId == chainId);
+        if (!symbol.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(f => f.CollectionSymbol == symbol);
+        }
 
+        if (!chainId.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(f => f.ChainId == chainId);
+        }
+        
         if (beginStampSecond > 0)
         {
             queryable = queryable.Where(f => f.MaxEndTime >= beginStampSecond);
@@ -152,7 +162,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
             queryable = queryable.Where(f => f.StartTime <= endStampSecond);
         }
 
-        var result = queryable.OrderBy(k => k.FinishPrice.Amount).Take(1).ToList();
+        var result = queryable.OrderBy(k => k.FinishPrice.Amount).Skip(0).Take(1).ToList();
         return result?.FirstOrDefault();
     }
 
@@ -172,20 +182,34 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         {
             decimals = ForestIndexerConstants.SGRDecimal;
         }
-        Logger.LogInformation(" QueryMinPriceWithTimestampForNFTListingInfoIndexAsync Get SGRCollection:{SGR}",optionSGRCollection);
+        // Logger.LogInformation(" QueryMinPriceWithTimestampForNFTListingInfoIndexAsync Get SGRCollection:{SGR}",optionSGRCollection);
         var minQuantity = (int)(1 * Math.Pow(10, decimals));
-        
-        queryable = queryable.Where(f => f.CollectionSymbol == symbol);
-        queryable = queryable.Where(f => f.ChainId == chainId);
+
+        if (!symbol.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(f => f.CollectionSymbol == symbol);
+        }
+
+        if (!chainId.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(f => f.ChainId == chainId);
+        }
         
         //Add conditions within effective time
         
         //add RealQuantity > 0
         queryable = queryable.Where(f => f.RealQuantity >= minQuantity);
-        
-        queryable = queryable.Where(index => index.ExpireTime >= DateTimeHelper.FromUnixTimeMilliseconds(beginStampSecond));
-        queryable = queryable.Where(index => index.StartTime <= DateTimeHelper.FromUnixTimeMilliseconds(endStampSecond));
 
+        if (beginStampSecond > 0)
+        {
+            queryable = queryable.Where(index => index.ExpireTime >= DateTimeHelper.FromUnixTimeSeconds(beginStampSecond));
+        }
+
+        if (endStampSecond > 0)
+        {
+            queryable = queryable.Where(index => index.StartTime <= DateTimeHelper.FromUnixTimeSeconds(endStampSecond));
+        }
+        
         var result = queryable.OrderBy(k => k.Prices).Take(1).ToList();
         return result?.FirstOrDefault();
     }
@@ -204,7 +228,7 @@ public class CollectionProvider : ICollectionProvider, ISingletonDependency
         {
             decimals = ForestIndexerConstants.SGRDecimal;
         }
-        Logger.LogInformation("Get SGRCollection:{SGR}",optionSGRCollection);
+        // Logger.LogInformation("Get SGRCollection:{SGR}",optionSGRCollection);
         var minQuantity = (int)(1 * Math.Pow(10, decimals));
         queryable = queryable.Where(f => f.CollectionSymbol == symbol);
         queryable = queryable.Where(f => f.ChainId == chainId);
