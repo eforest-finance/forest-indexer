@@ -67,7 +67,7 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
         var symbolMarketTokenIndex = await GetEntityAsync<SeedSymbolMarketTokenIndex>(symbolMarketTokenIndexId);
 
         if (symbolMarketTokenIndex != null) return;
-
+        
         var realOwner = eventValue.RealOwner!=null && eventValue.RealOwner.Value.Length != 0
             ? eventValue.RealOwner.ToBase58()
             : eventValue.OwnerManagerList.ToBase58();
