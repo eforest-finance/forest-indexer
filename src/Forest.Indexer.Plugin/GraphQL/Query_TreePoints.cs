@@ -20,7 +20,7 @@ public partial class Query
         
         if (dto.StartBlockHeight > 0)
         {
-            queryable = queryable.Where(f => f.BlockHeight >= dto.StartBlockHeight);
+            queryable = queryable.Where(f => f.BlockHeight > dto.StartBlockHeight);
         }
 
         /*if (dto.EndBlockHeight > 0)
@@ -28,7 +28,7 @@ public partial class Query
             queryable = queryable.Where(f => f.BlockHeight <= dto.EndBlockHeight);
         }*/
 
-        var result = queryable.OrderBy(o => o.BlockHeight).OrderBy(i=>i.BlockHeight).Skip(0).Take(2000).ToList();
+        var result = queryable.OrderBy(o => o.BlockHeight).OrderBy(i=>i.BlockHeight).Skip(0).Take(20).ToList();
         //Logger.LogInformation("GetSyncTreePointsRecords resultCount:{A}", result.IsNullOrEmpty()?0: result.Count);
 
         if (result.IsNullOrEmpty() || result.Count == 0)
