@@ -44,8 +44,7 @@ public class OfferCanceledByExpireTimeLogEventProcessor : LogEventProcessorBase<
         
         var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(ForestQueryFilters.OfferCanceledByExpireTimeFilter(context, eventValue));
-
-        var offerIndexList = queryable.ToList();
+        var offerIndexList = queryable.ToList().Where(i => i != null).ToList();
         if (offerIndexList.IsNullOrEmpty()) return;
         for (var i = 0; i < offerIndexList.Count; i++)
         {

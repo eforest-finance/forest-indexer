@@ -5,7 +5,7 @@ namespace Forest.Indexer.Plugin.GraphQL;
 
 public class GetActivitiesDto: PagedResultRequestDto
 {
-    public String NFTInfoId { get; set; }
+    public string? NFTInfoId { get; set; }
     public List<int>? Types { get; set; } = new List<int>();
     public long? TimestampMin { get; set; }
     public long? TimestampMax { get; set; }
