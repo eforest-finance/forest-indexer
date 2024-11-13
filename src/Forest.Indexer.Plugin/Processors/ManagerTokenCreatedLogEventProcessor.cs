@@ -72,7 +72,6 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
             ? eventValue.RealOwner.ToBase58()
             : eventValue.OwnerManagerList.ToBase58();
         var realManager = eventValue.RealIssuer!=null && eventValue.RealIssuer.Value.Length != 0
-
             ? eventValue.RealIssuer.ToBase58()
             : eventValue.IssuerManagerList.ToBase58();
         symbolMarketTokenIndex = new SeedSymbolMarketTokenIndex()
