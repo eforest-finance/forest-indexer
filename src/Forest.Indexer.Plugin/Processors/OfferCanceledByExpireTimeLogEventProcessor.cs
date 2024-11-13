@@ -31,13 +31,25 @@ public class OfferCanceledByExpireTimeLogEventProcessor : LogEventProcessorBase<
         Logger.LogDebug("OfferCanceledByExpireTimeLogEventProcessor-2 {eventValue}",
             JsonConvert.SerializeObject(eventValue));
 
+        if (eventValue.OfferFrom == null || eventValue.OfferFrom.Value.Length == 0)
+        {
+            Logger.LogError("OfferFrom is null");
+            return;
+        }
+        if (eventValue.OfferTo == null || eventValue.OfferTo.Value.Length == 0)
+        {
+            Logger.LogError("OfferTo is null");
+            return;
+        }
+        
         var queryable = await _nftOfferIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(ForestQueryFilters.OfferCanceledByExpireTimeFilter(context, eventValue));
 
-        var offerIndexList = queryable.ToList().Where(i => i != null).ToList();
+        var offerIndexList = queryable.ToList();
         if (offerIndexList.IsNullOrEmpty()) return;
         for (var i = 0; i < offerIndexList.Count; i++)
         {
+            if (offerIndexList[i] == null) continue;
             var cancelOfferIndex = offerIndexList[i];
             await AddNFTActivityRecordAsync(eventValue.Symbol, eventValue.OfferFrom.ToBase58(),
                 null, cancelOfferIndex.Quantity, cancelOfferIndex.Price,
