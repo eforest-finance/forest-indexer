@@ -79,4 +79,50 @@ public partial class Query
             TotalRecordCount = (long)(totalCount == null ? 0 : totalCount),
         };
     }
+    [Name("getTreePointsRecords")]
+    public static async Task<TreePointsChangeRecordPageResultDto> GetTreePointsRecords(
+        [FromServices] IReadOnlyRepository<TreePointsChangeRecordIndex> repository,
+        [FromServices] IObjectMapper objectMapper,
+        [FromServices] IAeFinderLogger Logger,
+        GetTreePointsRecordDto dto)
+    {
+        var queryable = await repository.GetQueryableAsync();
+        
+        if (dto.MinTimestamp <= 0 || dto.MaxTimestamp <=0 || dto.MaxTimestamp < dto.MaxTimestamp)
+        {
+            return new TreePointsChangeRecordPageResultDto()
+            {
+                TotalRecordCount = 0,
+                Data = new List<TreePointsChangeRecordDto>()
+            };
+        }
+        
+        queryable = queryable.Where(f => f.OpTime >= dto.MinTimestamp);
+        queryable = queryable.Where(f => f.OpTime <= dto.MaxTimestamp);
+        if(!dto.Addresses.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(i => dto.Addresses.Contains(i.Address));
+        }
+
+        var result = queryable.OrderBy(o => o.BlockHeight).OrderBy(i=>i.BlockHeight).Skip(0).Take(10000).ToList();
+
+        if (result.IsNullOrEmpty() || result.Count == 0)
+        {
+            return new TreePointsChangeRecordPageResultDto()
+            {
+                TotalRecordCount = 0,
+                Data = new List<TreePointsChangeRecordDto>()
+            };
+        }
+        var count = queryable.Count();
+
+        var dataList = objectMapper.Map<List<TreePointsChangeRecordIndex>, List<TreePointsChangeRecordDto>>(result);
+        var totalCount = count;
+
+        return new TreePointsChangeRecordPageResultDto
+        {
+            Data = dataList,
+            TotalRecordCount = (long)(totalCount == null ? 0 : totalCount),
+        };
+    }
 }
