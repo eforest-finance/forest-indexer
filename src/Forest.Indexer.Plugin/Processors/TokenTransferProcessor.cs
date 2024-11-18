@@ -1,6 +1,7 @@
 using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
+using AElf;
 using AElf.Contracts.MultiToken;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.Util;
@@ -14,14 +15,17 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
     private readonly IObjectMapper _objectMapper;
     private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
     private readonly IReadOnlyRepository<NFTListingInfoIndex> _listedNFTIndexRepository;
+    private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
 
     public TokenTransferProcessor(IObjectMapper objectMapper,
         IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository,
-        IReadOnlyRepository<NFTListingInfoIndex> listedNFTIndexRepository)
+        IReadOnlyRepository<NFTListingInfoIndex> listedNFTIndexRepository,
+        IAElfClientServiceProvider aElfClientServiceProvider)
     {
         _objectMapper = objectMapper;
         _nftOfferIndexRepository = nftOfferIndexRepository;
         _listedNFTIndexRepository = listedNFTIndexRepository;
+        _aElfClientServiceProvider = aElfClientServiceProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -36,6 +40,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         // Logger.LogDebug("TokenTransferProcessor-2 {A}",JsonConvert.SerializeObject(context));
         if (eventValue == null) return;
         if (context == null) return;
+        await CheckOrAddDefaultToken(eventValue, context);
         await UpdateUserFromBalanceAsync(eventValue, context);
         await UpdateUserToBalanceAsync(eventValue, context);
         if(SymbolHelper.CheckSymbolIsELF(eventValue.Symbol)) return;
@@ -154,6 +159,47 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
          await SaveEntityAsync(nftActivityIndex);
     }
 
+    private async Task CheckOrAddDefaultToken(Transferred eventValue, LogEventContext context)
+    {
+        if (eventValue.Symbol.Equals(ForestIndexerConstants.TokenSimpleElf))
+        {
+            var purchaseTokenId = IdGenerateHelper.GetId(context.ChainId, eventValue.Symbol);
+
+            var tokenIndex = await GetEntityAsync<TokenInfoIndex>(purchaseTokenId);
+            if (tokenIndex == null)
+            {
+                var address = ContractInfoHelper.GetTokenContractAddress(context.ChainId);
+                var tokenInfo =
+                    await _aElfClientServiceProvider.GetTokenInfoAsync(context.ChainId, address, eventValue.Symbol);
+                if (tokenInfo == null || tokenInfo.Symbol.IsNullOrEmpty())
+                {
+                    return;
+                }
+
+                var tokenInfoIndex = new TokenInfoIndex()
+                {
+                    Prices = 0,
+                    Id = purchaseTokenId,
+                    Symbol = eventValue.Symbol,
+                    TokenContractAddress = address,
+                    Decimals = tokenInfo.Decimals,
+                    Supply = tokenInfo.Supply,
+                    TotalSupply = tokenInfo.TotalSupply,
+                    TokenName = tokenInfo.Symbol + " symbol",
+                    Owner = "",
+                    Issuer = "",
+                    IsBurnable = true,
+                    IssueChainId = ChainHelper.ConvertBase58ToChainId(context.ChainId),
+                    Issued = tokenInfo.Issued,
+                    CreateTime = context.Block.BlockTime,
+                    IsDeleted = false
+                };
+                _objectMapper.Map(context, tokenInfoIndex);
+                await SaveEntityAsync(tokenInfoIndex); 
+                Logger.LogError("Init token {A}",purchaseTokenId);
+            }
+        }
+    }
     private async Task UpdateUserFromBalanceAsync(Transferred eventValue, LogEventContext context)
     {
         var needRecordBalance =
