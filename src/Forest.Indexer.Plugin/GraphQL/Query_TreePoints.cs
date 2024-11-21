@@ -96,15 +96,26 @@ public partial class Query
                 Data = new List<TreePointsChangeRecordDto>()
             };
         }
-        
+
+        var result = new List<TreePointsChangeRecordIndex>();
         queryable = queryable.Where(f => f.OpTime >= dto.MinTimestamp);
         queryable = queryable.Where(f => f.OpTime <= dto.MaxTimestamp);
         if(!dto.Addresses.IsNullOrEmpty())
         {
-            queryable = queryable.Where(i => dto.Addresses.Contains(i.Address));
+            var groupAddress = GroupAddresses(dto.Addresses);
+            foreach (var addresses in groupAddress)
+            {
+                var subQueryable = queryable;
+                subQueryable = subQueryable.Where(i => addresses.Contains(i.Address));
+                var subResult = subQueryable.OrderBy(o => o.BlockHeight).OrderBy(i=>i.BlockHeight).Skip(0).Take(10000).ToList();
+                result.AddRange(subResult);
+            }
+        }
+        else
+        {
+            result = queryable.OrderBy(o => o.BlockHeight).OrderBy(i=>i.BlockHeight).Skip(0).Take(10000).ToList();
         }
 
-        var result = queryable.OrderBy(o => o.BlockHeight).OrderBy(i=>i.BlockHeight).Skip(0).Take(10000).ToList();
 
         if (result.IsNullOrEmpty() || result.Count == 0)
         {
@@ -124,5 +135,20 @@ public partial class Query
             Data = dataList,
             TotalRecordCount = (long)(totalCount == null ? 0 : totalCount),
         };
+    }
+
+    private static IEnumerable<List<string>> GroupAddresses(List<string> originalList)
+    {
+        const int groupPageCount = 100;
+        var groupedList = new List<List<string>>();
+ 
+        for (var i = 0; i < originalList.Count; i += groupPageCount)
+        {
+            var count = Math.Min(100, originalList.Count - i); 
+            var subList = originalList.GetRange(i, count);
+            groupedList.Add(subList);
+        }
+
+        return groupedList;
     }
 }
