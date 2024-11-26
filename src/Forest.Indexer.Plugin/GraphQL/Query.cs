@@ -558,7 +558,8 @@ public partial class Query
         queryable = queryable.Where(i => i.IsBurned == false);
 
         var symbol = pair.Key;
-        var seedSymbolIndex = queryable.Skip(0).Take(1).ToList().FirstOrDefault();
+        var seedSymbolIndex =
+            queryable.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
         if (seedSymbolIndex == null)
         {
             //while seed is used for create token, it will be burned, so we need to query the seed info from the main chain event it is burned.
@@ -581,6 +582,8 @@ public partial class Query
             }
         }
 
+        var nowSeconds = DateTimeHelper.ToUtcMilliSeconds(DateTime.UtcNow);
+        
         if (seedSymbolIndex.Status == SeedStatus.AVALIABLE)
         {
             var support = await IsSupportAsync(tsmSeedSymbolRepository, pair);
@@ -602,6 +605,33 @@ public partial class Query
                     seedInfoDtoNotSupport.NotSupportSeedStatus = support.NotSupportSeedStatus;
                     return seedInfoDtoNotSupport;
                 }
+        }else if (seedSymbolIndex.Status == SeedStatus.UNREGISTERED && seedSymbolIndex.ExpireTime < nowSeconds)
+        {
+            if (seedSymbolIndex.IntSeedType == (int)SeedType.Regular)
+            {
+                seedSymbolIndex = new TsmSeedSymbolIndex()
+                {
+                    Symbol = symbol,
+                    SeedName = IdGenerateHelper.GetSeedName(symbol),
+                    Status = SeedStatus.AVALIABLE
+                };
+                seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
+                seedSymbolIndex.OfType(SeedType.Regular);
+            }else if (seedSymbolIndex.IntSeedType == (int)SeedType.Unique)
+            {
+                if (seedSymbolIndex.AuctionStatus != (int)SeedAuctionStatus.Bidding)
+                {
+                    seedSymbolIndex = new TsmSeedSymbolIndex()
+                    {
+                        Symbol = symbol,
+                        SeedName = IdGenerateHelper.GetSeedName(symbol),
+                        Status = SeedStatus.AVALIABLE
+                    };
+                    seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
+                    seedSymbolIndex.OfType(SeedType.Unique);
+                }
+            }
+
         }
 
         var seedInfoDto = objectMapper.Map<TsmSeedSymbolIndex, SeedInfoDto>(seedSymbolIndex);
