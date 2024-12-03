@@ -59,10 +59,22 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
         seedSymbolIndex.MaxAuctionPrice = 0;
         await SaveEntityAsync(seedSymbolIndex);
 
-        var tsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, seedSymbolIndex.SeedOwnedSymbol);
+        var tsmSeedSymbolIndexId = IdGenerateHelper.GetNewTsmSeedSymbolId(context.ChainId,
+            symbolAuctionInfoIndex.Symbol, seedSymbolIndex.SeedOwnedSymbol);
 
         var tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexId);
-        if (tsmSeedSymbolIndex == null) return;
+        if (tsmSeedSymbolIndex == null)
+        {
+            Logger.LogDebug("new tsmSeedSymbolIndex is null id={A}",tsmSeedSymbolIndexId);
+            tsmSeedSymbolIndexId = IdGenerateHelper.GetOldTsmSeedSymbolId(context.ChainId, seedSymbolIndex.SeedOwnedSymbol);
+            
+            tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexId);
+            if (tsmSeedSymbolIndex == null)
+            {
+                Logger.LogDebug("old tsmSeedSymbolIndex is null id={A}",tsmSeedSymbolIndexId);
+                return;
+            }
+        }
         
         var fromOwner = tsmSeedSymbolIndex.Owner;
         var toOwner = eventValue.Bidder.ToBase58();

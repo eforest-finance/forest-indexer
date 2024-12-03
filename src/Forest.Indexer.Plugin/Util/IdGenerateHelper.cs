@@ -56,6 +56,16 @@ public class IdGenerateHelper
         return GetId(chainId, symbol);
     }
     
+    public static string GetOldTsmSeedSymbolId(string chainId, string symbol)
+    {
+        return GetId(chainId, symbol);
+    }
+
+    public static string GetNewTsmSeedSymbolId(string chainId, string seedSymbol, string symbol)
+    {
+        return GetId(chainId, seedSymbol, symbol);
+    }
+    
     public static string GetSeedMainChainChangeId(string chainId, string symbol)
     {
         return GetId(chainId, symbol);

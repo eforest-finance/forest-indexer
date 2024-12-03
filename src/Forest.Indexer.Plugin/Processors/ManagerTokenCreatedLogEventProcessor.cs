@@ -1,3 +1,4 @@
+using AeFinder.Sdk;
 using AeFinder.Sdk.Logging;
 using AeFinder.Sdk.Processor;
 using AElf;
@@ -13,11 +14,14 @@ namespace Forest.Indexer.Plugin.Processors;
 public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<ManagerTokenCreated>
 {
     private readonly IObjectMapper _objectMapper;
+    private readonly IReadOnlyRepository<TsmSeedSymbolIndex> _tsmSeedSymbolIndexRepository;
 
     public ManagerTokenCreatedLogEventProcessor(
-        IObjectMapper objectMapper)
+        IObjectMapper objectMapper,
+        IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolIndexRepository)
     {
         _objectMapper = objectMapper;
+        _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
@@ -39,8 +43,10 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
                 JsonConvert.SerializeObject(eventValue));
             return;
         }
-        var tsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
-        var tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexId);
+        // var tsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
+        // var tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexId);
+        
+        var tsmSeedSymbolIndex = await GetTsmSeedAsync(context.ChainId, eventValue.Symbol);
 
         if (tsmSeedSymbolIndex != null)
         {
@@ -114,5 +120,13 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
         _objectMapper.Map(context, symbolMarketTokenIndex);
         Logger.LogDebug("10-ManagerTokenCreatedLogEventProcessor {A}",symbolMarketTokenIndex.Id);
         await SaveEntityAsync(symbolMarketTokenIndex);
+    }
+    
+    private async Task<TsmSeedSymbolIndex> GetTsmSeedAsync(string chainId, string seedSymbol)
+    {
+        var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
+        List<TsmSeedSymbolIndex> list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(1).ToList();
+        return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }
 }
