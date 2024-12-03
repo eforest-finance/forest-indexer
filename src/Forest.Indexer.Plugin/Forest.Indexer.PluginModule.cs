@@ -61,7 +61,8 @@ public class ForestIndexerPluginModule: AbpModule
             .AddSingleton<ILogEventProcessor,ProxyAccountManagementAddressResetLogEventProcessor>();
         context.Services.AddSingleton<ILogEventProcessor,TreePointsAddedProcessor>();
         context.Services.AddSingleton<ILogEventProcessor,TreePointsClaimedProcessor>();
-        context.Services.AddSingleton<ILogEventProcessor,TreeLevelUpdatedProcessor>();
-
+        context.Services.AddSingleton<ILogEventProcessor,TreeLevelUpdatedProcessor>(); 
+        context.Services.AddSingleton<ILogEventProcessor,SeedExpirationTimeUpdatedLogEventProcessor>();
+        context.Services.AddSingleton<ILogEventProcessor,SeedRenewedLogEventProcessor>();
     }
 }
