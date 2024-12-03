@@ -69,7 +69,7 @@ public static partial class ForestIndexerConstants
     public const string NFTForestContractAddressTDVV = "2cGT3RZZy6UJJ3eJPZdWMmuoH2TZBihvMtAtKvLJUaBnvskK2x";
     public const string NFTForestContractAddressTDVW = "zv7YnQ2dLM45ssfifN1dpwqBwdxH13pqGm9GDH6peRdH8F3hD";
     //test
-   // public const string TokenAdaptorContractAddressAELF = "gjGmHom31GWr5VPWf11de3mJGHVdaDFsR4zgrqjrbijYXv6TW";
+    //public const string TokenAdaptorContractAddressAELF = "gjGmHom31GWr5VPWf11de3mJGHVdaDFsR4zgrqjrbijYXv6TW";
     //prod
     public const string TokenAdaptorContractAddressAELF = "ZYNkxNAzswRC8UeHc6bYMdRmbmLqYDPqZv7sE5d9WuJ5rRQEi";
 
@@ -85,7 +85,7 @@ public static partial class ForestIndexerConstants
     public const string AuctionContractAddressTDVV = "mhgUyGhd27YaoG8wgXTbwtbAiYx7E59n5GXEkmkTFKKQTvGnB";
     public const string AuctionContractAddressTDVW = "1EFmvua5WQiv15N3xF4egEUvkvLGNWHdoYLMcbXdaXxzrGmA";
     //test
-    //public const string SymbolRegistrarContractAddressAELF = "SRVEHfZoiifcHYfnTagJvtW3QtkGnVo1rEEssKk8hirHX8xed";
+   // public const string SymbolRegistrarContractAddressAELF = "SRVEHfZoiifcHYfnTagJvtW3QtkGnVo1rEEssKk8hirHX8xed";
     //prod
     public const string SymbolRegistrarContractAddressAELF = "iupiTuL2cshxB9UNauXNXe9iyCcqka7jCotodcEHGpNXeLzqG";
 
