@@ -73,7 +73,10 @@ public partial class Query
 
         
         var queryable = await repository.GetQueryableAsync();
-        queryable = queryable.Where(f => f.ChainId == dto.ChainId);
+        if (!dto.ChainId.IsNullOrEmpty())
+        {
+            queryable = queryable.Where(f => f.ChainId == dto.ChainId);
+        }
         queryable = queryable.Where(f => dto.SeedSymbols.Contains(f.SeedSymbol));
         
         var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(QueryCurrentSize).ToList();
