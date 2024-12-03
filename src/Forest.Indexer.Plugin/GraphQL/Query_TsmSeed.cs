@@ -58,4 +58,32 @@ public partial class Query
         };
         return pageResult;
     }
+    
+    [Name("getTsmSeedInfosBySymbol")]
+    public static async Task<List<SeedInfoDto>> GetTsmSeedInfosBySymbolAsync(
+        [FromServices] IReadOnlyRepository<TsmSeedSymbolIndex> repository,
+        [FromServices] IObjectMapper objectMapper,
+        GetTsmSeedInfosDto dto
+    )
+    {
+        if (dto == null || dto.SeedSymbols.IsNullOrEmpty())
+        {
+            return new List<SeedInfoDto>();
+        }
+
+        
+        var queryable = await repository.GetQueryableAsync();
+        queryable = queryable.Where(f => f.ChainId == dto.ChainId);
+        queryable = queryable.Where(f => dto.SeedSymbols.Contains(f.SeedSymbol));
+        
+        var result = queryable.OrderBy(o => o.BlockHeight).Skip(0).Take(QueryCurrentSize).ToList();
+        if (result.IsNullOrEmpty())
+        {
+            return new List<SeedInfoDto>();
+        }
+
+        var dataList = objectMapper.Map<List<TsmSeedSymbolIndex>, List<SeedInfoDto>>(result);
+        
+        return dataList;
+    }
 }
