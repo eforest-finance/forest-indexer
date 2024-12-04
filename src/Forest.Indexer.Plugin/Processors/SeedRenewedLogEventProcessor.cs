@@ -12,16 +12,10 @@ namespace Forest.Indexer.Plugin.Processors;
 public class SeedRenewedLogEventProcessor : LogEventProcessorBase<SeedRenewed>
 {
     private readonly IObjectMapper _objectMapper;
-    private readonly IReadOnlyRepository<NFTListingInfoIndex> _listedNFTIndexRepository;
-    private readonly IReadOnlyRepository<OfferInfoIndex> _nftOfferIndexRepository;
 
-    public SeedRenewedLogEventProcessor(IObjectMapper objectMapper,
-        IReadOnlyRepository<NFTListingInfoIndex> listedNFTIndexRepository,
-        IReadOnlyRepository<OfferInfoIndex> nftOfferIndexRepository)
+    public SeedRenewedLogEventProcessor(IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;
-        _listedNFTIndexRepository = listedNFTIndexRepository;
-        _nftOfferIndexRepository = nftOfferIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)

@@ -11,7 +11,7 @@ namespace Forest.Indexer.Plugin.Processors;
 public class SeedExpirationTimeUpdatedLogEventProcessor : LogEventProcessorBase<SeedExpirationTimeUpdated>
 {
     private readonly IObjectMapper _objectMapper;
-
+ 
     public SeedExpirationTimeUpdatedLogEventProcessor(IObjectMapper objectMapper)
     {
         _objectMapper = objectMapper;

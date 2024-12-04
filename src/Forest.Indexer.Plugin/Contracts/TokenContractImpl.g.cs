@@ -5,7 +5,6 @@
 #pragma warning disable 1591, 0612, 3021, 8981
 #region Designer generated code
 
-using AElf.CSharp.Core;
 using pb = global::Google.Protobuf;
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
@@ -10443,8 +10442,8 @@ namespace AElf.Contracts.MultiToken {
 
   public sealed partial class SeedExpirationTimeUpdated : pb::IMessage<SeedExpirationTimeUpdated>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage, IEvent<SeedExpirationTimeUpdated>
-#endif
+      , pb::IBufferMessage
+  #endif
   {
     private static readonly pb::MessageParser<SeedExpirationTimeUpdated> _parser = new pb::MessageParser<SeedExpirationTimeUpdated>(() => new SeedExpirationTimeUpdated());
     private pb::UnknownFieldSet _unknownFields;
