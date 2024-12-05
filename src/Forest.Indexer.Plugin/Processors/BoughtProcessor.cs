@@ -5,6 +5,7 @@ using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
+using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
 namespace Forest.Indexer.Plugin.Processors;
@@ -60,17 +61,19 @@ public class BoughtProcessor: LogEventProcessorBase<Bought>
 
         if (tsmSeedSymbolIndex == null)
         {
-            Logger.LogError("tsmSeedSymbolIndex is null chainId={A} symbol={B}", chainId, symbol);
+            Logger.LogError("BoughtProcessor tsmSeedSymbolIndex is null chainId={A} symbol={B}", chainId, symbol);
             throw new Exception("tsmSeedSymbolIndex is null");
         }
-
+       
+        Logger.LogDebug("BoughtProcessor tsmSeedSymbolIndex is null chainId={A} symbol={B} tsmSeedSymbolIndex={C}", chainId, symbol,JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+        
         return tsmSeedSymbolIndex;
     }
     
-    private async Task<TsmSeedSymbolIndex> GetTsmSeedAsync(string chainId, string seedSymbol)
+    private async Task<TsmSeedSymbolIndex> GetTsmSeedAsync(string chainId, string seedOwnedSymbol)
     {
-        var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
-        queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
+        var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync(); 
+        queryable = queryable.Where(x=>x.ChainId == chainId && x.Symbol == seedOwnedSymbol);
         List<TsmSeedSymbolIndex> list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(1).ToList();
         return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }

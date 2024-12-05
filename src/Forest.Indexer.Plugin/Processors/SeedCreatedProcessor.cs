@@ -64,10 +64,8 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
         var tokenType = TokenHelper.GetTokenType(eventValue.OwnedSymbol);
         if (tokenType==TokenType.FT)
         {
-            var nftSymbol= TokenHelper.GetNftSymbol(eventValue.OwnedSymbol);
-            
-            
-            // var nftSeedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, nftSymbol);
+           //var nftSymbol= TokenHelper.GetNftSymbol(eventValue.OwnedSymbol);
+           // var nftSeedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, nftSymbol);
             // var nftSeedSymbolIndex = 
             // await GetEntityAsync<TsmSeedSymbolIndex>(nftSeedSymbolId);
             
@@ -84,6 +82,11 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
                 {
                     Logger.LogDebug("old nftSeedSymbolIndex is null id={A}", nftSeedSymbolIndexId);
                     return;
+                }
+                else
+                {
+                    nftSeedSymbolIndex.Id = IdGenerateHelper.GetNewTsmSeedSymbolId(context.ChainId, eventValue.Symbol,
+                        eventValue.OwnedSymbol);;
                 }
             }
             
@@ -112,6 +115,11 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
                 {
                     Logger.LogDebug("old nftSeedSymbolIndex is null id={A}", ftSeedSymbolId);
                     return;
+                }
+                else
+                {
+                    ftSeedSymbolIndex.Id = IdGenerateHelper.GetNewTsmSeedSymbolId(context.ChainId, eventValue.Symbol,
+                        eventValue.OwnedSymbol);
                 }
             }
             
