@@ -85,12 +85,14 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
                     Logger.LogDebug("old nftSeedSymbolIndex is null id={A}", nftSeedSymbolIndexId);
                     return;
                 }
-                nftSeedSymbolIndex.Id = newId;
             }
             
             _objectMapper.Map(context, nftSeedSymbolIndex);
             nftSeedSymbolIndex.Status = SeedStatus.NOTSUPPORT;
             await SaveEntityAsync(nftSeedSymbolIndex);
+            nftSeedSymbolIndex.Id = newId;
+            await SaveEntityAsync(nftSeedSymbolIndex);
+            
         }
         else
         {
@@ -113,7 +115,7 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
                 ftSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(ftSeedSymbolId);
                 if (ftSeedSymbolIndex == null)
                 {
-                    Logger.LogDebug("old nftSeedSymbolIndex is null id={A}", ftSeedSymbolId);
+                    Logger.LogDebug("old ftSeedSymbolIndex is null id={A}", ftSeedSymbolId);
                     return;
                 }
                 ftSeedSymbolIndex.Id = newId;
@@ -121,6 +123,8 @@ public class SeedCreatedProcessor : LogEventProcessorBase<SeedCreated>
             
             _objectMapper.Map(context, ftSeedSymbolIndex);
             ftSeedSymbolIndex.Status = SeedStatus.NOTSUPPORT;
+            await SaveEntityAsync(ftSeedSymbolIndex);
+            ftSeedSymbolIndex.Id = newId;
             await SaveEntityAsync(ftSeedSymbolIndex);
         }
     }

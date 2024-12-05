@@ -292,16 +292,34 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
 
         var checkSeedIsUsedResult = await CheckSeedIsUsed(seedSymbol.SeedOwnedSymbol, context.ChainId);
         //burned tsm seed symbol index
-        var tsmSeedSymbolIndex = await GetTsmSeedAsync(context.ChainId, seedSymbol.SeedOwnedSymbol);
+        //var tsmSeedSymbolIndex = await GetTsmSeedAsync(context.ChainId, seedSymbol.SeedOwnedSymbol);
+        
+        var newId = IdGenerateHelper.GetNewTsmSeedSymbolId(context.ChainId, eventValue.Symbol,
+            seedSymbol.SeedOwnedSymbol);
+        var oldId = IdGenerateHelper.GetOldTsmSeedSymbolId(context.ChainId, seedSymbol.SeedOwnedSymbol);
+        var nftSeedSymbolIndexId = newId;
+                
+        var tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(nftSeedSymbolIndexId);
         if (tsmSeedSymbolIndex == null)
         {
-            Logger.LogError("HandleForSeedTokenAsync tsmSeedSymbolIndex is null chainId={A} symbol={B}", context.ChainId, eventValue.Symbol);
+            Logger.LogDebug("TokenBurnedLogEventProcessor new nftSeedSymbolIndex is null id={A}", nftSeedSymbolIndexId);
+            nftSeedSymbolIndexId = oldId;
+            tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(nftSeedSymbolIndexId);
+            if (tsmSeedSymbolIndex == null)
+            {
+                Logger.LogDebug("TokenBurnedLogEventProcessor old nftSeedSymbolIndex is null id={A}", nftSeedSymbolIndexId);
+            }
+        }
+        
+        if (tsmSeedSymbolIndex == null)
+        {
+            Logger.LogError("TokenBurnedLogEventProcessor HandleForSeedTokenAsync tsmSeedSymbolIndex is null chainId={A} symbol={B}", context.ChainId, eventValue.Symbol);
         }
 
         if (tsmSeedSymbolIndex != null)
         {
             Logger.LogDebug(
-                "[TokenBurned] blockHeight: {BlockHeight} tsmSeedSymbolIndexId: {tsmSeedSymbolIndexId}  tsmSeedSymbolIndex: {tsmSeedSymbolIndex}",
+                "TokenBurnedLogEventProcessor blockHeight: {BlockHeight} tsmSeedSymbolIndexId: {tsmSeedSymbolIndexId}  tsmSeedSymbolIndex: {tsmSeedSymbolIndex}",
                 context.Block.BlockHeight, tsmSeedSymbolIndex.Id, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
             
             _objectMapper.Map(context, tsmSeedSymbolIndex);
@@ -310,7 +328,7 @@ public class TokenBurnedLogEventProcessor : LogEventProcessorBase<Burned>
             {
                 tsmSeedSymbolIndex.Status = SeedStatus.REGISTERED;
             }
-            Logger.LogDebug("DoHandleForSeedSymbolBurnedAsync tsmSeedSymbolIndex:{tsmSeedSymbolIndex}", JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+            Logger.LogDebug("TokenBurnedLogEventProcessor DoHandleForSeedSymbolBurnedAsync tsmSeedSymbolIndex:{tsmSeedSymbolIndex}", JsonConvert.SerializeObject(tsmSeedSymbolIndex));
             await SaveEntityAsync(tsmSeedSymbolIndex);
         }
         

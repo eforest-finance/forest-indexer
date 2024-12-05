@@ -540,7 +540,7 @@ public partial class Query
             TotalRecordCount = count
         };
     }
-
+    
     public static async Task<SeedInfoDto> SearchSeedInfoAsync(
         [FromServices] IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolRepository,
         [FromServices] IReadOnlyRepository<SeedPriceIndex> seedPriceRepository,
@@ -553,21 +553,28 @@ public partial class Query
     {
 
         var pair = GetSymbolKeyValuePair(input);
-        var queryable = await tsmSeedSymbolRepository.GetQueryableAsync();
-        queryable = queryable.Where(i => i.Symbol == pair.Key);
-        queryable = queryable.Where(i => i.IsBurned == false);
-
-        var symbol = pair.Key;
+        var queryablePre = await tsmSeedSymbolRepository.GetQueryableAsync();
+        queryablePre = queryablePre.Where(i => i.Symbol == pair.Key);
+        queryablePre = queryablePre.Where(i => i.Status == SeedStatus.REGISTERED);
         var seedSymbolIndex =
-            queryable.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
+            queryablePre.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
+        var symbol = pair.Key;
+        if (seedSymbolIndex == null)
+        {
+            var queryable = await tsmSeedSymbolRepository.GetQueryableAsync();
+            queryable = queryable.Where(i => i.Symbol == pair.Key);
+            queryable = queryable.Where(i => i.IsBurned == false);
+            seedSymbolIndex =
+                queryable.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
+        }
+
         if (seedSymbolIndex == null)
         {
             //while seed is used for create token, it will be burned, so we need to query the seed info from the main chain event it is burned.
             var queryable2 = await tsmSeedSymbolRepository.GetQueryableAsync();
             queryable2 = queryable2.Where(i => i.Symbol == pair.Key);
             queryable2 = queryable2.Where(i => i.ChainId == ForestIndexerConstants.MainChain);
-
-
+            
             seedSymbolIndex = queryable2.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
             if (seedSymbolIndex == null)
             {
@@ -582,7 +589,7 @@ public partial class Query
             }
         }
 
-        var nowSeconds = DateTimeHelper.ToUtcMilliSeconds(DateTime.UtcNow);
+        var nowSeconds = DateTimeHelper.ToUtcSeconds(DateTime.UtcNow);
         
         if (seedSymbolIndex.Status == SeedStatus.AVALIABLE)
         {
@@ -683,18 +690,27 @@ public partial class Query
         IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolRepository,
         KeyValuePair<string, string> pair)
     {
-        var queryable3 = await tsmSeedSymbolRepository.GetQueryableAsync();
-        queryable3 = queryable3.Where(i => i.Symbol == pair.Key);
-        queryable3 = queryable3.Where(i => i.IsBurned == false);
+        var queryable1 = await tsmSeedSymbolRepository.GetQueryableAsync();
+        queryable1 = queryable1.Where(i => i.Symbol == pair.Key);
+        queryable1 = queryable1.Where(i => i.Status == SeedStatus.REGISTERED);
+        var otherSeedSymbolIndex = queryable1.Skip(0).Take(1).ToList().FirstOrDefault();
         
-        var otherSeedSymbolIndex = queryable3.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
+        if (otherSeedSymbolIndex == null)
+        {
+            var queryable3 = await tsmSeedSymbolRepository.GetQueryableAsync();
+            queryable3 = queryable3.Where(i => i.Symbol == pair.Key);
+            queryable3 = queryable3.Where(i => i.IsBurned == false);
+        
+            otherSeedSymbolIndex = queryable3.OrderByDescending(i=>i.ExpireTime).Skip(0).Take(1).ToList().FirstOrDefault();
+        }
+
         if (otherSeedSymbolIndex == null)
         {
             var queryable4 = await tsmSeedSymbolRepository.GetQueryableAsync();
             queryable4 = queryable4.Where(i => i.Symbol == pair.Key);
             queryable4 = queryable4.Where(i => i.ChainId == ForestIndexerConstants.MainChain);
 
-            otherSeedSymbolIndex = queryable4.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
+            otherSeedSymbolIndex = queryable4.OrderByDescending(i=>i.ExpireTime).Skip(0).Take(1).ToList().FirstOrDefault();
         }
 
         if (otherSeedSymbolIndex == null)

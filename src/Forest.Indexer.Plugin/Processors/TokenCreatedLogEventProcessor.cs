@@ -62,7 +62,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
                 tsmSeedSymbolIndex = await GetTsmSeedAsync(context.ChainId, eventValue.Symbol);
                 if (tsmSeedSymbolIndex == null)
                 {
-                    Logger.LogError("TokenCreatedLogEventProcessor noMainSeedSymbolIndex is null chainId={A} symbol={B}", context.ChainId,
+                    Logger.LogError("TokenCreatedLogEventProcessor MainSeedSymbolIndex is null chainId={A} symbol={B}", context.ChainId,
                         ownedSymbol);
                 }
                 Logger.LogDebug(
