@@ -14,12 +14,15 @@ public class BoughtProcessor: LogEventProcessorBase<Bought>
 {
     private readonly IObjectMapper _objectMapper;
     private readonly IReadOnlyRepository<TsmSeedSymbolIndex> _tsmSeedSymbolIndexRepository;
+    private readonly IReadOnlyRepository<SeedSymbolIndex> _seedSymbolIndexRepository;
 
     public BoughtProcessor(
-        IObjectMapper objectMapper, IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolIndexRepository)
+        IObjectMapper objectMapper, IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolIndexRepository,
+        IReadOnlyRepository<SeedSymbolIndex> seedSymbolIndexRepository)
     {
         _objectMapper = objectMapper;
         _tsmSeedSymbolIndexRepository = tsmSeedSymbolIndexRepository;
+        _seedSymbolIndexRepository = seedSymbolIndexRepository;
     }
 
     public override string GetContractAddress(string chainId)
@@ -58,11 +61,23 @@ public class BoughtProcessor: LogEventProcessorBase<Bought>
         // return seedSymbolIndex;
         
         var tsmSeedSymbolIndex = await GetTsmSeedAsync(chainId, symbol);
-
         if (tsmSeedSymbolIndex == null)
         {
-            Logger.LogError("BoughtProcessor tsmSeedSymbolIndex is null chainId={A} symbol={B}", chainId, symbol);
-            throw new Exception("tsmSeedSymbolIndex is null");
+            Logger.LogDebug("BoughtProcessor tsmSeedSymbolIndex is null chainId={A} symbol={B}", chainId, symbol);
+            var seedSymbolIndex = await GetSeedSymbolAsync(chainId, symbol);
+            if (seedSymbolIndex == null)
+            {
+                Logger.LogDebug("BoughtProcessor seedSymbolIndex is null chainId={A} symbol={B}", chainId, symbol);
+                throw new Exception("BoughtProcessor seedSymbolIndex is null");
+            }
+
+            tsmSeedSymbolIndex = new TsmSeedSymbolIndex
+            {
+                Id = IdGenerateHelper.GetNewTsmSeedSymbolId(chainId, tsmSeedSymbolIndex.Symbol, symbol),
+                Symbol = symbol,
+                SeedName = IdGenerateHelper.GetSeedName(symbol)
+            };
+            tsmSeedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
         }
        
         Logger.LogDebug("BoughtProcessor tsmSeedSymbolIndex is null chainId={A} symbol={B} tsmSeedSymbolIndex={C}", chainId, symbol,JsonConvert.SerializeObject(tsmSeedSymbolIndex));
@@ -75,6 +90,13 @@ public class BoughtProcessor: LogEventProcessorBase<Bought>
         var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync(); 
         queryable = queryable.Where(x=>x.ChainId == chainId && x.Symbol == seedOwnedSymbol);
         List<TsmSeedSymbolIndex> list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(1).ToList();
+        return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
+    }
+    private async Task<SeedSymbolIndex> GetSeedSymbolAsync(string chainId, string seedOwnedSymbol)
+    {
+        var queryable = await _seedSymbolIndexRepository.GetQueryableAsync(); 
+        queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedOwnedSymbol == seedOwnedSymbol);
+        List<SeedSymbolIndex> list = queryable.OrderByDescending(i => i.SeedExpTimeSecond).Skip(0).Take(1).ToList();
         return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }
 }

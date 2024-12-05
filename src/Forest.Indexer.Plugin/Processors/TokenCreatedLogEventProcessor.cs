@@ -56,29 +56,26 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
             TsmSeedSymbolIndex tsmSeedSymbolIndex = null;
             if (context.ChainId == ForestIndexerConstants.MainChain)
             {
-                Logger.LogInformation(
-                    "[TokenCreatedLogEventProcessor] Seed Token Create at mainChain: ChainId:{A} ownedSymbol:{B} ",
-                    context.ChainId, ownedSymbol);
-                tsmSeedSymbolIndex = await GetTsmSeedAsync(context.ChainId, ownedSymbol);
+                Logger.LogDebug(
+                    "TokenCreatedLogEventProcessor Seed Token Create at mainChain: ChainId:{A} ownedSymbol:{B} seedSymbol:{C} ",
+                    context.ChainId, ownedSymbol,eventValue.Symbol);
+                tsmSeedSymbolIndex = await GetTsmSeedAsync(context.ChainId, eventValue.Symbol);
                 if (tsmSeedSymbolIndex == null)
                 {
-                    Logger.LogError("noMainSeedSymbolIndex is null chainId={A} symbol={B}", context.ChainId,
+                    Logger.LogError("TokenCreatedLogEventProcessor noMainSeedSymbolIndex is null chainId={A} symbol={B}", context.ChainId,
                         ownedSymbol);
                 }
-                // Logger.LogInformation(
-                //     "[TokenCreatedLogEventProcessor] Seed Token Create at mainChain then search: {tsmSeedSymbolIndexId} build {tsmSeedSymbolIndex}",
-                //     tsmSeedSymbolIndexId, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+                Logger.LogDebug(
+                     "TokenCreatedLogEventProcessor Seed Token Create at mainChain then search: {tsmSeedSymbolIndexId} build {tsmSeedSymbolIndex}",
+                     tsmSeedSymbolIndex.Id, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
             }
             else
             {
                 
                 tsmSeedSymbolIndex = await BuildNoMainChainTsmSeedSymbolIndex(context, eventValue.Symbol, ownedSymbol);
-                Logger.LogInformation(
-                    "[TokenCreatedLogEventProcessor] Seed Token Create at no mainChain: {tsmSeedSymbolIndexId} ",
-                    tsmSeedSymbolIndex.Id);
-                // Logger.LogInformation(
-                //     "[TokenCreatedLogEventProcessor] Seed Token Create at no mainChain then build: {tsmSeedSymbolIndexId} build {tsmSeedSymbolIndex}",
-                //     tsmSeedSymbolIndexId, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+                Logger.LogDebug(
+                     "TokenCreatedLogEventProcessor Seed Token Create at no mainChain then build: {tsmSeedSymbolIndexId} build {tsmSeedSymbolIndex}",
+                     tsmSeedSymbolIndex.Id, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
             }
 
             if (tsmSeedSymbolIndex == null) return;
@@ -113,6 +110,13 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
     {
         var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
+        List<TsmSeedSymbolIndex> list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(1).ToList();
+        return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
+    }
+    private async Task<TsmSeedSymbolIndex> GetTsmSeedByOwnedSymbolAsync(string chainId, string seedOwnedSymbol)
+    {
+        var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
+        queryable = queryable.Where(x=>x.ChainId == chainId && x.Symbol == seedOwnedSymbol);
         List<TsmSeedSymbolIndex> list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(1).ToList();
         return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }
@@ -234,7 +238,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
         try
         {
             // var noMainTsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, eventValue.Symbol);
-            var noMainTsmSeedSymbolIndex = await GetTsmSeedAsync(context.ChainId, eventValue.Symbol);
+            var noMainTsmSeedSymbolIndex = await GetTsmSeedByOwnedSymbolAsync(context.ChainId, eventValue.Symbol);
 
             Logger.LogDebug("TokenCreatedLogEventProcessor-10 {A} {B} {C}", context.ChainId, eventValue.Symbol,
                 JsonConvert.SerializeObject(noMainTsmSeedSymbolIndex));
