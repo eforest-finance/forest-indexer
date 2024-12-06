@@ -59,15 +59,29 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
                 Logger.LogDebug(
                     "TokenCreatedLogEventProcessor Seed Token Create at mainChain: ChainId:{A} ownedSymbol:{B} seedSymbol:{C} ",
                     context.ChainId, ownedSymbol,eventValue.Symbol);
-                tsmSeedSymbolIndex = await GetTsmSeedAsync(context.ChainId, eventValue.Symbol);
+                
+                //tsmSeedSymbolIndex = await GetTsmSeedAsync(context.ChainId, eventValue.Symbol);
+                var newId = IdGenerateHelper.GetNewTsmSeedSymbolId(context.ChainId, eventValue.Symbol,
+                    ownedSymbol);
+                var oldId = IdGenerateHelper.GetOldTsmSeedSymbolId(context.ChainId, ownedSymbol);
+                var nftSeedSymbolIndexId = newId;
+                
+                var nftSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(nftSeedSymbolIndexId);
+                if (nftSeedSymbolIndex == null)
+                {
+                    Logger.LogDebug("TokenCreatedLogEventProcessor Seed Token Create at mainChain,new nftSeedSymbolIndex is null id={A}", nftSeedSymbolIndexId);
+                    nftSeedSymbolIndexId = oldId;
+                    nftSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(nftSeedSymbolIndexId);
+                    if (nftSeedSymbolIndex == null)
+                    {
+                        Logger.LogDebug("TokenCreatedLogEventProcessor Seed Token Create at mainChain , old nftSeedSymbolIndex is null id={A}", nftSeedSymbolIndexId);
+                    }
+                }
                 if (tsmSeedSymbolIndex == null)
                 {
                     Logger.LogError("TokenCreatedLogEventProcessor MainSeedSymbolIndex is null chainId={A} symbol={B}", context.ChainId,
                         ownedSymbol);
                 }
-                Logger.LogDebug(
-                     "TokenCreatedLogEventProcessor Seed Token Create at mainChain then search: {tsmSeedSymbolIndexId} build {tsmSeedSymbolIndex}",
-                     tsmSeedSymbolIndex.Id, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
             }
             else
             {
