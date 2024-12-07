@@ -52,11 +52,18 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
 
         var seedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, symbolAuctionInfoIndex.Symbol);
         var seedSymbolIndex = await GetEntityAsync<SeedSymbolIndex>(seedSymbolIndexId);
-        
-        if (seedSymbolIndex == null) return;
+
+        if (seedSymbolIndex == null)
+        {
+            Logger.LogInformation("Claimed HandleEventAsync seedSymbolIndex is null seedSymbolIndexId :{seedSymbolIndexId}", 
+                seedSymbolIndexId);
+            return;
+        }
+
         _objectMapper.Map(context, seedSymbolIndex);
         seedSymbolIndex.HasAuctionFlag = false;
         seedSymbolIndex.MaxAuctionPrice = 0;
+        seedSymbolIndex.IssuerTo = eventValue.Bidder.ToBase58();
         await SaveEntityAsync(seedSymbolIndex);
 
         var tsmSeedSymbolIndexId = IdGenerateHelper.GetNewTsmSeedSymbolId(context.ChainId,
