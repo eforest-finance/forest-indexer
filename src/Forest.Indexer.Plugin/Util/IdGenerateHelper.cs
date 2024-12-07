@@ -25,6 +25,11 @@ public class IdGenerateHelper
     {
         return inputs.JoinAsString("-");
     }
+
+    public static string GetOwnedSymbolRelationId(string chainId, string ownedSymbol)
+    {
+        return GetId(chainId, ownedSymbol);
+    }
     
     public static string GetTokenInfoId(string chainId, string symbol)
     {

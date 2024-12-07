@@ -541,6 +541,28 @@ public partial class Query
         };
     }
     
+    //tem todo v3
+
+    public static async Task<List<SeedInfoDto>> SearchSeedInfo2Async(
+        [FromServices] IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolRepository,
+        [FromServices] IReadOnlyRepository<SeedPriceIndex> seedPriceRepository,
+        [FromServices] IReadOnlyRepository<UniqueSeedPriceIndex> uniqueSeedPriceRepository,
+        [FromServices] IReadOnlyRepository<UserBalanceIndex> userBalanceRepository,
+        [FromServices] IReadOnlyRepository<SymbolAuctionInfoIndex> symbolAuctionInfoRepository,
+        [FromServices] IObjectMapper objectMapper,
+        SearchSeedInput input)
+    {
+        var queryable = await tsmSeedSymbolRepository.GetQueryableAsync(); 
+        queryable = queryable.Where(x=>x.ChainId == "AELF" && x.Symbol == "SHSHSHAAAA");
+        List<TsmSeedSymbolIndex> list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(10).ToList();
+        var seedInfoDto = objectMapper.Map<List<TsmSeedSymbolIndex>, List<SeedInfoDto>>(list);
+        return seedInfoDto;
+
+    }
+    
+    
+    //tem todo v3
+    
     public static async Task<SeedInfoDto> SearchSeedInfoAsync(
         [FromServices] IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolRepository,
         [FromServices] IReadOnlyRepository<SeedPriceIndex> seedPriceRepository,

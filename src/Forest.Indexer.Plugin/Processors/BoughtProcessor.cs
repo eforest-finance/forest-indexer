@@ -5,6 +5,8 @@ using Forest.Contracts.SymbolRegistrar;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
+using IdentityServer4.Events;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp.ObjectMapping;
 
@@ -41,6 +43,7 @@ public class BoughtProcessor: LogEventProcessorBase<Bought>
         };
         seedSymbolIndex.Status = SeedStatus.UNREGISTERED;
         seedSymbolIndex.Owner = eventValue.Buyer.ToBase58();
+        Logger.LogDebug("BoughtProcessor save TsmSeedSymbolIndex {A}",JsonConvert.SerializeObject(seedSymbolIndex));
         await SaveEntityAsync(seedSymbolIndex);
     }
     public async Task<TsmSeedSymbolIndex> GetSeedSymbolIndexAsync(string chainId, string symbol)
@@ -59,28 +62,49 @@ public class BoughtProcessor: LogEventProcessorBase<Bought>
         //     seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
         // }
         // return seedSymbolIndex;
+
+        TsmSeedSymbolIndex tsmSeedSymbolIndex;
         
-        var tsmSeedSymbolIndex = await GetTsmSeedAsync(chainId, symbol);
+        var ownedSymbolRelationId = IdGenerateHelper.GetOwnedSymbolRelationId(chainId, symbol);
+        var ownedSymbolRelationIndex = await GetEntityAsync<OwnedSymbolRelationIndex>(ownedSymbolRelationId);
+        Logger.LogDebug("BoughtProcessor ownedSymbolRelationIndex id={A} body={B}",ownedSymbolRelationId,JsonConvert.SerializeObject(ownedSymbolRelationIndex));
+        if (ownedSymbolRelationIndex != null)
+        {
+            var newId = IdGenerateHelper.GetNewTsmSeedSymbolId(chainId, ownedSymbolRelationIndex.SeedSymbol,
+                ownedSymbolRelationIndex.OwnedSymbol);
+            
+            tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(newId);
+            if (tsmSeedSymbolIndex != null)
+            {
+                return tsmSeedSymbolIndex;
+            }
+            Logger.LogDebug("BoughtProcessor newId tsmSeedSymbolIndex is null chainId={A} symbol={B} newId={C}", chainId, symbol, newId);
+        }
+
+        var oldId = IdGenerateHelper.GetOldTsmSeedSymbolId(chainId,
+            symbol);
+        tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(oldId);
+        
         if (tsmSeedSymbolIndex == null)
         {
-            Logger.LogDebug("BoughtProcessor tsmSeedSymbolIndex is null chainId={A} symbol={B}", chainId, symbol);
-            var seedSymbolIndex = await GetSeedSymbolAsync(chainId, symbol);
-            if (seedSymbolIndex == null)
-            {
-                Logger.LogDebug("BoughtProcessor seedSymbolIndex is null chainId={A} symbol={B}", chainId, symbol);
-                throw new Exception("BoughtProcessor seedSymbolIndex is null");
-            }
+            Logger.LogDebug("BoughtProcessor oldId tsmSeedSymbolIndex is null chainId={A} symbol={B} oldId={C}", chainId, symbol, oldId);
+
+            var id = ownedSymbolRelationIndex == null
+                ? IdGenerateHelper.GetOldTsmSeedSymbolId(chainId, symbol)
+                : IdGenerateHelper.GetNewTsmSeedSymbolId(chainId, ownedSymbolRelationIndex.SeedSymbol, symbol);
 
             tsmSeedSymbolIndex = new TsmSeedSymbolIndex
             {
-                Id = IdGenerateHelper.GetNewTsmSeedSymbolId(chainId, tsmSeedSymbolIndex.Symbol, symbol),
+                Id = id,
                 Symbol = symbol,
                 SeedName = IdGenerateHelper.GetSeedName(symbol)
             };
             tsmSeedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
+            Logger.LogDebug(
+                "BoughtProcessor build tsmSeedSymbolIndex chainId={A} symbol={B} tsmSeedSymbolIndex={C}",
+                chainId, symbol, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+            return tsmSeedSymbolIndex;
         }
-       
-        Logger.LogDebug("BoughtProcessor tsmSeedSymbolIndex is null chainId={A} symbol={B} tsmSeedSymbolIndex={C}", chainId, symbol,JsonConvert.SerializeObject(tsmSeedSymbolIndex));
         
         return tsmSeedSymbolIndex;
     }
@@ -94,6 +118,22 @@ public class BoughtProcessor: LogEventProcessorBase<Bought>
     }
     private async Task<SeedSymbolIndex> GetSeedSymbolAsync(string chainId, string seedOwnedSymbol)
     {
+        var ownedSymbolRelationId = IdGenerateHelper.GetOwnedSymbolRelationId(chainId, seedOwnedSymbol);
+        var ownedSymbolRelationIndex = await GetEntityAsync<OwnedSymbolRelationIndex>(ownedSymbolRelationId);
+        Logger.LogDebug("BoughtProcessor ownedSymbolRelationIndex id={A} body={B}",ownedSymbolRelationId,JsonConvert.SerializeObject(ownedSymbolRelationIndex));
+        if (ownedSymbolRelationIndex != null)
+        {
+            var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(chainId, ownedSymbolRelationIndex.SeedSymbol);
+            var seedSymbolIndex = await GetEntityAsync<SeedSymbolIndex>(seedSymbolId);
+            Logger.LogDebug("BoughtProcessor ownedSymbolRelationIndex seedSymbolIndex id={A} body={B}", seedSymbolId,
+                JsonConvert.SerializeObject(seedSymbolIndex));
+            if (seedSymbolIndex != null)
+            {
+                return seedSymbolIndex;
+            }
+            
+        }
+        
         var queryable = await _seedSymbolIndexRepository.GetQueryableAsync(); 
         queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedOwnedSymbol == seedOwnedSymbol);
         List<SeedSymbolIndex> list = queryable.OrderByDescending(i => i.SeedExpTimeSecond).Skip(0).Take(1).ToList();
