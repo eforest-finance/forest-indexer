@@ -64,6 +64,12 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
         seedSymbolIndex.HasAuctionFlag = false;
         seedSymbolIndex.MaxAuctionPrice = 0;
         seedSymbolIndex.IssuerTo = eventValue.Bidder.ToBase58();
+        if (!seedSymbolIndex.IssuerTo.IsNullOrEmpty())
+        {
+            seedSymbolIndex.SeedExpTimeSecond = DateTime.UtcNow.ToUtcSeconds() + ForestIndexerConstants.SeedExpireSecond;
+            //seedSymbolIndex.SeedExpTime = DateTime.UtcNow.AddSeconds(ForestIndexerConstants.SeedExpireSecond);
+        }
+
         await SaveEntityAsync(seedSymbolIndex);
 
         var tsmSeedSymbolIndexId = IdGenerateHelper.GetNewTsmSeedSymbolId(context.ChainId,
@@ -91,6 +97,11 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
         tsmSeedSymbolIndex.Owner = symbolAuctionInfoIndex.FinishBidder;
         tsmSeedSymbolIndex.TokenPrice = symbolAuctionInfoIndex.FinishPrice;
         tsmSeedSymbolIndex.AuctionStatus = (int)SeedAuctionStatus.Finished;
+        if (!symbolAuctionInfoIndex.FinishBidder.IsNullOrEmpty())
+        {
+            tsmSeedSymbolIndex.ExpireTime = DateTime.UtcNow.ToUtcSeconds() + ForestIndexerConstants.SeedExpireSecond;
+        }
+
         await SaveEntityAsync(tsmSeedSymbolIndex);
 
         var purchaseTokenId = IdGenerateHelper.GetId(context.ChainId, symbolAuctionInfoIndex.FinishPrice.Symbol);
