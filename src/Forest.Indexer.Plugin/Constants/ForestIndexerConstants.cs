@@ -104,6 +104,7 @@ public static partial class ForestIndexerConstants
     public const int MaxWriteDBRecord = 80;
     public const int MaxQueryCount = 5;
     public const int MaxQuerySize = 10000;
+    public const int SeedExpireSecond = 1200;
 
     public static List<string> NeedRecordBalanceOptionsAddressList = new List<string>()
     {
