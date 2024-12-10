@@ -716,7 +716,15 @@ public partial class Query
         queryable1 = queryable1.Where(i => i.Symbol == pair.Key);
         queryable1 = queryable1.Where(i => i.Status == SeedStatus.REGISTERED);
         var otherSeedSymbolIndex = queryable1.Skip(0).Take(1).ToList().FirstOrDefault();
-        
+
+        if (otherSeedSymbolIndex == null)
+        {
+            var queryable2 = await tsmSeedSymbolRepository.GetQueryableAsync();
+            queryable2 = queryable2.Where(i => i.Symbol == pair.Value);
+            queryable2 = queryable2.Where(i => i.Status == SeedStatus.REGISTERED);
+            otherSeedSymbolIndex = queryable2.Skip(0).Take(1).ToList().FirstOrDefault();
+        }
+
         if (otherSeedSymbolIndex == null)
         {
             var queryable3 = await tsmSeedSymbolRepository.GetQueryableAsync();
