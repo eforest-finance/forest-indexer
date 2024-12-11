@@ -201,7 +201,7 @@ public class BidPlacedLogEventProcessor : LogEventProcessorBase<Forest.Contracts
         //todo V2 GetTsmSeedAsync //code: done, need test
         var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
-        List<TsmSeedSymbolIndex> list = queryable.Skip(0).Take(1).ToList();
+        List<TsmSeedSymbolIndex> list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(1).ToList();
         return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }
     private async Task<HashSet<string>> GetAllBiddersAsync(string auctionId)

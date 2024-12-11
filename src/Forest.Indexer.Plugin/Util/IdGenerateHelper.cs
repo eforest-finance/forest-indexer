@@ -25,6 +25,11 @@ public class IdGenerateHelper
     {
         return inputs.JoinAsString("-");
     }
+
+    public static string GetOwnedSymbolRelationId(string chainId, string ownedSymbol)
+    {
+        return GetId(chainId, ownedSymbol);
+    }
     
     public static string GetTokenInfoId(string chainId, string symbol)
     {
@@ -54,6 +59,16 @@ public class IdGenerateHelper
     public static string GetSeedSymbolId(string chainId, string symbol)
     {
         return GetId(chainId, symbol);
+    }
+    
+    public static string GetOldTsmSeedSymbolId(string chainId, string symbol)
+    {
+        return GetId(chainId, symbol);
+    }
+
+    public static string GetNewTsmSeedSymbolId(string chainId, string seedSymbol, string symbol)
+    {
+        return GetId(chainId, seedSymbol, symbol);
     }
     
     public static string GetSeedMainChainChangeId(string chainId, string symbol)

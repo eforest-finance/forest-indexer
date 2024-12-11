@@ -28,7 +28,8 @@ public class SpecialSeedRemovedLogEventProcessor: LogEventProcessorBase<SpecialS
         var seedList = eventValue.RemoveList.Value;
         foreach (var seed in seedList)
         {
-            var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, seed.Symbol);
+            //todo check GetOldTsmSeedSymbolId
+            var seedSymbolId = IdGenerateHelper.GetOldTsmSeedSymbolId(context.ChainId, seed.Symbol);
             var seedSymbol = await GetEntityAsync<TsmSeedSymbolIndex>(seedSymbolId);
             if(seedSymbol == null) continue;
             

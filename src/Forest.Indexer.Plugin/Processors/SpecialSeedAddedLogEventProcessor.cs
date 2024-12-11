@@ -29,7 +29,8 @@ public class  SpecialSeedAddedLogEventProcessor: LogEventProcessorBase<SpecialSe
         var seedList = eventValue.AddList.Value;
         foreach (var seed in seedList)
         {
-            var seedSymbolId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, seed.Symbol);
+            //todo check GetOldTsmSeedSymbolId
+            var seedSymbolId = IdGenerateHelper.GetOldTsmSeedSymbolId(context.ChainId, seed.Symbol);
 
             var seedSymbolIndex = new TsmSeedSymbolIndex
             {

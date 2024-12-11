@@ -27,136 +27,171 @@ namespace Forest.Contracts.SymbolRegistrar {
             "Ch9zeW1ib2xfcmVnaXN0cmFyX2NvbnRyYWN0LnByb3RvGg9hZWxmL2NvcmUu",
             "cHJvdG8aEmFlbGYvb3B0aW9ucy5wcm90bxoLYWNzMTIucHJvdG8aG2dvb2ds",
             "ZS9wcm90b2J1Zi9lbXB0eS5wcm90bxoeZ29vZ2xlL3Byb3RvYnVmL3dyYXBw",
-            "ZXJzLnByb3RvGh9nb29nbGUvcHJvdG9idWYvdGltZXN0YW1wLnByb3RvItUC",
+            "ZXJzLnByb3RvGh9nb29nbGUvcHJvdG9idWYvdGltZXN0YW1wLnByb3RvIpYD",
             "Cg9Jbml0aWFsaXplSW5wdXQSLAoVYWRtaW5pc3RyYXRvcl9hZGRyZXNzGAEg",
             "ASgLMg0uYWVsZi5BZGRyZXNzEigKEXJlY2VpdmluZ19hY2NvdW50GAIgASgL",
             "Mg0uYWVsZi5BZGRyZXNzEicKDXNwZWNpYWxfc2VlZHMYAyABKAsyEC5TcGVj",
             "aWFsU2VlZExpc3QSJgoMc2VlZHNfcHJpY2VzGAQgASgLMhAuU2VlZHNQcmlj",
-            "ZUlucHV0EiwKFXByb3h5X2FjY291bnRfYWRkcmVzcxgFIAEoCzINLmFlbGYu",
-            "QWRkcmVzcxIlCg1hdWN0aW9uQ29uZmlnGAYgASgLMg4uQXVjdGlvbkNvbmZp",
-            "ZxJEChx1bmlxdWVfc2VlZHNfZXh0ZXJuYWxfcHJpY2VzGAcgASgLMh4uVW5p",
-            "cXVlU2VlZHNFeHRlcm5hbFByaWNlSW5wdXQihAEKDUF1Y3Rpb25Db25maWcS",
-            "EAoIZHVyYXRpb24YASABKAMSEgoKbWluX21hcmt1cBgCIAEoBRIWCg5jb3Vu",
-            "dGRvd25fdGltZRgDIAEoAxIaChJtYXhfZXh0ZW5zaW9uX3RpbWUYBCABKAMS",
-            "GQoRc3RhcnRfaW1tZWRpYXRlbHkYBSABKAgirgEKCUJpekNvbmZpZxIsChVh",
-            "ZG1pbmlzdHJhdG9yX2FkZHJlc3MYASABKAsyDS5hZWxmLkFkZHJlc3MSKAoR",
-            "cmVjZWl2aW5nX2FjY291bnQYAiABKAsyDS5hZWxmLkFkZHJlc3MSIQoZYWRt",
-            "aW5fY2FuX2NldFNwZWNpYWxTZWVkcxgDIAEoCBImCg5hdWN0aW9uX2NvbmZp",
-            "ZxgEIAEoCzIOLkF1Y3Rpb25Db25maWciPAoPQ3JlYXRlU2VlZElucHV0Eg4K",
-            "BnN5bWJvbBgBIAEoCRIZCgJ0bxgCIAEoCzINLmFlbGYuQWRkcmVzcyKRAQoI",
-            "U2VlZEluZm8SDgoGc3ltYm9sGAEgASgJEhQKDG93bmVkX3N5bWJvbBgCIAEo",
-            "CRITCgtleHBpcmVfdGltZRgDIAEoAxIcCglzZWVkX3R5cGUYBCABKA4yCS5T",
-            "ZWVkVHlwZRIZCgJ0bxgFIAEoCzINLmFlbGYuQWRkcmVzcxIRCglpbWFnZV91",
-            "cmwYBiABKAkiWAoPU2VlZHNQcmljZUlucHV0EiEKDWZ0X3ByaWNlX2xpc3QY",
-            "ASABKAsyCi5QcmljZUxpc3QSIgoObmZ0X3ByaWNlX2xpc3QYAiABKAsyCi5Q",
-            "cmljZUxpc3QiZgodVW5pcXVlU2VlZHNFeHRlcm5hbFByaWNlSW5wdXQSIQoN",
-            "ZnRfcHJpY2VfbGlzdBgBIAEoCzIKLlByaWNlTGlzdBIiCg5uZnRfcHJpY2Vf",
-            "bGlzdBgCIAEoCzIKLlByaWNlTGlzdCJcChNHZXRTZWVkc1ByaWNlT3V0cHV0",
-            "EiEKDWZ0X3ByaWNlX2xpc3QYASABKAsyCi5QcmljZUxpc3QSIgoObmZ0X3By",
-            "aWNlX2xpc3QYAiABKAsyCi5QcmljZUxpc3QiJgoJUHJpY2VMaXN0EhkKBXZh",
-            "bHVlGAEgAygLMgouUHJpY2VJdGVtIkIKCVByaWNlSXRlbRIVCg1zeW1ib2xf",
-            "bGVuZ3RoGAEgASgFEg4KBnN5bWJvbBgCIAEoCRIOCgZhbW91bnQYAyABKAMi",
-            "sgIKC1NwZWNpYWxTZWVkEhwKCXNlZWRfdHlwZRgBIAEoDjIJLlNlZWRUeXBl",
-            "Eg4KBnN5bWJvbBgCIAEoCRIUCgxwcmljZV9zeW1ib2wYAyABKAkSFAoMcHJp",
-            "Y2VfYW1vdW50GAQgASgDEiIKDGF1Y3Rpb25fdHlwZRgFIAEoDjIMLkF1Y3Rp",
-            "b25UeXBlEhMKC2lzc3VlX2NoYWluGAYgASgJEiQKHGlzc3VlX2NoYWluX2Nv",
-            "bnRyYWN0X2FkZHJlc3MYByABKAkSNQoNZXh0ZXJuYWxfaW5mbxgIIAMoCzIe",
-            "LlNwZWNpYWxTZWVkLkV4dGVybmFsSW5mb0VudHJ5GjMKEUV4dGVybmFsSW5m",
-            "b0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiOwoIQnV5",
-            "SW5wdXQSDgoGc3ltYm9sGAEgASgJEh8KCGlzc3VlX3RvGAIgASgLMg0uYWVs",
-            "Zi5BZGRyZXNzIjQKDkNvbnRyb2xsZXJMaXN0EiIKC2NvbnRyb2xsZXJzGAEg",
-            "AygLMg0uYWVsZi5BZGRyZXNzIjwKFkFkZFNhbGVDb250cm9sbGVySW5wdXQS",
-            "IgoJYWRkcmVzc2VzGAEgASgLMg8uQ29udHJvbGxlckxpc3QiPwoZUmVtb3Zl",
-            "U2FsZUNvbnRyb2xsZXJJbnB1dBIiCglhZGRyZXNzZXMYASABKAsyDy5Db250",
-            "cm9sbGVyTGlzdCIpChZSZW1vdmVTcGVjaWFsU2VlZElucHV0Eg8KB3N5bWJv",
-            "bHMYASADKAkiIQoOVW5pcXVlU2VlZExpc3QSDwoHc3ltYm9scxgBIAMoCSIu",
-            "Cg9TcGVjaWFsU2VlZExpc3QSGwoFdmFsdWUYASADKAsyDC5TcGVjaWFsU2Vl",
-            "ZCIvChRTZWVkRXhwaXJhdGlvbkNvbmZpZxIXCg9leHBpcmF0aW9uX3RpbWUY",
-            "ASABKAMiJwoFUHJpY2USDgoGc3ltYm9sGAEgASgJEg4KBmFtb3VudBgCIAEo",
-            "AyKaAQoLU2VlZENyZWF0ZWQSDgoGc3ltYm9sGAEgASgJEhQKDG93bmVkX3N5",
-            "bWJvbBgCIAEoCRITCgtleHBpcmVfdGltZRgDIAEoAxIcCglzZWVkX3R5cGUY",
-            "BCABKA4yCS5TZWVkVHlwZRIZCgJ0bxgFIAEoCzINLmFlbGYuQWRkcmVzcxIR",
-            "CglpbWFnZV91cmwYBiABKAk6BKC7GAEiYAoRU2VlZHNQcmljZUNoYW5nZWQS",
-            "IQoNZnRfcHJpY2VfbGlzdBgBIAEoCzIKLlByaWNlTGlzdBIiCg5uZnRfcHJp",
-            "Y2VfbGlzdBgCIAEoCzIKLlByaWNlTGlzdDoEoLsYASJuCh9VbmlxdWVTZWVk",
-            "c0V4dGVybmFsUHJpY2VDaGFuZ2VkEiEKDWZ0X3ByaWNlX2xpc3QYASABKAsy",
-            "Ci5QcmljZUxpc3QSIgoObmZ0X3ByaWNlX2xpc3QYAiABKAsyCi5QcmljZUxp",
-            "c3Q6BKC7GAEiPAoQU3BlY2lhbFNlZWRBZGRlZBIiCghhZGRfbGlzdBgBIAEo",
-            "CzIQLlNwZWNpYWxTZWVkTGlzdDoEoLsYASJBChJTcGVjaWFsU2VlZFJlbW92",
-            "ZWQSJQoLcmVtb3ZlX2xpc3QYASABKAsyEC5TcGVjaWFsU2VlZExpc3Q6BKC7",
-            "GAEiUwoGQm91Z2h0EhwKBWJ1eWVyGAEgASgLMg0uYWVsZi5BZGRyZXNzEg4K",
-            "BnN5bWJvbBgCIAEoCRIVCgVwcmljZRgEIAEoCzIGLlByaWNlOgSguxgBIj8K",
-            "E1NhbGVDb250cm9sbGVyQWRkZWQSIgoJYWRkcmVzc2VzGAEgASgLMg8uQ29u",
-            "dHJvbGxlckxpc3Q6BKC7GAEiQQoVU2FsZUNvbnRyb2xsZXJSZW1vdmVkEiIK",
-            "CWFkZHJlc3NlcxgBIAEoCzIPLkNvbnRyb2xsZXJMaXN0OgSguxgBIjQKEVN5",
-            "bWJvbEF1dGhvcklucHV0Eg4KBnN5bWJvbBgBIAEoCRIPCgdhZGRyZXNzGAIg",
-            "ASgJIjsKElN5bWJvbEF1dGhvck1hcHBlZBIOCgZzeW1ib2wYASABKAkSDwoH",
-            "YWRkcmVzcxgCIAEoCToEoLsYASJgChZBdWN0aW9uRW5kVGltZUV4dGVuZGVk",
-            "Eg4KBnN5bWJvbBgBIAEoCRIwCgxuZXdfZW5kX3RpbWUYAiABKAsyGi5nb29n",
-            "bGUucHJvdG9idWYuVGltZXN0YW1wOgSguxgBIloKG1NlZWRFeHBpcmF0aW9u",
-            "Q29uZmlnQ2hhbmdlZBI1ChZzZWVkX2V4cGlyYXRpb25fY29uZmlnGAEgASgL",
-            "MhUuU2VlZEV4cGlyYXRpb25Db25maWc6BKC7GAEqLwoLQXVjdGlvblR5cGUS",
-            "CAoETk9ORRAAEgsKB0VOR0xJU0gQARIJCgVEVVRDSBACKkoKCFNlZWRUeXBl",
-            "EgsKB1VOS05PV04QABILCgdESVNBQkxFEAESCwoHTk9UQUJMRRACEgoKBlVO",
-            "SVFVRRADEgsKB1JFR1VMQVIQBDLlDgoXU3ltYm9sUmVnaXN0cmFyQ29udHJh",
-            "Y3QSOAoKSW5pdGlhbGl6ZRIQLkluaXRpYWxpemVJbnB1dBoWLmdvb2dsZS5w",
-            "cm90b2J1Zi5FbXB0eSIAEjgKCkNyZWF0ZVNlZWQSEC5DcmVhdGVTZWVkSW5w",
-            "dXQaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABIqCgNCdXkSCS5CdXlJbnB1",
-            "dBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAEj0KD0FkZFNwZWNpYWxTZWVk",
-            "cxIQLlNwZWNpYWxTZWVkTGlzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIA",
-            "EjsKDkFkZFVuaXF1ZVNlZWRzEg8uVW5pcXVlU2VlZExpc3QaFi5nb29nbGUu",
-            "cHJvdG9idWYuRW1wdHkiABJHChJSZW1vdmVTcGVjaWFsU2VlZHMSFy5SZW1v",
-            "dmVTcGVjaWFsU2VlZElucHV0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IgAS",
-            "MwoIU2V0QWRtaW4SDS5hZWxmLkFkZHJlc3MaFi5nb29nbGUucHJvdG9idWYu",
-            "RW1wdHkiABJGCg1TZXRMYXN0U2VlZElkEhsuZ29vZ2xlLnByb3RvYnVmLklu",
-            "dDY0VmFsdWUaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABJCChdTZXRQcm94",
-            "eUFjY291bnRDb250cmFjdBINLmFlbGYuQWRkcmVzcxoWLmdvb2dsZS5wcm90",
-            "b2J1Zi5FbXB0eSIAEj4KE1NldFJlY2VpdmluZ0FjY291bnQSDS5hZWxmLkFk",
-            "ZHJlc3MaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABI7Cg1TZXRTZWVkc1By",
-            "aWNlEhAuU2VlZHNQcmljZUlucHV0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5",
-            "IgASVwobU2V0VW5pcXVlU2VlZHNFeHRlcm5hbFByaWNlEh4uVW5pcXVlU2Vl",
-            "ZHNFeHRlcm5hbFByaWNlSW5wdXQaFi5nb29nbGUucHJvdG9idWYuRW1wdHki",
-            "ABI8ChBTZXRBdWN0aW9uQ29uZmlnEg4uQXVjdGlvbkNvbmZpZxoWLmdvb2ds",
-            "ZS5wcm90b2J1Zi5FbXB0eSIAEkYKEUFkZFNhbGVDb250cm9sbGVyEhcuQWRk",
-            "U2FsZUNvbnRyb2xsZXJJbnB1dBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIA",
-            "EkwKFFJlbW92ZVNhbGVDb250cm9sbGVyEhouUmVtb3ZlU2FsZUNvbnRyb2xs",
-            "ZXJJbnB1dBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAEkoKF1NldFNlZWRF",
-            "eHBpcmF0aW9uQ29uZmlnEhUuU2VlZEV4cGlyYXRpb25Db25maWcaFi5nb29n",
-            "bGUucHJvdG9idWYuRW1wdHkiABJPChVTZXRTZWVkSW1hZ2VVcmxQcmVmaXgS",
-            "HC5nb29nbGUucHJvdG9idWYuU3RyaW5nVmFsdWUaFi5nb29nbGUucHJvdG9i",
-            "dWYuRW1wdHkiABJECg1HZXRTZWVkc1ByaWNlEhYuZ29vZ2xlLnByb3RvYnVm",
-            "LkVtcHR5GhQuR2V0U2VlZHNQcmljZU91dHB1dCIFiIn3AQESQwoOR2V0U3Bl",
-            "Y2lhbFNlZWQSHC5nb29nbGUucHJvdG9idWYuU3RyaW5nVmFsdWUaDC5TcGVj",
-            "aWFsU2VlZCIFiIn3AQESOQoMR2V0Qml6Q29uZmlnEhYuZ29vZ2xlLnByb3Rv",
-            "YnVmLkVtcHR5GgouQml6Q29uZmlnIgWIifcBARJPChdHZXRTZWVkRXhwaXJh",
-            "dGlvbkNvbmZpZxIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eRoVLlNlZWRFeHBp",
-            "cmF0aW9uQ29uZmlnIgWIifcBARJBChBHZXRBdWN0aW9uQ29uZmlnEhYuZ29v",
-            "Z2xlLnByb3RvYnVmLkVtcHR5Gg4uQXVjdGlvbkNvbmZpZyIFiIn3AQESQwoR",
-            "R2V0U2FsZUNvbnRyb2xsZXISFi5nb29nbGUucHJvdG9idWYuRW1wdHkaDy5D",
-            "b250cm9sbGVyTGlzdCIFiIn3AQESRwoXR2V0UHJveHlBY2NvdW50Q29udHJh",
-            "Y3QSFi5nb29nbGUucHJvdG9idWYuRW1wdHkaDS5hZWxmLkFkZHJlc3MiBYiJ",
-            "9wEBEksKDUdldExhc3RTZWVkSWQSFi5nb29nbGUucHJvdG9idWYuRW1wdHka",
-            "Gy5nb29nbGUucHJvdG9idWYuSW50NjRWYWx1ZSIFiIn3AQESVAoVR2V0U2Vl",
-            "ZEltYWdlVXJsUHJlZml4EhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5GhwuZ29v",
-            "Z2xlLnByb3RvYnVmLlN0cmluZ1ZhbHVlIgWIifcBARpSysr2AQthY3MxMi5w",
-            "cm90b7LM9gE9Rm9yZXN0LkNvbnRyYWN0cy5TeW1ib2xSZWdpc3RyYXIuU3lt",
-            "Ym9sUmVnaXN0cmFyQ29udHJhY3RTdGF0ZUIjqgIgRm9yZXN0LkNvbnRyYWN0",
-            "cy5TeW1ib2xSZWdpc3RyYXJiBnByb3RvMw=="));
+            "ZUlucHV0EjUKHnByb3h5X2FjY291bnRfY29udHJhY3RfYWRkcmVzcxgFIAEo",
+            "CzINLmFlbGYuQWRkcmVzcxImCg5hdWN0aW9uX2NvbmZpZxgGIAEoCzIOLkF1",
+            "Y3Rpb25Db25maWcSRAocdW5pcXVlX3NlZWRzX2V4dGVybmFsX3ByaWNlcxgH",
+            "IAEoCzIeLlVuaXF1ZVNlZWRzRXh0ZXJuYWxQcmljZUlucHV0EjUKHmFzc29j",
+            "aWF0ZV9vcmdhbml6YXRpb25fYWRkcmVzcxgIIAEoCzINLmFlbGYuQWRkcmVz",
+            "cyKEAQoNQXVjdGlvbkNvbmZpZxIQCghkdXJhdGlvbhgBIAEoAxISCgptaW5f",
+            "bWFya3VwGAIgASgFEhYKDmNvdW50ZG93bl90aW1lGAMgASgDEhoKEm1heF9l",
+            "eHRlbnNpb25fdGltZRgEIAEoAxIZChFzdGFydF9pbW1lZGlhdGVseRgFIAEo",
+            "CCLZAQoJQml6Q29uZmlnEiwKFWFkbWluaXN0cmF0b3JfYWRkcmVzcxgBIAEo",
+            "CzINLmFlbGYuQWRkcmVzcxIoChFyZWNlaXZpbmdfYWNjb3VudBgCIAEoCzIN",
+            "LmFlbGYuQWRkcmVzcxIhChlhZG1pbl9jYW5fY2V0U3BlY2lhbFNlZWRzGAMg",
+            "ASgIEiYKDmF1Y3Rpb25fY29uZmlnGAQgASgLMg4uQXVjdGlvbkNvbmZpZxIp",
+            "ChBpc3N1ZV9jaGFpbl9saXN0GAUgASgLMg8uSXNzdWVDaGFpbkxpc3QiPAoP",
+            "Q3JlYXRlU2VlZElucHV0Eg4KBnN5bWJvbBgBIAEoCRIZCgJ0bxgCIAEoCzIN",
+            "LmFlbGYuQWRkcmVzcyKRAQoIU2VlZEluZm8SDgoGc3ltYm9sGAEgASgJEhQK",
+            "DG93bmVkX3N5bWJvbBgCIAEoCRITCgtleHBpcmVfdGltZRgDIAEoAxIcCglz",
+            "ZWVkX3R5cGUYBCABKA4yCS5TZWVkVHlwZRIZCgJ0bxgFIAEoCzINLmFlbGYu",
+            "QWRkcmVzcxIRCglpbWFnZV91cmwYBiABKAkiJQoOSXNzdWVDaGFpbkxpc3QS",
+            "EwoLaXNzdWVfY2hhaW4YASADKAkiWAoPU2VlZHNQcmljZUlucHV0EiEKDWZ0",
+            "X3ByaWNlX2xpc3QYASABKAsyCi5QcmljZUxpc3QSIgoObmZ0X3ByaWNlX2xp",
+            "c3QYAiABKAsyCi5QcmljZUxpc3QiZgodVW5pcXVlU2VlZHNFeHRlcm5hbFBy",
+            "aWNlSW5wdXQSIQoNZnRfcHJpY2VfbGlzdBgBIAEoCzIKLlByaWNlTGlzdBIi",
+            "Cg5uZnRfcHJpY2VfbGlzdBgCIAEoCzIKLlByaWNlTGlzdCJcChNHZXRTZWVk",
+            "c1ByaWNlT3V0cHV0EiEKDWZ0X3ByaWNlX2xpc3QYASABKAsyCi5QcmljZUxp",
+            "c3QSIgoObmZ0X3ByaWNlX2xpc3QYAiABKAsyCi5QcmljZUxpc3QiagohR2V0",
+            "VW5pcXVlU2VlZHNFeHRlcm5hbFByaWNlT3V0cHV0EiEKDWZ0X3ByaWNlX2xp",
+            "c3QYASABKAsyCi5QcmljZUxpc3QSIgoObmZ0X3ByaWNlX2xpc3QYAiABKAsy",
+            "Ci5QcmljZUxpc3QiJgoJUHJpY2VMaXN0EhkKBXZhbHVlGAEgAygLMgouUHJp",
+            "Y2VJdGVtIkIKCVByaWNlSXRlbRIVCg1zeW1ib2xfbGVuZ3RoGAEgASgFEg4K",
+            "BnN5bWJvbBgCIAEoCRIOCgZhbW91bnQYAyABKAMisgIKC1NwZWNpYWxTZWVk",
+            "EhwKCXNlZWRfdHlwZRgBIAEoDjIJLlNlZWRUeXBlEg4KBnN5bWJvbBgCIAEo",
+            "CRIUCgxwcmljZV9zeW1ib2wYAyABKAkSFAoMcHJpY2VfYW1vdW50GAQgASgD",
+            "EiIKDGF1Y3Rpb25fdHlwZRgFIAEoDjIMLkF1Y3Rpb25UeXBlEhMKC2lzc3Vl",
+            "X2NoYWluGAYgASgJEiQKHGlzc3VlX2NoYWluX2NvbnRyYWN0X2FkZHJlc3MY",
+            "ByABKAkSNQoNZXh0ZXJuYWxfaW5mbxgIIAMoCzIeLlNwZWNpYWxTZWVkLkV4",
+            "dGVybmFsSW5mb0VudHJ5GjMKEUV4dGVybmFsSW5mb0VudHJ5EgsKA2tleRgB",
+            "IAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiOwoIQnV5SW5wdXQSDgoGc3ltYm9s",
+            "GAEgASgJEh8KCGlzc3VlX3RvGAIgASgLMg0uYWVsZi5BZGRyZXNzIkMKFVJl",
+            "Z3VsYXJTZWVkUmVuZXdJbnB1dBITCgtzZWVkX3N5bWJvbBgBIAEoCRIVCgVw",
+            "cmljZRgCIAEoCzIGLlByaWNlIogBChVTcGVjaWFsU2VlZFJlbmV3SW5wdXQS",
+            "HAoFYnV5ZXIYASABKAsyDS5hZWxmLkFkZHJlc3MSEwoLc2VlZF9zeW1ib2wY",
+            "AiABKAkSFQoFcHJpY2UYAyABKAsyBi5QcmljZRIPCgdvcF90aW1lGAQgASgD",
+            "EhQKDHJlcXVlc3RfaGFzaBgFIAEoCSI0Cg5Db250cm9sbGVyTGlzdBIiCgtj",
+            "b250cm9sbGVycxgBIAMoCzINLmFlbGYuQWRkcmVzcyI8ChZBZGRTYWxlQ29u",
+            "dHJvbGxlcklucHV0EiIKCWFkZHJlc3NlcxgBIAEoCzIPLkNvbnRyb2xsZXJM",
+            "aXN0Ij8KGVJlbW92ZVNhbGVDb250cm9sbGVySW5wdXQSIgoJYWRkcmVzc2Vz",
+            "GAEgASgLMg8uQ29udHJvbGxlckxpc3QiKQoWUmVtb3ZlU3BlY2lhbFNlZWRJ",
+            "bnB1dBIPCgdzeW1ib2xzGAEgAygJIiEKDlVuaXF1ZVNlZWRMaXN0Eg8KB3N5",
+            "bWJvbHMYASADKAkiLgoPU3BlY2lhbFNlZWRMaXN0EhsKBXZhbHVlGAEgAygL",
+            "MgwuU3BlY2lhbFNlZWQiLwoUU2VlZEV4cGlyYXRpb25Db25maWcSFwoPZXhw",
+            "aXJhdGlvbl90aW1lGAEgASgDIicKBVByaWNlEg4KBnN5bWJvbBgBIAEoCRIO",
+            "CgZhbW91bnQYAiABKAMimgEKC1NlZWRDcmVhdGVkEg4KBnN5bWJvbBgBIAEo",
+            "CRIUCgxvd25lZF9zeW1ib2wYAiABKAkSEwoLZXhwaXJlX3RpbWUYAyABKAMS",
+            "HAoJc2VlZF90eXBlGAQgASgOMgkuU2VlZFR5cGUSGQoCdG8YBSABKAsyDS5h",
+            "ZWxmLkFkZHJlc3MSEQoJaW1hZ2VfdXJsGAYgASgJOgSguxgBImAKEVNlZWRz",
+            "UHJpY2VDaGFuZ2VkEiEKDWZ0X3ByaWNlX2xpc3QYASABKAsyCi5QcmljZUxp",
+            "c3QSIgoObmZ0X3ByaWNlX2xpc3QYAiABKAsyCi5QcmljZUxpc3Q6BKC7GAEi",
+            "bgofVW5pcXVlU2VlZHNFeHRlcm5hbFByaWNlQ2hhbmdlZBIhCg1mdF9wcmlj",
+            "ZV9saXN0GAEgASgLMgouUHJpY2VMaXN0EiIKDm5mdF9wcmljZV9saXN0GAIg",
+            "ASgLMgouUHJpY2VMaXN0OgSguxgBIjwKEFNwZWNpYWxTZWVkQWRkZWQSIgoI",
+            "YWRkX2xpc3QYASABKAsyEC5TcGVjaWFsU2VlZExpc3Q6BKC7GAEiQQoSU3Bl",
+            "Y2lhbFNlZWRSZW1vdmVkEiUKC3JlbW92ZV9saXN0GAEgASgLMhAuU3BlY2lh",
+            "bFNlZWRMaXN0OgSguxgBIlMKBkJvdWdodBIcCgVidXllchgBIAEoCzINLmFl",
+            "bGYuQWRkcmVzcxIOCgZzeW1ib2wYAiABKAkSFQoFcHJpY2UYBCABKAsyBi5Q",
+            "cmljZToEoLsYASLqAQoLU2VlZFJlbmV3ZWQSHAoFYnV5ZXIYASABKAsyDS5h",
+            "ZWxmLkFkZHJlc3MSDgoGc3ltYm9sGAIgASgJEhMKC3NlZWRfc3ltYm9sGAMg",
+            "ASgJEhAKCGV4cF90aW1lGAQgASgDEhUKBXByaWNlGAUgASgLMgYuUHJpY2US",
+            "GQoRb3JpZ2luYWxfZXhwX3RpbWUYBiABKAMSHAoJc2VlZF90eXBlGAcgASgO",
+            "MgkuU2VlZFR5cGUSHgoKcmVuZXdfdHlwZRgIIAEoDjIKLlJlbmV3VHlwZRIQ",
+            "CghjaGFpbl9pZBgJIAEoBToEoLsYASI/ChNTYWxlQ29udHJvbGxlckFkZGVk",
+            "EiIKCWFkZHJlc3NlcxgBIAEoCzIPLkNvbnRyb2xsZXJMaXN0OgSguxgBIkEK",
+            "FVNhbGVDb250cm9sbGVyUmVtb3ZlZBIiCglhZGRyZXNzZXMYASABKAsyDy5D",
+            "b250cm9sbGVyTGlzdDoEoLsYASJaChtTZWVkRXhwaXJhdGlvbkNvbmZpZ0No",
+            "YW5nZWQSNQoWc2VlZF9leHBpcmF0aW9uX2NvbmZpZxgBIAEoCzIVLlNlZWRF",
+            "eHBpcmF0aW9uQ29uZmlnOgSguxgBIkIKD0lzc3VlQ2hhaW5BZGRlZBIpChBp",
+            "c3N1ZV9jaGFpbl9saXN0GAEgASgLMg8uSXNzdWVDaGFpbkxpc3Q6BKC7GAEi",
+            "RAoRSXNzdWVDaGFpblJlbW92ZWQSKQoQaXNzdWVfY2hhaW5fbGlzdBgBIAEo",
+            "CzIPLklzc3VlQ2hhaW5MaXN0OgSguxgBKi8KC0F1Y3Rpb25UeXBlEggKBE5P",
+            "TkUQABILCgdFTkdMSVNIEAESCQoFRFVUQ0gQAipKCghTZWVkVHlwZRILCgdV",
+            "TktOT1dOEAASCwoHRElTQUJMRRABEgsKB05PVEFCTEUQAhIKCgZVTklRVUUQ",
+            "AxILCgdSRUdVTEFSEAQqHgoJUmVuZXdUeXBlEggKBFNFTEYQABIHCgNCSUQQ",
+            "ATLRFAoXU3ltYm9sUmVnaXN0cmFyQ29udHJhY3QSOAoKSW5pdGlhbGl6ZRIQ",
+            "LkluaXRpYWxpemVJbnB1dBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAEjgK",
+            "CkNyZWF0ZVNlZWQSEC5DcmVhdGVTZWVkSW5wdXQaFi5nb29nbGUucHJvdG9i",
+            "dWYuRW1wdHkiABIqCgNCdXkSCS5CdXlJbnB1dBoWLmdvb2dsZS5wcm90b2J1",
+            "Zi5FbXB0eSIAEkQKEFJlZ3VsYXJTZWVkUmVuZXcSFi5SZWd1bGFyU2VlZFJl",
+            "bmV3SW5wdXQaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABJEChBTcGVjaWFs",
+            "U2VlZFJlbmV3EhYuU3BlY2lhbFNlZWRSZW5ld0lucHV0GhYuZ29vZ2xlLnBy",
+            "b3RvYnVmLkVtcHR5IgASPQoPQWRkU3BlY2lhbFNlZWRzEhAuU3BlY2lhbFNl",
+            "ZWRMaXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IgASOwoOQWRkVW5pcXVl",
+            "U2VlZHMSDy5VbmlxdWVTZWVkTGlzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0",
+            "eSIAEkcKElJlbW92ZVNwZWNpYWxTZWVkcxIXLlJlbW92ZVNwZWNpYWxTZWVk",
+            "SW5wdXQaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABIzCghTZXRBZG1pbhIN",
+            "LmFlbGYuQWRkcmVzcxoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAEkMKGFNl",
+            "dEFzc29jaWF0ZU9yZ2FuaXphdGlvbhINLmFlbGYuQWRkcmVzcxoWLmdvb2ds",
+            "ZS5wcm90b2J1Zi5FbXB0eSIAEkYKDVNldExhc3RTZWVkSWQSGy5nb29nbGUu",
+            "cHJvdG9idWYuSW50NjRWYWx1ZRoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIA",
+            "EkIKF1NldFByb3h5QWNjb3VudENvbnRyYWN0Eg0uYWVsZi5BZGRyZXNzGhYu",
+            "Z29vZ2xlLnByb3RvYnVmLkVtcHR5IgASPgoTU2V0UmVjZWl2aW5nQWNjb3Vu",
+            "dBINLmFlbGYuQWRkcmVzcxoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAEjsK",
+            "DVNldFNlZWRzUHJpY2USEC5TZWVkc1ByaWNlSW5wdXQaFi5nb29nbGUucHJv",
+            "dG9idWYuRW1wdHkiABJXChtTZXRVbmlxdWVTZWVkc0V4dGVybmFsUHJpY2US",
+            "Hi5VbmlxdWVTZWVkc0V4dGVybmFsUHJpY2VJbnB1dBoWLmdvb2dsZS5wcm90",
+            "b2J1Zi5FbXB0eSIAEjwKEFNldEF1Y3Rpb25Db25maWcSDi5BdWN0aW9uQ29u",
+            "ZmlnGhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IgASRgoRQWRkU2FsZUNvbnRy",
+            "b2xsZXISFy5BZGRTYWxlQ29udHJvbGxlcklucHV0GhYuZ29vZ2xlLnByb3Rv",
+            "YnVmLkVtcHR5IgASTAoUUmVtb3ZlU2FsZUNvbnRyb2xsZXISGi5SZW1vdmVT",
+            "YWxlQ29udHJvbGxlcklucHV0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IgAS",
+            "SgoXU2V0U2VlZEV4cGlyYXRpb25Db25maWcSFS5TZWVkRXhwaXJhdGlvbkNv",
+            "bmZpZxoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAEk8KFVNldFNlZWRJbWFn",
+            "ZVVybFByZWZpeBIcLmdvb2dsZS5wcm90b2J1Zi5TdHJpbmdWYWx1ZRoWLmdv",
+            "b2dsZS5wcm90b2J1Zi5FbXB0eSIAEjoKDUFkZElzc3VlQ2hhaW4SDy5Jc3N1",
+            "ZUNoYWluTGlzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAEj0KEFJlbW92",
+            "ZUlzc3VlQ2hhaW4SDy5Jc3N1ZUNoYWluTGlzdBoWLmdvb2dsZS5wcm90b2J1",
+            "Zi5FbXB0eSIAElMKGVNldFNlZWRSZW5ld0hhc2hWZXJpZnlLZXkSHC5nb29n",
+            "bGUucHJvdG9idWYuU3RyaW5nVmFsdWUaFi5nb29nbGUucHJvdG9idWYuRW1w",
+            "dHkiABJIChhHZXRBc3NvY2lhdGVPcmdhbml6YXRpb24SFi5nb29nbGUucHJv",
+            "dG9idWYuRW1wdHkaDS5hZWxmLkFkZHJlc3MiBYiJ9wEBEkQKDUdldFNlZWRz",
+            "UHJpY2USFi5nb29nbGUucHJvdG9idWYuRW1wdHkaFC5HZXRTZWVkc1ByaWNl",
+            "T3V0cHV0IgWIifcBARJgChtHZXRVbmlxdWVTZWVkc0V4dGVybmFsUHJpY2US",
+            "Fi5nb29nbGUucHJvdG9idWYuRW1wdHkaIi5HZXRVbmlxdWVTZWVkc0V4dGVy",
+            "bmFsUHJpY2VPdXRwdXQiBYiJ9wEBEkMKDkdldFNwZWNpYWxTZWVkEhwuZ29v",
+            "Z2xlLnByb3RvYnVmLlN0cmluZ1ZhbHVlGgwuU3BlY2lhbFNlZWQiBYiJ9wEB",
+            "EkcKF0dldEFkbWluaXN0cmF0b3JBZGRyZXNzEhYuZ29vZ2xlLnByb3RvYnVm",
+            "LkVtcHR5Gg0uYWVsZi5BZGRyZXNzIgWIifcBARJKChpHZXRSZWNlaXZpbmdB",
+            "Y2NvdW50QWRkcmVzcxIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eRoNLmFlbGYu",
+            "QWRkcmVzcyIFiIn3AQESTwoXR2V0U2VlZEV4cGlyYXRpb25Db25maWcSFi5n",
+            "b29nbGUucHJvdG9idWYuRW1wdHkaFS5TZWVkRXhwaXJhdGlvbkNvbmZpZyIF",
+            "iIn3AQESQQoQR2V0QXVjdGlvbkNvbmZpZxIWLmdvb2dsZS5wcm90b2J1Zi5F",
+            "bXB0eRoOLkF1Y3Rpb25Db25maWciBYiJ9wEBEkMKEUdldFNhbGVDb250cm9s",
+            "bGVyEhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Gg8uQ29udHJvbGxlckxpc3Qi",
+            "BYiJ9wEBEkcKF0dldFByb3h5QWNjb3VudENvbnRyYWN0EhYuZ29vZ2xlLnBy",
+            "b3RvYnVmLkVtcHR5Gg0uYWVsZi5BZGRyZXNzIgWIifcBARJLCg1HZXRMYXN0",
+            "U2VlZElkEhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5GhsuZ29vZ2xlLnByb3Rv",
+            "YnVmLkludDY0VmFsdWUiBYiJ9wEBElQKFUdldFNlZWRJbWFnZVVybFByZWZp",
+            "eBIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eRocLmdvb2dsZS5wcm90b2J1Zi5T",
+            "dHJpbmdWYWx1ZSIFiIn3AQESQwoRR2V0SXNzdWVDaGFpbkxpc3QSFi5nb29n",
+            "bGUucHJvdG9idWYuRW1wdHkaDy5Jc3N1ZUNoYWluTGlzdCIFiIn3AQEaUsrK",
+            "9gELYWNzMTIucHJvdG+yzPYBPUZvcmVzdC5Db250cmFjdHMuU3ltYm9sUmVn",
+            "aXN0cmFyLlN5bWJvbFJlZ2lzdHJhckNvbnRyYWN0U3RhdGVCI6oCIEZvcmVz",
+            "dC5Db250cmFjdHMuU3ltYm9sUmVnaXN0cmFyYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::AElf.Types.CoreReflection.Descriptor, global::AElf.OptionsReflection.Descriptor, global::AElf.Standards.ACS12.Acs12Reflection.Descriptor, global::Google.Protobuf.WellKnownTypes.EmptyReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.WrappersReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Forest.Contracts.SymbolRegistrar.AuctionType), typeof(global::Forest.Contracts.SymbolRegistrar.SeedType), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.InitializeInput), global::Forest.Contracts.SymbolRegistrar.InitializeInput.Parser, new[]{ "AdministratorAddress", "ReceivingAccount", "SpecialSeeds", "SeedsPrices", "ProxyAccountAddress", "AuctionConfig", "UniqueSeedsExternalPrices" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Forest.Contracts.SymbolRegistrar.AuctionType), typeof(global::Forest.Contracts.SymbolRegistrar.SeedType), typeof(global::Forest.Contracts.SymbolRegistrar.RenewType), }, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.InitializeInput), global::Forest.Contracts.SymbolRegistrar.InitializeInput.Parser, new[]{ "AdministratorAddress", "ReceivingAccount", "SpecialSeeds", "SeedsPrices", "ProxyAccountContractAddress", "AuctionConfig", "UniqueSeedsExternalPrices", "AssociateOrganizationAddress" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.AuctionConfig), global::Forest.Contracts.SymbolRegistrar.AuctionConfig.Parser, new[]{ "Duration", "MinMarkup", "CountdownTime", "MaxExtensionTime", "StartImmediately" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.BizConfig), global::Forest.Contracts.SymbolRegistrar.BizConfig.Parser, new[]{ "AdministratorAddress", "ReceivingAccount", "AdminCanCetSpecialSeeds", "AuctionConfig" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.BizConfig), global::Forest.Contracts.SymbolRegistrar.BizConfig.Parser, new[]{ "AdministratorAddress", "ReceivingAccount", "AdminCanCetSpecialSeeds", "AuctionConfig", "IssueChainList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.CreateSeedInput), global::Forest.Contracts.SymbolRegistrar.CreateSeedInput.Parser, new[]{ "Symbol", "To" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SeedInfo), global::Forest.Contracts.SymbolRegistrar.SeedInfo.Parser, new[]{ "Symbol", "OwnedSymbol", "ExpireTime", "SeedType", "To", "ImageUrl" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.IssueChainList), global::Forest.Contracts.SymbolRegistrar.IssueChainList.Parser, new[]{ "IssueChain" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SeedsPriceInput), global::Forest.Contracts.SymbolRegistrar.SeedsPriceInput.Parser, new[]{ "FtPriceList", "NftPriceList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.UniqueSeedsExternalPriceInput), global::Forest.Contracts.SymbolRegistrar.UniqueSeedsExternalPriceInput.Parser, new[]{ "FtPriceList", "NftPriceList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.GetSeedsPriceOutput), global::Forest.Contracts.SymbolRegistrar.GetSeedsPriceOutput.Parser, new[]{ "FtPriceList", "NftPriceList" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.GetUniqueSeedsExternalPriceOutput), global::Forest.Contracts.SymbolRegistrar.GetUniqueSeedsExternalPriceOutput.Parser, new[]{ "FtPriceList", "NftPriceList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.PriceList), global::Forest.Contracts.SymbolRegistrar.PriceList.Parser, new[]{ "Value" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.PriceItem), global::Forest.Contracts.SymbolRegistrar.PriceItem.Parser, new[]{ "SymbolLength", "Symbol", "Amount" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SpecialSeed), global::Forest.Contracts.SymbolRegistrar.SpecialSeed.Parser, new[]{ "SeedType", "Symbol", "PriceSymbol", "PriceAmount", "AuctionType", "IssueChain", "IssueChainContractAddress", "ExternalInfo" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.BuyInput), global::Forest.Contracts.SymbolRegistrar.BuyInput.Parser, new[]{ "Symbol", "IssueTo" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.RegularSeedRenewInput), global::Forest.Contracts.SymbolRegistrar.RegularSeedRenewInput.Parser, new[]{ "SeedSymbol", "Price" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SpecialSeedRenewInput), global::Forest.Contracts.SymbolRegistrar.SpecialSeedRenewInput.Parser, new[]{ "Buyer", "SeedSymbol", "Price", "OpTime", "RequestHash" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.ControllerList), global::Forest.Contracts.SymbolRegistrar.ControllerList.Parser, new[]{ "Controllers" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.AddSaleControllerInput), global::Forest.Contracts.SymbolRegistrar.AddSaleControllerInput.Parser, new[]{ "Addresses" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.RemoveSaleControllerInput), global::Forest.Contracts.SymbolRegistrar.RemoveSaleControllerInput.Parser, new[]{ "Addresses" }, null, null, null, null),
@@ -171,12 +206,12 @@ namespace Forest.Contracts.SymbolRegistrar {
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SpecialSeedAdded), global::Forest.Contracts.SymbolRegistrar.SpecialSeedAdded.Parser, new[]{ "AddList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SpecialSeedRemoved), global::Forest.Contracts.SymbolRegistrar.SpecialSeedRemoved.Parser, new[]{ "RemoveList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.Bought), global::Forest.Contracts.SymbolRegistrar.Bought.Parser, new[]{ "Buyer", "Symbol", "Price" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SeedRenewed), global::Forest.Contracts.SymbolRegistrar.SeedRenewed.Parser, new[]{ "Buyer", "Symbol", "SeedSymbol", "ExpTime", "Price", "OriginalExpTime", "SeedType", "RenewType", "ChainId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SaleControllerAdded), global::Forest.Contracts.SymbolRegistrar.SaleControllerAdded.Parser, new[]{ "Addresses" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SaleControllerRemoved), global::Forest.Contracts.SymbolRegistrar.SaleControllerRemoved.Parser, new[]{ "Addresses" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SymbolAuthorInput), global::Forest.Contracts.SymbolRegistrar.SymbolAuthorInput.Parser, new[]{ "Symbol", "Address" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SymbolAuthorMapped), global::Forest.Contracts.SymbolRegistrar.SymbolAuthorMapped.Parser, new[]{ "Symbol", "Address" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.AuctionEndTimeExtended), global::Forest.Contracts.SymbolRegistrar.AuctionEndTimeExtended.Parser, new[]{ "Symbol", "NewEndTime" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfigChanged), global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfigChanged.Parser, new[]{ "SeedExpirationConfig" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfigChanged), global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfigChanged.Parser, new[]{ "SeedExpirationConfig" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.IssueChainAdded), global::Forest.Contracts.SymbolRegistrar.IssueChainAdded.Parser, new[]{ "IssueChainList" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Forest.Contracts.SymbolRegistrar.IssueChainRemoved), global::Forest.Contracts.SymbolRegistrar.IssueChainRemoved.Parser, new[]{ "IssueChainList" }, null, null, null, null)
           }));
     }
     #endregion
@@ -204,6 +239,11 @@ namespace Forest.Contracts.SymbolRegistrar {
     /// regular 
     /// </summary>
     [pbr::OriginalName("REGULAR")] Regular = 4,
+  }
+
+  public enum RenewType {
+    [pbr::OriginalName("SELF")] Self = 0,
+    [pbr::OriginalName("BID")] Bid = 1,
   }
 
   #endregion
@@ -250,9 +290,10 @@ namespace Forest.Contracts.SymbolRegistrar {
       receivingAccount_ = other.receivingAccount_ != null ? other.receivingAccount_.Clone() : null;
       specialSeeds_ = other.specialSeeds_ != null ? other.specialSeeds_.Clone() : null;
       seedsPrices_ = other.seedsPrices_ != null ? other.seedsPrices_.Clone() : null;
-      proxyAccountAddress_ = other.proxyAccountAddress_ != null ? other.proxyAccountAddress_.Clone() : null;
+      proxyAccountContractAddress_ = other.proxyAccountContractAddress_ != null ? other.proxyAccountContractAddress_.Clone() : null;
       auctionConfig_ = other.auctionConfig_ != null ? other.auctionConfig_.Clone() : null;
       uniqueSeedsExternalPrices_ = other.uniqueSeedsExternalPrices_ != null ? other.uniqueSeedsExternalPrices_.Clone() : null;
+      associateOrganizationAddress_ = other.associateOrganizationAddress_ != null ? other.associateOrganizationAddress_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -310,19 +351,19 @@ namespace Forest.Contracts.SymbolRegistrar {
       }
     }
 
-    /// <summary>Field number for the "proxy_account_address" field.</summary>
-    public const int ProxyAccountAddressFieldNumber = 5;
-    private global::AElf.Types.Address proxyAccountAddress_;
+    /// <summary>Field number for the "proxy_account_contract_address" field.</summary>
+    public const int ProxyAccountContractAddressFieldNumber = 5;
+    private global::AElf.Types.Address proxyAccountContractAddress_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::AElf.Types.Address ProxyAccountAddress {
-      get { return proxyAccountAddress_; }
+    public global::AElf.Types.Address ProxyAccountContractAddress {
+      get { return proxyAccountContractAddress_; }
       set {
-        proxyAccountAddress_ = value;
+        proxyAccountContractAddress_ = value;
       }
     }
 
-    /// <summary>Field number for the "auctionConfig" field.</summary>
+    /// <summary>Field number for the "auction_config" field.</summary>
     public const int AuctionConfigFieldNumber = 6;
     private global::Forest.Contracts.SymbolRegistrar.AuctionConfig auctionConfig_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -346,6 +387,18 @@ namespace Forest.Contracts.SymbolRegistrar {
       }
     }
 
+    /// <summary>Field number for the "associate_organization_address" field.</summary>
+    public const int AssociateOrganizationAddressFieldNumber = 8;
+    private global::AElf.Types.Address associateOrganizationAddress_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::AElf.Types.Address AssociateOrganizationAddress {
+      get { return associateOrganizationAddress_; }
+      set {
+        associateOrganizationAddress_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -365,9 +418,10 @@ namespace Forest.Contracts.SymbolRegistrar {
       if (!object.Equals(ReceivingAccount, other.ReceivingAccount)) return false;
       if (!object.Equals(SpecialSeeds, other.SpecialSeeds)) return false;
       if (!object.Equals(SeedsPrices, other.SeedsPrices)) return false;
-      if (!object.Equals(ProxyAccountAddress, other.ProxyAccountAddress)) return false;
+      if (!object.Equals(ProxyAccountContractAddress, other.ProxyAccountContractAddress)) return false;
       if (!object.Equals(AuctionConfig, other.AuctionConfig)) return false;
       if (!object.Equals(UniqueSeedsExternalPrices, other.UniqueSeedsExternalPrices)) return false;
+      if (!object.Equals(AssociateOrganizationAddress, other.AssociateOrganizationAddress)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -379,9 +433,10 @@ namespace Forest.Contracts.SymbolRegistrar {
       if (receivingAccount_ != null) hash ^= ReceivingAccount.GetHashCode();
       if (specialSeeds_ != null) hash ^= SpecialSeeds.GetHashCode();
       if (seedsPrices_ != null) hash ^= SeedsPrices.GetHashCode();
-      if (proxyAccountAddress_ != null) hash ^= ProxyAccountAddress.GetHashCode();
+      if (proxyAccountContractAddress_ != null) hash ^= ProxyAccountContractAddress.GetHashCode();
       if (auctionConfig_ != null) hash ^= AuctionConfig.GetHashCode();
       if (uniqueSeedsExternalPrices_ != null) hash ^= UniqueSeedsExternalPrices.GetHashCode();
+      if (associateOrganizationAddress_ != null) hash ^= AssociateOrganizationAddress.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -416,9 +471,9 @@ namespace Forest.Contracts.SymbolRegistrar {
         output.WriteRawTag(34);
         output.WriteMessage(SeedsPrices);
       }
-      if (proxyAccountAddress_ != null) {
+      if (proxyAccountContractAddress_ != null) {
         output.WriteRawTag(42);
-        output.WriteMessage(ProxyAccountAddress);
+        output.WriteMessage(ProxyAccountContractAddress);
       }
       if (auctionConfig_ != null) {
         output.WriteRawTag(50);
@@ -427,6 +482,10 @@ namespace Forest.Contracts.SymbolRegistrar {
       if (uniqueSeedsExternalPrices_ != null) {
         output.WriteRawTag(58);
         output.WriteMessage(UniqueSeedsExternalPrices);
+      }
+      if (associateOrganizationAddress_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(AssociateOrganizationAddress);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -454,9 +513,9 @@ namespace Forest.Contracts.SymbolRegistrar {
         output.WriteRawTag(34);
         output.WriteMessage(SeedsPrices);
       }
-      if (proxyAccountAddress_ != null) {
+      if (proxyAccountContractAddress_ != null) {
         output.WriteRawTag(42);
-        output.WriteMessage(ProxyAccountAddress);
+        output.WriteMessage(ProxyAccountContractAddress);
       }
       if (auctionConfig_ != null) {
         output.WriteRawTag(50);
@@ -465,6 +524,10 @@ namespace Forest.Contracts.SymbolRegistrar {
       if (uniqueSeedsExternalPrices_ != null) {
         output.WriteRawTag(58);
         output.WriteMessage(UniqueSeedsExternalPrices);
+      }
+      if (associateOrganizationAddress_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(AssociateOrganizationAddress);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -488,14 +551,17 @@ namespace Forest.Contracts.SymbolRegistrar {
       if (seedsPrices_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(SeedsPrices);
       }
-      if (proxyAccountAddress_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ProxyAccountAddress);
+      if (proxyAccountContractAddress_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ProxyAccountContractAddress);
       }
       if (auctionConfig_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(AuctionConfig);
       }
       if (uniqueSeedsExternalPrices_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(UniqueSeedsExternalPrices);
+      }
+      if (associateOrganizationAddress_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(AssociateOrganizationAddress);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -533,11 +599,11 @@ namespace Forest.Contracts.SymbolRegistrar {
         }
         SeedsPrices.MergeFrom(other.SeedsPrices);
       }
-      if (other.proxyAccountAddress_ != null) {
-        if (proxyAccountAddress_ == null) {
-          ProxyAccountAddress = new global::AElf.Types.Address();
+      if (other.proxyAccountContractAddress_ != null) {
+        if (proxyAccountContractAddress_ == null) {
+          ProxyAccountContractAddress = new global::AElf.Types.Address();
         }
-        ProxyAccountAddress.MergeFrom(other.ProxyAccountAddress);
+        ProxyAccountContractAddress.MergeFrom(other.ProxyAccountContractAddress);
       }
       if (other.auctionConfig_ != null) {
         if (auctionConfig_ == null) {
@@ -550,6 +616,12 @@ namespace Forest.Contracts.SymbolRegistrar {
           UniqueSeedsExternalPrices = new global::Forest.Contracts.SymbolRegistrar.UniqueSeedsExternalPriceInput();
         }
         UniqueSeedsExternalPrices.MergeFrom(other.UniqueSeedsExternalPrices);
+      }
+      if (other.associateOrganizationAddress_ != null) {
+        if (associateOrganizationAddress_ == null) {
+          AssociateOrganizationAddress = new global::AElf.Types.Address();
+        }
+        AssociateOrganizationAddress.MergeFrom(other.AssociateOrganizationAddress);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -595,10 +667,10 @@ namespace Forest.Contracts.SymbolRegistrar {
             break;
           }
           case 42: {
-            if (proxyAccountAddress_ == null) {
-              ProxyAccountAddress = new global::AElf.Types.Address();
+            if (proxyAccountContractAddress_ == null) {
+              ProxyAccountContractAddress = new global::AElf.Types.Address();
             }
-            input.ReadMessage(ProxyAccountAddress);
+            input.ReadMessage(ProxyAccountContractAddress);
             break;
           }
           case 50: {
@@ -613,6 +685,13 @@ namespace Forest.Contracts.SymbolRegistrar {
               UniqueSeedsExternalPrices = new global::Forest.Contracts.SymbolRegistrar.UniqueSeedsExternalPriceInput();
             }
             input.ReadMessage(UniqueSeedsExternalPrices);
+            break;
+          }
+          case 66: {
+            if (associateOrganizationAddress_ == null) {
+              AssociateOrganizationAddress = new global::AElf.Types.Address();
+            }
+            input.ReadMessage(AssociateOrganizationAddress);
             break;
           }
         }
@@ -659,10 +738,10 @@ namespace Forest.Contracts.SymbolRegistrar {
             break;
           }
           case 42: {
-            if (proxyAccountAddress_ == null) {
-              ProxyAccountAddress = new global::AElf.Types.Address();
+            if (proxyAccountContractAddress_ == null) {
+              ProxyAccountContractAddress = new global::AElf.Types.Address();
             }
-            input.ReadMessage(ProxyAccountAddress);
+            input.ReadMessage(ProxyAccountContractAddress);
             break;
           }
           case 50: {
@@ -677,6 +756,13 @@ namespace Forest.Contracts.SymbolRegistrar {
               UniqueSeedsExternalPrices = new global::Forest.Contracts.SymbolRegistrar.UniqueSeedsExternalPriceInput();
             }
             input.ReadMessage(UniqueSeedsExternalPrices);
+            break;
+          }
+          case 66: {
+            if (associateOrganizationAddress_ == null) {
+              AssociateOrganizationAddress = new global::AElf.Types.Address();
+            }
+            input.ReadMessage(AssociateOrganizationAddress);
             break;
           }
         }
@@ -1061,6 +1147,7 @@ namespace Forest.Contracts.SymbolRegistrar {
       receivingAccount_ = other.receivingAccount_ != null ? other.receivingAccount_.Clone() : null;
       adminCanCetSpecialSeeds_ = other.adminCanCetSpecialSeeds_;
       auctionConfig_ = other.auctionConfig_ != null ? other.auctionConfig_.Clone() : null;
+      issueChainList_ = other.issueChainList_ != null ? other.issueChainList_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1118,6 +1205,18 @@ namespace Forest.Contracts.SymbolRegistrar {
       }
     }
 
+    /// <summary>Field number for the "issue_chain_list" field.</summary>
+    public const int IssueChainListFieldNumber = 5;
+    private global::Forest.Contracts.SymbolRegistrar.IssueChainList issueChainList_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.IssueChainList IssueChainList {
+      get { return issueChainList_; }
+      set {
+        issueChainList_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1137,6 +1236,7 @@ namespace Forest.Contracts.SymbolRegistrar {
       if (!object.Equals(ReceivingAccount, other.ReceivingAccount)) return false;
       if (AdminCanCetSpecialSeeds != other.AdminCanCetSpecialSeeds) return false;
       if (!object.Equals(AuctionConfig, other.AuctionConfig)) return false;
+      if (!object.Equals(IssueChainList, other.IssueChainList)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1148,6 +1248,7 @@ namespace Forest.Contracts.SymbolRegistrar {
       if (receivingAccount_ != null) hash ^= ReceivingAccount.GetHashCode();
       if (AdminCanCetSpecialSeeds != false) hash ^= AdminCanCetSpecialSeeds.GetHashCode();
       if (auctionConfig_ != null) hash ^= AuctionConfig.GetHashCode();
+      if (issueChainList_ != null) hash ^= IssueChainList.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1182,6 +1283,10 @@ namespace Forest.Contracts.SymbolRegistrar {
         output.WriteRawTag(34);
         output.WriteMessage(AuctionConfig);
       }
+      if (issueChainList_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(IssueChainList);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1208,6 +1313,10 @@ namespace Forest.Contracts.SymbolRegistrar {
         output.WriteRawTag(34);
         output.WriteMessage(AuctionConfig);
       }
+      if (issueChainList_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(IssueChainList);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1229,6 +1338,9 @@ namespace Forest.Contracts.SymbolRegistrar {
       }
       if (auctionConfig_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(AuctionConfig);
+      }
+      if (issueChainList_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(IssueChainList);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1262,6 +1374,12 @@ namespace Forest.Contracts.SymbolRegistrar {
           AuctionConfig = new global::Forest.Contracts.SymbolRegistrar.AuctionConfig();
         }
         AuctionConfig.MergeFrom(other.AuctionConfig);
+      }
+      if (other.issueChainList_ != null) {
+        if (issueChainList_ == null) {
+          IssueChainList = new global::Forest.Contracts.SymbolRegistrar.IssueChainList();
+        }
+        IssueChainList.MergeFrom(other.IssueChainList);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1303,6 +1421,13 @@ namespace Forest.Contracts.SymbolRegistrar {
             input.ReadMessage(AuctionConfig);
             break;
           }
+          case 42: {
+            if (issueChainList_ == null) {
+              IssueChainList = new global::Forest.Contracts.SymbolRegistrar.IssueChainList();
+            }
+            input.ReadMessage(IssueChainList);
+            break;
+          }
         }
       }
     #endif
@@ -1341,6 +1466,13 @@ namespace Forest.Contracts.SymbolRegistrar {
               AuctionConfig = new global::Forest.Contracts.SymbolRegistrar.AuctionConfig();
             }
             input.ReadMessage(AuctionConfig);
+            break;
+          }
+          case 42: {
+            if (issueChainList_ == null) {
+              IssueChainList = new global::Forest.Contracts.SymbolRegistrar.IssueChainList();
+            }
+            input.ReadMessage(IssueChainList);
             break;
           }
         }
@@ -1974,6 +2106,184 @@ namespace Forest.Contracts.SymbolRegistrar {
 
   }
 
+  public sealed partial class IssueChainList : pb::IMessage<IssueChainList>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<IssueChainList> _parser = new pb::MessageParser<IssueChainList>(() => new IssueChainList());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<IssueChainList> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public IssueChainList() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public IssueChainList(IssueChainList other) : this() {
+      issueChain_ = other.issueChain_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public IssueChainList Clone() {
+      return new IssueChainList(this);
+    }
+
+    /// <summary>Field number for the "issue_chain" field.</summary>
+    public const int IssueChainFieldNumber = 1;
+    private static readonly pb::FieldCodec<string> _repeated_issueChain_codec
+        = pb::FieldCodec.ForString(10);
+    private readonly pbc::RepeatedField<string> issueChain_ = new pbc::RepeatedField<string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> IssueChain {
+      get { return issueChain_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as IssueChainList);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(IssueChainList other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!issueChain_.Equals(other.issueChain_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= issueChain_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      issueChain_.WriteTo(output, _repeated_issueChain_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      issueChain_.WriteTo(ref output, _repeated_issueChain_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      size += issueChain_.CalculateSize(_repeated_issueChain_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(IssueChainList other) {
+      if (other == null) {
+        return;
+      }
+      issueChain_.Add(other.issueChain_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            issueChain_.AddEntriesFrom(input, _repeated_issueChain_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            issueChain_.AddEntriesFrom(ref input, _repeated_issueChain_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   public sealed partial class SeedsPriceInput : pb::IMessage<SeedsPriceInput>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -1988,7 +2298,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[5]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2238,7 +2548,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[6]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2488,7 +2798,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[7]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2718,6 +3028,250 @@ namespace Forest.Contracts.SymbolRegistrar {
 
   }
 
+  public sealed partial class GetUniqueSeedsExternalPriceOutput : pb::IMessage<GetUniqueSeedsExternalPriceOutput>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<GetUniqueSeedsExternalPriceOutput> _parser = new pb::MessageParser<GetUniqueSeedsExternalPriceOutput>(() => new GetUniqueSeedsExternalPriceOutput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<GetUniqueSeedsExternalPriceOutput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[9]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GetUniqueSeedsExternalPriceOutput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GetUniqueSeedsExternalPriceOutput(GetUniqueSeedsExternalPriceOutput other) : this() {
+      ftPriceList_ = other.ftPriceList_ != null ? other.ftPriceList_.Clone() : null;
+      nftPriceList_ = other.nftPriceList_ != null ? other.nftPriceList_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GetUniqueSeedsExternalPriceOutput Clone() {
+      return new GetUniqueSeedsExternalPriceOutput(this);
+    }
+
+    /// <summary>Field number for the "ft_price_list" field.</summary>
+    public const int FtPriceListFieldNumber = 1;
+    private global::Forest.Contracts.SymbolRegistrar.PriceList ftPriceList_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.PriceList FtPriceList {
+      get { return ftPriceList_; }
+      set {
+        ftPriceList_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "nft_price_list" field.</summary>
+    public const int NftPriceListFieldNumber = 2;
+    private global::Forest.Contracts.SymbolRegistrar.PriceList nftPriceList_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.PriceList NftPriceList {
+      get { return nftPriceList_; }
+      set {
+        nftPriceList_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as GetUniqueSeedsExternalPriceOutput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(GetUniqueSeedsExternalPriceOutput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(FtPriceList, other.FtPriceList)) return false;
+      if (!object.Equals(NftPriceList, other.NftPriceList)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (ftPriceList_ != null) hash ^= FtPriceList.GetHashCode();
+      if (nftPriceList_ != null) hash ^= NftPriceList.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (ftPriceList_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(FtPriceList);
+      }
+      if (nftPriceList_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(NftPriceList);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (ftPriceList_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(FtPriceList);
+      }
+      if (nftPriceList_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(NftPriceList);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (ftPriceList_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(FtPriceList);
+      }
+      if (nftPriceList_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(NftPriceList);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(GetUniqueSeedsExternalPriceOutput other) {
+      if (other == null) {
+        return;
+      }
+      if (other.ftPriceList_ != null) {
+        if (ftPriceList_ == null) {
+          FtPriceList = new global::Forest.Contracts.SymbolRegistrar.PriceList();
+        }
+        FtPriceList.MergeFrom(other.FtPriceList);
+      }
+      if (other.nftPriceList_ != null) {
+        if (nftPriceList_ == null) {
+          NftPriceList = new global::Forest.Contracts.SymbolRegistrar.PriceList();
+        }
+        NftPriceList.MergeFrom(other.NftPriceList);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (ftPriceList_ == null) {
+              FtPriceList = new global::Forest.Contracts.SymbolRegistrar.PriceList();
+            }
+            input.ReadMessage(FtPriceList);
+            break;
+          }
+          case 18: {
+            if (nftPriceList_ == null) {
+              NftPriceList = new global::Forest.Contracts.SymbolRegistrar.PriceList();
+            }
+            input.ReadMessage(NftPriceList);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            if (ftPriceList_ == null) {
+              FtPriceList = new global::Forest.Contracts.SymbolRegistrar.PriceList();
+            }
+            input.ReadMessage(FtPriceList);
+            break;
+          }
+          case 18: {
+            if (nftPriceList_ == null) {
+              NftPriceList = new global::Forest.Contracts.SymbolRegistrar.PriceList();
+            }
+            input.ReadMessage(NftPriceList);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   public sealed partial class PriceList : pb::IMessage<PriceList>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -2732,7 +3286,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[8]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2910,7 +3464,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[9]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3182,7 +3736,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3643,7 +4197,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3870,6 +4424,602 @@ namespace Forest.Contracts.SymbolRegistrar {
 
   }
 
+  /// <summary>
+  ///REGULAR
+  /// </summary>
+  public sealed partial class RegularSeedRenewInput : pb::IMessage<RegularSeedRenewInput>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<RegularSeedRenewInput> _parser = new pb::MessageParser<RegularSeedRenewInput>(() => new RegularSeedRenewInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<RegularSeedRenewInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[14]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public RegularSeedRenewInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public RegularSeedRenewInput(RegularSeedRenewInput other) : this() {
+      seedSymbol_ = other.seedSymbol_;
+      price_ = other.price_ != null ? other.price_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public RegularSeedRenewInput Clone() {
+      return new RegularSeedRenewInput(this);
+    }
+
+    /// <summary>Field number for the "seed_symbol" field.</summary>
+    public const int SeedSymbolFieldNumber = 1;
+    private string seedSymbol_ = "";
+    /// <summary>
+    ///seedSymbol
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SeedSymbol {
+      get { return seedSymbol_; }
+      set {
+        seedSymbol_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "price" field.</summary>
+    public const int PriceFieldNumber = 2;
+    private global::Forest.Contracts.SymbolRegistrar.Price price_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.Price Price {
+      get { return price_; }
+      set {
+        price_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as RegularSeedRenewInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(RegularSeedRenewInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (SeedSymbol != other.SeedSymbol) return false;
+      if (!object.Equals(Price, other.Price)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (SeedSymbol.Length != 0) hash ^= SeedSymbol.GetHashCode();
+      if (price_ != null) hash ^= Price.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (SeedSymbol.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(SeedSymbol);
+      }
+      if (price_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Price);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (SeedSymbol.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(SeedSymbol);
+      }
+      if (price_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Price);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (SeedSymbol.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SeedSymbol);
+      }
+      if (price_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Price);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(RegularSeedRenewInput other) {
+      if (other == null) {
+        return;
+      }
+      if (other.SeedSymbol.Length != 0) {
+        SeedSymbol = other.SeedSymbol;
+      }
+      if (other.price_ != null) {
+        if (price_ == null) {
+          Price = new global::Forest.Contracts.SymbolRegistrar.Price();
+        }
+        Price.MergeFrom(other.Price);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            SeedSymbol = input.ReadString();
+            break;
+          }
+          case 18: {
+            if (price_ == null) {
+              Price = new global::Forest.Contracts.SymbolRegistrar.Price();
+            }
+            input.ReadMessage(Price);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            SeedSymbol = input.ReadString();
+            break;
+          }
+          case 18: {
+            if (price_ == null) {
+              Price = new global::Forest.Contracts.SymbolRegistrar.Price();
+            }
+            input.ReadMessage(Price);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class SpecialSeedRenewInput : pb::IMessage<SpecialSeedRenewInput>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<SpecialSeedRenewInput> _parser = new pb::MessageParser<SpecialSeedRenewInput>(() => new SpecialSeedRenewInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<SpecialSeedRenewInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[15]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SpecialSeedRenewInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SpecialSeedRenewInput(SpecialSeedRenewInput other) : this() {
+      buyer_ = other.buyer_ != null ? other.buyer_.Clone() : null;
+      seedSymbol_ = other.seedSymbol_;
+      price_ = other.price_ != null ? other.price_.Clone() : null;
+      opTime_ = other.opTime_;
+      requestHash_ = other.requestHash_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SpecialSeedRenewInput Clone() {
+      return new SpecialSeedRenewInput(this);
+    }
+
+    /// <summary>Field number for the "buyer" field.</summary>
+    public const int BuyerFieldNumber = 1;
+    private global::AElf.Types.Address buyer_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::AElf.Types.Address Buyer {
+      get { return buyer_; }
+      set {
+        buyer_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "seed_symbol" field.</summary>
+    public const int SeedSymbolFieldNumber = 2;
+    private string seedSymbol_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SeedSymbol {
+      get { return seedSymbol_; }
+      set {
+        seedSymbol_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "price" field.</summary>
+    public const int PriceFieldNumber = 3;
+    private global::Forest.Contracts.SymbolRegistrar.Price price_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.Price Price {
+      get { return price_; }
+      set {
+        price_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "op_time" field.</summary>
+    public const int OpTimeFieldNumber = 4;
+    private long opTime_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long OpTime {
+      get { return opTime_; }
+      set {
+        opTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "request_hash" field.</summary>
+    public const int RequestHashFieldNumber = 5;
+    private string requestHash_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string RequestHash {
+      get { return requestHash_; }
+      set {
+        requestHash_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as SpecialSeedRenewInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(SpecialSeedRenewInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Buyer, other.Buyer)) return false;
+      if (SeedSymbol != other.SeedSymbol) return false;
+      if (!object.Equals(Price, other.Price)) return false;
+      if (OpTime != other.OpTime) return false;
+      if (RequestHash != other.RequestHash) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (buyer_ != null) hash ^= Buyer.GetHashCode();
+      if (SeedSymbol.Length != 0) hash ^= SeedSymbol.GetHashCode();
+      if (price_ != null) hash ^= Price.GetHashCode();
+      if (OpTime != 0L) hash ^= OpTime.GetHashCode();
+      if (RequestHash.Length != 0) hash ^= RequestHash.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (buyer_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Buyer);
+      }
+      if (SeedSymbol.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(SeedSymbol);
+      }
+      if (price_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Price);
+      }
+      if (OpTime != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(OpTime);
+      }
+      if (RequestHash.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(RequestHash);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (buyer_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Buyer);
+      }
+      if (SeedSymbol.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(SeedSymbol);
+      }
+      if (price_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Price);
+      }
+      if (OpTime != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(OpTime);
+      }
+      if (RequestHash.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(RequestHash);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (buyer_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Buyer);
+      }
+      if (SeedSymbol.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SeedSymbol);
+      }
+      if (price_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Price);
+      }
+      if (OpTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(OpTime);
+      }
+      if (RequestHash.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(RequestHash);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(SpecialSeedRenewInput other) {
+      if (other == null) {
+        return;
+      }
+      if (other.buyer_ != null) {
+        if (buyer_ == null) {
+          Buyer = new global::AElf.Types.Address();
+        }
+        Buyer.MergeFrom(other.Buyer);
+      }
+      if (other.SeedSymbol.Length != 0) {
+        SeedSymbol = other.SeedSymbol;
+      }
+      if (other.price_ != null) {
+        if (price_ == null) {
+          Price = new global::Forest.Contracts.SymbolRegistrar.Price();
+        }
+        Price.MergeFrom(other.Price);
+      }
+      if (other.OpTime != 0L) {
+        OpTime = other.OpTime;
+      }
+      if (other.RequestHash.Length != 0) {
+        RequestHash = other.RequestHash;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (buyer_ == null) {
+              Buyer = new global::AElf.Types.Address();
+            }
+            input.ReadMessage(Buyer);
+            break;
+          }
+          case 18: {
+            SeedSymbol = input.ReadString();
+            break;
+          }
+          case 26: {
+            if (price_ == null) {
+              Price = new global::Forest.Contracts.SymbolRegistrar.Price();
+            }
+            input.ReadMessage(Price);
+            break;
+          }
+          case 32: {
+            OpTime = input.ReadInt64();
+            break;
+          }
+          case 42: {
+            RequestHash = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            if (buyer_ == null) {
+              Buyer = new global::AElf.Types.Address();
+            }
+            input.ReadMessage(Buyer);
+            break;
+          }
+          case 18: {
+            SeedSymbol = input.ReadString();
+            break;
+          }
+          case 26: {
+            if (price_ == null) {
+              Price = new global::Forest.Contracts.SymbolRegistrar.Price();
+            }
+            input.ReadMessage(Price);
+            break;
+          }
+          case 32: {
+            OpTime = input.ReadInt64();
+            break;
+          }
+          case 42: {
+            RequestHash = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   public sealed partial class ControllerList : pb::IMessage<ControllerList>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -3884,7 +5034,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4062,7 +5212,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[13]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4260,7 +5410,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[14]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4458,7 +5608,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[15]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4636,7 +5786,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[16]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4814,7 +5964,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[17]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4995,7 +6145,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[18]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[22]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5184,7 +6334,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[19]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[23]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5413,7 +6563,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[20]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[24]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5802,7 +6952,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[21]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[25]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6046,7 +7196,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[22]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[26]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6290,7 +7440,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[23]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[27]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6488,7 +7638,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[24]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[28]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6686,7 +7836,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[25]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[29]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6953,6 +8103,509 @@ namespace Forest.Contracts.SymbolRegistrar {
 
   }
 
+  public sealed partial class SeedRenewed : pb::IMessage<SeedRenewed>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<SeedRenewed> _parser = new pb::MessageParser<SeedRenewed>(() => new SeedRenewed());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<SeedRenewed> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[30]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SeedRenewed() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SeedRenewed(SeedRenewed other) : this() {
+      buyer_ = other.buyer_ != null ? other.buyer_.Clone() : null;
+      symbol_ = other.symbol_;
+      seedSymbol_ = other.seedSymbol_;
+      expTime_ = other.expTime_;
+      price_ = other.price_ != null ? other.price_.Clone() : null;
+      originalExpTime_ = other.originalExpTime_;
+      seedType_ = other.seedType_;
+      renewType_ = other.renewType_;
+      chainId_ = other.chainId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SeedRenewed Clone() {
+      return new SeedRenewed(this);
+    }
+
+    /// <summary>Field number for the "buyer" field.</summary>
+    public const int BuyerFieldNumber = 1;
+    private global::AElf.Types.Address buyer_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::AElf.Types.Address Buyer {
+      get { return buyer_; }
+      set {
+        buyer_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "symbol" field.</summary>
+    public const int SymbolFieldNumber = 2;
+    private string symbol_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Symbol {
+      get { return symbol_; }
+      set {
+        symbol_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "seed_symbol" field.</summary>
+    public const int SeedSymbolFieldNumber = 3;
+    private string seedSymbol_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SeedSymbol {
+      get { return seedSymbol_; }
+      set {
+        seedSymbol_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "exp_time" field.</summary>
+    public const int ExpTimeFieldNumber = 4;
+    private long expTime_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long ExpTime {
+      get { return expTime_; }
+      set {
+        expTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "price" field.</summary>
+    public const int PriceFieldNumber = 5;
+    private global::Forest.Contracts.SymbolRegistrar.Price price_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.Price Price {
+      get { return price_; }
+      set {
+        price_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "original_exp_time" field.</summary>
+    public const int OriginalExpTimeFieldNumber = 6;
+    private long originalExpTime_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long OriginalExpTime {
+      get { return originalExpTime_; }
+      set {
+        originalExpTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "seed_type" field.</summary>
+    public const int SeedTypeFieldNumber = 7;
+    private global::Forest.Contracts.SymbolRegistrar.SeedType seedType_ = global::Forest.Contracts.SymbolRegistrar.SeedType.Unknown;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.SeedType SeedType {
+      get { return seedType_; }
+      set {
+        seedType_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "renew_type" field.</summary>
+    public const int RenewTypeFieldNumber = 8;
+    private global::Forest.Contracts.SymbolRegistrar.RenewType renewType_ = global::Forest.Contracts.SymbolRegistrar.RenewType.Self;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.RenewType RenewType {
+      get { return renewType_; }
+      set {
+        renewType_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "chain_id" field.</summary>
+    public const int ChainIdFieldNumber = 9;
+    private int chainId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ChainId {
+      get { return chainId_; }
+      set {
+        chainId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as SeedRenewed);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(SeedRenewed other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Buyer, other.Buyer)) return false;
+      if (Symbol != other.Symbol) return false;
+      if (SeedSymbol != other.SeedSymbol) return false;
+      if (ExpTime != other.ExpTime) return false;
+      if (!object.Equals(Price, other.Price)) return false;
+      if (OriginalExpTime != other.OriginalExpTime) return false;
+      if (SeedType != other.SeedType) return false;
+      if (RenewType != other.RenewType) return false;
+      if (ChainId != other.ChainId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (buyer_ != null) hash ^= Buyer.GetHashCode();
+      if (Symbol.Length != 0) hash ^= Symbol.GetHashCode();
+      if (SeedSymbol.Length != 0) hash ^= SeedSymbol.GetHashCode();
+      if (ExpTime != 0L) hash ^= ExpTime.GetHashCode();
+      if (price_ != null) hash ^= Price.GetHashCode();
+      if (OriginalExpTime != 0L) hash ^= OriginalExpTime.GetHashCode();
+      if (SeedType != global::Forest.Contracts.SymbolRegistrar.SeedType.Unknown) hash ^= SeedType.GetHashCode();
+      if (RenewType != global::Forest.Contracts.SymbolRegistrar.RenewType.Self) hash ^= RenewType.GetHashCode();
+      if (ChainId != 0) hash ^= ChainId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (buyer_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Buyer);
+      }
+      if (Symbol.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Symbol);
+      }
+      if (SeedSymbol.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(SeedSymbol);
+      }
+      if (ExpTime != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(ExpTime);
+      }
+      if (price_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Price);
+      }
+      if (OriginalExpTime != 0L) {
+        output.WriteRawTag(48);
+        output.WriteInt64(OriginalExpTime);
+      }
+      if (SeedType != global::Forest.Contracts.SymbolRegistrar.SeedType.Unknown) {
+        output.WriteRawTag(56);
+        output.WriteEnum((int) SeedType);
+      }
+      if (RenewType != global::Forest.Contracts.SymbolRegistrar.RenewType.Self) {
+        output.WriteRawTag(64);
+        output.WriteEnum((int) RenewType);
+      }
+      if (ChainId != 0) {
+        output.WriteRawTag(72);
+        output.WriteInt32(ChainId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (buyer_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Buyer);
+      }
+      if (Symbol.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Symbol);
+      }
+      if (SeedSymbol.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(SeedSymbol);
+      }
+      if (ExpTime != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(ExpTime);
+      }
+      if (price_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Price);
+      }
+      if (OriginalExpTime != 0L) {
+        output.WriteRawTag(48);
+        output.WriteInt64(OriginalExpTime);
+      }
+      if (SeedType != global::Forest.Contracts.SymbolRegistrar.SeedType.Unknown) {
+        output.WriteRawTag(56);
+        output.WriteEnum((int) SeedType);
+      }
+      if (RenewType != global::Forest.Contracts.SymbolRegistrar.RenewType.Self) {
+        output.WriteRawTag(64);
+        output.WriteEnum((int) RenewType);
+      }
+      if (ChainId != 0) {
+        output.WriteRawTag(72);
+        output.WriteInt32(ChainId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (buyer_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Buyer);
+      }
+      if (Symbol.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Symbol);
+      }
+      if (SeedSymbol.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SeedSymbol);
+      }
+      if (ExpTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ExpTime);
+      }
+      if (price_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Price);
+      }
+      if (OriginalExpTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(OriginalExpTime);
+      }
+      if (SeedType != global::Forest.Contracts.SymbolRegistrar.SeedType.Unknown) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) SeedType);
+      }
+      if (RenewType != global::Forest.Contracts.SymbolRegistrar.RenewType.Self) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) RenewType);
+      }
+      if (ChainId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ChainId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(SeedRenewed other) {
+      if (other == null) {
+        return;
+      }
+      if (other.buyer_ != null) {
+        if (buyer_ == null) {
+          Buyer = new global::AElf.Types.Address();
+        }
+        Buyer.MergeFrom(other.Buyer);
+      }
+      if (other.Symbol.Length != 0) {
+        Symbol = other.Symbol;
+      }
+      if (other.SeedSymbol.Length != 0) {
+        SeedSymbol = other.SeedSymbol;
+      }
+      if (other.ExpTime != 0L) {
+        ExpTime = other.ExpTime;
+      }
+      if (other.price_ != null) {
+        if (price_ == null) {
+          Price = new global::Forest.Contracts.SymbolRegistrar.Price();
+        }
+        Price.MergeFrom(other.Price);
+      }
+      if (other.OriginalExpTime != 0L) {
+        OriginalExpTime = other.OriginalExpTime;
+      }
+      if (other.SeedType != global::Forest.Contracts.SymbolRegistrar.SeedType.Unknown) {
+        SeedType = other.SeedType;
+      }
+      if (other.RenewType != global::Forest.Contracts.SymbolRegistrar.RenewType.Self) {
+        RenewType = other.RenewType;
+      }
+      if (other.ChainId != 0) {
+        ChainId = other.ChainId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (buyer_ == null) {
+              Buyer = new global::AElf.Types.Address();
+            }
+            input.ReadMessage(Buyer);
+            break;
+          }
+          case 18: {
+            Symbol = input.ReadString();
+            break;
+          }
+          case 26: {
+            SeedSymbol = input.ReadString();
+            break;
+          }
+          case 32: {
+            ExpTime = input.ReadInt64();
+            break;
+          }
+          case 42: {
+            if (price_ == null) {
+              Price = new global::Forest.Contracts.SymbolRegistrar.Price();
+            }
+            input.ReadMessage(Price);
+            break;
+          }
+          case 48: {
+            OriginalExpTime = input.ReadInt64();
+            break;
+          }
+          case 56: {
+            SeedType = (global::Forest.Contracts.SymbolRegistrar.SeedType) input.ReadEnum();
+            break;
+          }
+          case 64: {
+            RenewType = (global::Forest.Contracts.SymbolRegistrar.RenewType) input.ReadEnum();
+            break;
+          }
+          case 72: {
+            ChainId = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            if (buyer_ == null) {
+              Buyer = new global::AElf.Types.Address();
+            }
+            input.ReadMessage(Buyer);
+            break;
+          }
+          case 18: {
+            Symbol = input.ReadString();
+            break;
+          }
+          case 26: {
+            SeedSymbol = input.ReadString();
+            break;
+          }
+          case 32: {
+            ExpTime = input.ReadInt64();
+            break;
+          }
+          case 42: {
+            if (price_ == null) {
+              Price = new global::Forest.Contracts.SymbolRegistrar.Price();
+            }
+            input.ReadMessage(Price);
+            break;
+          }
+          case 48: {
+            OriginalExpTime = input.ReadInt64();
+            break;
+          }
+          case 56: {
+            SeedType = (global::Forest.Contracts.SymbolRegistrar.SeedType) input.ReadEnum();
+            break;
+          }
+          case 64: {
+            RenewType = (global::Forest.Contracts.SymbolRegistrar.RenewType) input.ReadEnum();
+            break;
+          }
+          case 72: {
+            ChainId = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   public sealed partial class SaleControllerAdded : pb::IMessage<SaleControllerAdded>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -6967,7 +8620,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[26]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[31]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7165,7 +8818,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[27]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[32]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7349,693 +9002,6 @@ namespace Forest.Contracts.SymbolRegistrar {
 
   }
 
-  public sealed partial class SymbolAuthorInput : pb::IMessage<SymbolAuthorInput>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<SymbolAuthorInput> _parser = new pb::MessageParser<SymbolAuthorInput>(() => new SymbolAuthorInput());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<SymbolAuthorInput> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[28]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SymbolAuthorInput() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SymbolAuthorInput(SymbolAuthorInput other) : this() {
-      symbol_ = other.symbol_;
-      address_ = other.address_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SymbolAuthorInput Clone() {
-      return new SymbolAuthorInput(this);
-    }
-
-    /// <summary>Field number for the "symbol" field.</summary>
-    public const int SymbolFieldNumber = 1;
-    private string symbol_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Symbol {
-      get { return symbol_; }
-      set {
-        symbol_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "address" field.</summary>
-    public const int AddressFieldNumber = 2;
-    private string address_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Address {
-      get { return address_; }
-      set {
-        address_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as SymbolAuthorInput);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(SymbolAuthorInput other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (Symbol != other.Symbol) return false;
-      if (Address != other.Address) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (Symbol.Length != 0) hash ^= Symbol.GetHashCode();
-      if (Address.Length != 0) hash ^= Address.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (Symbol.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Symbol);
-      }
-      if (Address.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Address);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Symbol.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Symbol);
-      }
-      if (Address.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Address);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (Symbol.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Symbol);
-      }
-      if (Address.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Address);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(SymbolAuthorInput other) {
-      if (other == null) {
-        return;
-      }
-      if (other.Symbol.Length != 0) {
-        Symbol = other.Symbol;
-      }
-      if (other.Address.Length != 0) {
-        Address = other.Address;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            Symbol = input.ReadString();
-            break;
-          }
-          case 18: {
-            Address = input.ReadString();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 10: {
-            Symbol = input.ReadString();
-            break;
-          }
-          case 18: {
-            Address = input.ReadString();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  public sealed partial class SymbolAuthorMapped : pb::IMessage<SymbolAuthorMapped>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<SymbolAuthorMapped> _parser = new pb::MessageParser<SymbolAuthorMapped>(() => new SymbolAuthorMapped());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<SymbolAuthorMapped> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[29]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SymbolAuthorMapped() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SymbolAuthorMapped(SymbolAuthorMapped other) : this() {
-      symbol_ = other.symbol_;
-      address_ = other.address_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SymbolAuthorMapped Clone() {
-      return new SymbolAuthorMapped(this);
-    }
-
-    /// <summary>Field number for the "symbol" field.</summary>
-    public const int SymbolFieldNumber = 1;
-    private string symbol_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Symbol {
-      get { return symbol_; }
-      set {
-        symbol_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "address" field.</summary>
-    public const int AddressFieldNumber = 2;
-    private string address_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Address {
-      get { return address_; }
-      set {
-        address_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as SymbolAuthorMapped);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(SymbolAuthorMapped other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (Symbol != other.Symbol) return false;
-      if (Address != other.Address) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (Symbol.Length != 0) hash ^= Symbol.GetHashCode();
-      if (Address.Length != 0) hash ^= Address.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (Symbol.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Symbol);
-      }
-      if (Address.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Address);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Symbol.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Symbol);
-      }
-      if (Address.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Address);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (Symbol.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Symbol);
-      }
-      if (Address.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Address);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(SymbolAuthorMapped other) {
-      if (other == null) {
-        return;
-      }
-      if (other.Symbol.Length != 0) {
-        Symbol = other.Symbol;
-      }
-      if (other.Address.Length != 0) {
-        Address = other.Address;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            Symbol = input.ReadString();
-            break;
-          }
-          case 18: {
-            Address = input.ReadString();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 10: {
-            Symbol = input.ReadString();
-            break;
-          }
-          case 18: {
-            Address = input.ReadString();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  public sealed partial class AuctionEndTimeExtended : pb::IMessage<AuctionEndTimeExtended>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<AuctionEndTimeExtended> _parser = new pb::MessageParser<AuctionEndTimeExtended>(() => new AuctionEndTimeExtended());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<AuctionEndTimeExtended> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[30]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public AuctionEndTimeExtended() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public AuctionEndTimeExtended(AuctionEndTimeExtended other) : this() {
-      symbol_ = other.symbol_;
-      newEndTime_ = other.newEndTime_ != null ? other.newEndTime_.Clone() : null;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public AuctionEndTimeExtended Clone() {
-      return new AuctionEndTimeExtended(this);
-    }
-
-    /// <summary>Field number for the "symbol" field.</summary>
-    public const int SymbolFieldNumber = 1;
-    private string symbol_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Symbol {
-      get { return symbol_; }
-      set {
-        symbol_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "new_end_time" field.</summary>
-    public const int NewEndTimeFieldNumber = 2;
-    private global::Google.Protobuf.WellKnownTypes.Timestamp newEndTime_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Google.Protobuf.WellKnownTypes.Timestamp NewEndTime {
-      get { return newEndTime_; }
-      set {
-        newEndTime_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as AuctionEndTimeExtended);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(AuctionEndTimeExtended other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (Symbol != other.Symbol) return false;
-      if (!object.Equals(NewEndTime, other.NewEndTime)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (Symbol.Length != 0) hash ^= Symbol.GetHashCode();
-      if (newEndTime_ != null) hash ^= NewEndTime.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (Symbol.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Symbol);
-      }
-      if (newEndTime_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(NewEndTime);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Symbol.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Symbol);
-      }
-      if (newEndTime_ != null) {
-        output.WriteRawTag(18);
-        output.WriteMessage(NewEndTime);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (Symbol.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Symbol);
-      }
-      if (newEndTime_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(NewEndTime);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(AuctionEndTimeExtended other) {
-      if (other == null) {
-        return;
-      }
-      if (other.Symbol.Length != 0) {
-        Symbol = other.Symbol;
-      }
-      if (other.newEndTime_ != null) {
-        if (newEndTime_ == null) {
-          NewEndTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
-        }
-        NewEndTime.MergeFrom(other.NewEndTime);
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            Symbol = input.ReadString();
-            break;
-          }
-          case 18: {
-            if (newEndTime_ == null) {
-              NewEndTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
-            }
-            input.ReadMessage(NewEndTime);
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 10: {
-            Symbol = input.ReadString();
-            break;
-          }
-          case 18: {
-            if (newEndTime_ == null) {
-              NewEndTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
-            }
-            input.ReadMessage(NewEndTime);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
   public sealed partial class SeedExpirationConfigChanged : pb::IMessage<SeedExpirationConfigChanged>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -8050,7 +9016,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[31]; }
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[33]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8225,6 +9191,402 @@ namespace Forest.Contracts.SymbolRegistrar {
               SeedExpirationConfig = new global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfig();
             }
             input.ReadMessage(SeedExpirationConfig);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class IssueChainAdded : pb::IMessage<IssueChainAdded>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<IssueChainAdded> _parser = new pb::MessageParser<IssueChainAdded>(() => new IssueChainAdded());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<IssueChainAdded> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[34]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public IssueChainAdded() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public IssueChainAdded(IssueChainAdded other) : this() {
+      issueChainList_ = other.issueChainList_ != null ? other.issueChainList_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public IssueChainAdded Clone() {
+      return new IssueChainAdded(this);
+    }
+
+    /// <summary>Field number for the "issue_chain_list" field.</summary>
+    public const int IssueChainListFieldNumber = 1;
+    private global::Forest.Contracts.SymbolRegistrar.IssueChainList issueChainList_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.IssueChainList IssueChainList {
+      get { return issueChainList_; }
+      set {
+        issueChainList_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as IssueChainAdded);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(IssueChainAdded other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(IssueChainList, other.IssueChainList)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (issueChainList_ != null) hash ^= IssueChainList.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (issueChainList_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(IssueChainList);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (issueChainList_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(IssueChainList);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (issueChainList_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(IssueChainList);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(IssueChainAdded other) {
+      if (other == null) {
+        return;
+      }
+      if (other.issueChainList_ != null) {
+        if (issueChainList_ == null) {
+          IssueChainList = new global::Forest.Contracts.SymbolRegistrar.IssueChainList();
+        }
+        IssueChainList.MergeFrom(other.IssueChainList);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (issueChainList_ == null) {
+              IssueChainList = new global::Forest.Contracts.SymbolRegistrar.IssueChainList();
+            }
+            input.ReadMessage(IssueChainList);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            if (issueChainList_ == null) {
+              IssueChainList = new global::Forest.Contracts.SymbolRegistrar.IssueChainList();
+            }
+            input.ReadMessage(IssueChainList);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class IssueChainRemoved : pb::IMessage<IssueChainRemoved>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<IssueChainRemoved> _parser = new pb::MessageParser<IssueChainRemoved>(() => new IssueChainRemoved());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<IssueChainRemoved> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractReflection.Descriptor.MessageTypes[35]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public IssueChainRemoved() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public IssueChainRemoved(IssueChainRemoved other) : this() {
+      issueChainList_ = other.issueChainList_ != null ? other.issueChainList_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public IssueChainRemoved Clone() {
+      return new IssueChainRemoved(this);
+    }
+
+    /// <summary>Field number for the "issue_chain_list" field.</summary>
+    public const int IssueChainListFieldNumber = 1;
+    private global::Forest.Contracts.SymbolRegistrar.IssueChainList issueChainList_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Forest.Contracts.SymbolRegistrar.IssueChainList IssueChainList {
+      get { return issueChainList_; }
+      set {
+        issueChainList_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as IssueChainRemoved);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(IssueChainRemoved other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(IssueChainList, other.IssueChainList)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (issueChainList_ != null) hash ^= IssueChainList.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (issueChainList_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(IssueChainList);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (issueChainList_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(IssueChainList);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (issueChainList_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(IssueChainList);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(IssueChainRemoved other) {
+      if (other == null) {
+        return;
+      }
+      if (other.issueChainList_ != null) {
+        if (issueChainList_ == null) {
+          IssueChainList = new global::Forest.Contracts.SymbolRegistrar.IssueChainList();
+        }
+        IssueChainList.MergeFrom(other.IssueChainList);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (issueChainList_ == null) {
+              IssueChainList = new global::Forest.Contracts.SymbolRegistrar.IssueChainList();
+            }
+            input.ReadMessage(IssueChainList);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            if (issueChainList_ == null) {
+              IssueChainList = new global::Forest.Contracts.SymbolRegistrar.IssueChainList();
+            }
+            input.ReadMessage(IssueChainList);
             break;
           }
         }

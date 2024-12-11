@@ -322,25 +322,6 @@ namespace AElf.Contracts.MultiToken {
     }
   }
 
-  public partial class ExternalInfoChanged : aelf::IEvent<ExternalInfoChanged>
-  {
-    public global::System.Collections.Generic.IEnumerable<ExternalInfoChanged> GetIndexed()
-    {
-      return new List<ExternalInfoChanged>
-      {
-      };
-    }
-
-    public ExternalInfoChanged GetNonIndexed()
-    {
-      return new ExternalInfoChanged
-      {
-        Symbol = Symbol,
-        ExternalInfo = ExternalInfo,
-      };
-    }
-  }
-
   public partial class TransactionFeeDelegationAdded : aelf::IEvent<TransactionFeeDelegationAdded>
   {
     public global::System.Collections.Generic.IEnumerable<TransactionFeeDelegationAdded> GetIndexed()
@@ -394,6 +375,56 @@ namespace AElf.Contracts.MultiToken {
     public TransactionFeeDelegationCancelled GetNonIndexed()
     {
       return new TransactionFeeDelegationCancelled
+      {
+      };
+    }
+  }
+
+  public partial class SymbolAliasAdded : aelf::IEvent<SymbolAliasAdded>
+  {
+    public global::System.Collections.Generic.IEnumerable<SymbolAliasAdded> GetIndexed()
+    {
+      return new List<SymbolAliasAdded>
+      {
+      new SymbolAliasAdded
+      {
+        Symbol = Symbol
+      },
+      new SymbolAliasAdded
+      {
+        Alias = Alias
+      },
+      };
+    }
+
+    public SymbolAliasAdded GetNonIndexed()
+    {
+      return new SymbolAliasAdded
+      {
+      };
+    }
+  }
+
+  public partial class SymbolAliasDeleted : aelf::IEvent<SymbolAliasDeleted>
+  {
+    public global::System.Collections.Generic.IEnumerable<SymbolAliasDeleted> GetIndexed()
+    {
+      return new List<SymbolAliasDeleted>
+      {
+      new SymbolAliasDeleted
+      {
+        Symbol = Symbol
+      },
+      new SymbolAliasDeleted
+      {
+        Alias = Alias
+      },
+      };
+    }
+
+    public SymbolAliasDeleted GetNonIndexed()
+    {
+      return new SymbolAliasDeleted
       {
       };
     }

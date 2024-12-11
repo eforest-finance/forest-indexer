@@ -226,9 +226,21 @@ public class CrossChainReceivedProcessor : LogEventProcessorBase<CrossChainRecei
 
         //Set the tsm seed symbol index info to the to chain
         var tsmSeedSymbolIndexIdToChainId =
-            IdGenerateHelper.GetSeedSymbolId(context.ChainId, seedSymbolIndexToChain.SeedOwnedSymbol);
+            IdGenerateHelper.GetNewTsmSeedSymbolId(context.ChainId, seedSymbolIndexToChain.Symbol,
+                seedSymbolIndexToChain.SeedOwnedSymbol);
         var tsmSeedSymbolIndexToChain = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexIdToChainId);
-        
+        if (tsmSeedSymbolIndexToChain == null)
+        {
+            Logger.LogDebug("new tsmSeedSymbolIndexToChain is null id={A}",tsmSeedSymbolIndexIdToChainId);
+            tsmSeedSymbolIndexIdToChainId = IdGenerateHelper.GetOldTsmSeedSymbolId(context.ChainId,
+                seedSymbolIndexToChain.SeedOwnedSymbol);
+            tsmSeedSymbolIndexToChain = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexIdToChainId);
+            if (tsmSeedSymbolIndexToChain == null)
+            {
+                Logger.LogDebug("old tsmSeedSymbolIndexToChain is null id={A}",tsmSeedSymbolIndexIdToChainId);
+            }
+        }
+
         Logger.LogDebug("CrossChainReceived-5-tsmSeedSymbolIndexIdToChainId {A}",tsmSeedSymbolIndexIdToChainId);
         Logger.LogDebug("CrossChainReceived-6-tsmSeedSymbolIndexToChain {A}",JsonConvert.SerializeObject(tsmSeedSymbolIndexToChain));
         if(tsmSeedSymbolIndexToChain == null) return;

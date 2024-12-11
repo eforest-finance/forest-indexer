@@ -130,6 +130,32 @@ namespace Forest.Contracts.SymbolRegistrar {
     }
   }
 
+  public partial class SeedRenewed : aelf::IEvent<SeedRenewed>
+  {
+    public global::System.Collections.Generic.IEnumerable<SeedRenewed> GetIndexed()
+    {
+      return new List<SeedRenewed>
+      {
+      };
+    }
+
+    public SeedRenewed GetNonIndexed()
+    {
+      return new SeedRenewed
+      {
+        Buyer = Buyer,
+        Symbol = Symbol,
+        SeedSymbol = SeedSymbol,
+        ExpTime = ExpTime,
+        Price = Price,
+        OriginalExpTime = OriginalExpTime,
+        SeedType = SeedType,
+        RenewType = RenewType,
+        ChainId = ChainId,
+      };
+    }
+  }
+
   public partial class SaleControllerAdded : aelf::IEvent<SaleControllerAdded>
   {
     public global::System.Collections.Generic.IEnumerable<SaleControllerAdded> GetIndexed()
@@ -166,44 +192,6 @@ namespace Forest.Contracts.SymbolRegistrar {
     }
   }
 
-  public partial class SymbolAuthorMapped : aelf::IEvent<SymbolAuthorMapped>
-  {
-    public global::System.Collections.Generic.IEnumerable<SymbolAuthorMapped> GetIndexed()
-    {
-      return new List<SymbolAuthorMapped>
-      {
-      };
-    }
-
-    public SymbolAuthorMapped GetNonIndexed()
-    {
-      return new SymbolAuthorMapped
-      {
-        Symbol = Symbol,
-        Address = Address,
-      };
-    }
-  }
-
-  public partial class AuctionEndTimeExtended : aelf::IEvent<AuctionEndTimeExtended>
-  {
-    public global::System.Collections.Generic.IEnumerable<AuctionEndTimeExtended> GetIndexed()
-    {
-      return new List<AuctionEndTimeExtended>
-      {
-      };
-    }
-
-    public AuctionEndTimeExtended GetNonIndexed()
-    {
-      return new AuctionEndTimeExtended
-      {
-        Symbol = Symbol,
-        NewEndTime = NewEndTime,
-      };
-    }
-  }
-
   public partial class SeedExpirationConfigChanged : aelf::IEvent<SeedExpirationConfigChanged>
   {
     public global::System.Collections.Generic.IEnumerable<SeedExpirationConfigChanged> GetIndexed()
@@ -222,6 +210,42 @@ namespace Forest.Contracts.SymbolRegistrar {
     }
   }
 
+  public partial class IssueChainAdded : aelf::IEvent<IssueChainAdded>
+  {
+    public global::System.Collections.Generic.IEnumerable<IssueChainAdded> GetIndexed()
+    {
+      return new List<IssueChainAdded>
+      {
+      };
+    }
+
+    public IssueChainAdded GetNonIndexed()
+    {
+      return new IssueChainAdded
+      {
+        IssueChainList = IssueChainList,
+      };
+    }
+  }
+
+  public partial class IssueChainRemoved : aelf::IEvent<IssueChainRemoved>
+  {
+    public global::System.Collections.Generic.IEnumerable<IssueChainRemoved> GetIndexed()
+    {
+      return new List<IssueChainRemoved>
+      {
+      };
+    }
+
+    public IssueChainRemoved GetNonIndexed()
+    {
+      return new IssueChainRemoved
+      {
+        IssueChainList = IssueChainList,
+      };
+    }
+  }
+
   #endregion
   /// <summary>
   /// the contract definition: a gRPC service definition.
@@ -235,6 +259,8 @@ namespace Forest.Contracts.SymbolRegistrar {
     static readonly aelf::Marshaller<global::Google.Protobuf.WellKnownTypes.Empty> __Marshaller_google_protobuf_Empty = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Google.Protobuf.WellKnownTypes.Empty.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.CreateSeedInput> __Marshaller_CreateSeedInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.CreateSeedInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.BuyInput> __Marshaller_BuyInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.BuyInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.RegularSeedRenewInput> __Marshaller_RegularSeedRenewInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.RegularSeedRenewInput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.SpecialSeedRenewInput> __Marshaller_SpecialSeedRenewInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.SpecialSeedRenewInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.SpecialSeedList> __Marshaller_SpecialSeedList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.SpecialSeedList.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.UniqueSeedList> __Marshaller_UniqueSeedList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.UniqueSeedList.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.RemoveSpecialSeedInput> __Marshaller_RemoveSpecialSeedInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.RemoveSpecialSeedInput.Parser.ParseFrom);
@@ -247,9 +273,10 @@ namespace Forest.Contracts.SymbolRegistrar {
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.RemoveSaleControllerInput> __Marshaller_RemoveSaleControllerInput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.RemoveSaleControllerInput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfig> __Marshaller_SeedExpirationConfig = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfig.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Google.Protobuf.WellKnownTypes.StringValue> __Marshaller_google_protobuf_StringValue = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Google.Protobuf.WellKnownTypes.StringValue.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.IssueChainList> __Marshaller_IssueChainList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.IssueChainList.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.GetSeedsPriceOutput> __Marshaller_GetSeedsPriceOutput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.GetSeedsPriceOutput.Parser.ParseFrom);
+    static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.GetUniqueSeedsExternalPriceOutput> __Marshaller_GetUniqueSeedsExternalPriceOutput = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.GetUniqueSeedsExternalPriceOutput.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.SpecialSeed> __Marshaller_SpecialSeed = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.SpecialSeed.Parser.ParseFrom);
-    static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.BizConfig> __Marshaller_BizConfig = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.BizConfig.Parser.ParseFrom);
     static readonly aelf::Marshaller<global::Forest.Contracts.SymbolRegistrar.ControllerList> __Marshaller_ControllerList = aelf::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::Forest.Contracts.SymbolRegistrar.ControllerList.Parser.ParseFrom);
     #endregion
 
@@ -273,6 +300,20 @@ namespace Forest.Contracts.SymbolRegistrar {
         __ServiceName,
         "Buy",
         __Marshaller_BuyInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.Contracts.SymbolRegistrar.RegularSeedRenewInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_RegularSeedRenew = new aelf::Method<global::Forest.Contracts.SymbolRegistrar.RegularSeedRenewInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "RegularSeedRenew",
+        __Marshaller_RegularSeedRenewInput,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.Contracts.SymbolRegistrar.SpecialSeedRenewInput, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SpecialSeedRenew = new aelf::Method<global::Forest.Contracts.SymbolRegistrar.SpecialSeedRenewInput, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SpecialSeedRenew",
+        __Marshaller_SpecialSeedRenewInput,
         __Marshaller_google_protobuf_Empty);
 
     static readonly aelf::Method<global::Forest.Contracts.SymbolRegistrar.SpecialSeedList, global::Google.Protobuf.WellKnownTypes.Empty> __Method_AddSpecialSeeds = new aelf::Method<global::Forest.Contracts.SymbolRegistrar.SpecialSeedList, global::Google.Protobuf.WellKnownTypes.Empty>(
@@ -300,6 +341,13 @@ namespace Forest.Contracts.SymbolRegistrar {
         aelf::MethodType.Action,
         __ServiceName,
         "SetAdmin",
+        __Marshaller_aelf_Address,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::AElf.Types.Address, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetAssociateOrganization = new aelf::Method<global::AElf.Types.Address, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SetAssociateOrganization",
         __Marshaller_aelf_Address,
         __Marshaller_google_protobuf_Empty);
 
@@ -373,12 +421,47 @@ namespace Forest.Contracts.SymbolRegistrar {
         __Marshaller_google_protobuf_StringValue,
         __Marshaller_google_protobuf_Empty);
 
+    static readonly aelf::Method<global::Forest.Contracts.SymbolRegistrar.IssueChainList, global::Google.Protobuf.WellKnownTypes.Empty> __Method_AddIssueChain = new aelf::Method<global::Forest.Contracts.SymbolRegistrar.IssueChainList, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "AddIssueChain",
+        __Marshaller_IssueChainList,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Forest.Contracts.SymbolRegistrar.IssueChainList, global::Google.Protobuf.WellKnownTypes.Empty> __Method_RemoveIssueChain = new aelf::Method<global::Forest.Contracts.SymbolRegistrar.IssueChainList, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "RemoveIssueChain",
+        __Marshaller_IssueChainList,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Google.Protobuf.WellKnownTypes.Empty> __Method_SetSeedRenewHashVerifyKey = new aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Google.Protobuf.WellKnownTypes.Empty>(
+        aelf::MethodType.Action,
+        __ServiceName,
+        "SetSeedRenewHashVerifyKey",
+        __Marshaller_google_protobuf_StringValue,
+        __Marshaller_google_protobuf_Empty);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address> __Method_GetAssociateOrganization = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetAssociateOrganization",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_aelf_Address);
+
     static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.GetSeedsPriceOutput> __Method_GetSeedsPrice = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.GetSeedsPriceOutput>(
         aelf::MethodType.View,
         __ServiceName,
         "GetSeedsPrice",
         __Marshaller_google_protobuf_Empty,
         __Marshaller_GetSeedsPriceOutput);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.GetUniqueSeedsExternalPriceOutput> __Method_GetUniqueSeedsExternalPrice = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.GetUniqueSeedsExternalPriceOutput>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetUniqueSeedsExternalPrice",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_GetUniqueSeedsExternalPriceOutput);
 
     static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Forest.Contracts.SymbolRegistrar.SpecialSeed> __Method_GetSpecialSeed = new aelf::Method<global::Google.Protobuf.WellKnownTypes.StringValue, global::Forest.Contracts.SymbolRegistrar.SpecialSeed>(
         aelf::MethodType.View,
@@ -387,12 +470,19 @@ namespace Forest.Contracts.SymbolRegistrar {
         __Marshaller_google_protobuf_StringValue,
         __Marshaller_SpecialSeed);
 
-    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.BizConfig> __Method_GetBizConfig = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.BizConfig>(
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address> __Method_GetAdministratorAddress = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address>(
         aelf::MethodType.View,
         __ServiceName,
-        "GetBizConfig",
+        "GetAdministratorAddress",
         __Marshaller_google_protobuf_Empty,
-        __Marshaller_BizConfig);
+        __Marshaller_aelf_Address);
+
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address> __Method_GetReceivingAccountAddress = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::AElf.Types.Address>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetReceivingAccountAddress",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_aelf_Address);
 
     static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfig> __Method_GetSeedExpirationConfig = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfig>(
         aelf::MethodType.View,
@@ -436,6 +526,13 @@ namespace Forest.Contracts.SymbolRegistrar {
         __Marshaller_google_protobuf_Empty,
         __Marshaller_google_protobuf_StringValue);
 
+    static readonly aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.IssueChainList> __Method_GetIssueChainList = new aelf::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Forest.Contracts.SymbolRegistrar.IssueChainList>(
+        aelf::MethodType.View,
+        __ServiceName,
+        "GetIssueChainList",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_IssueChainList);
+
     #endregion
 
     #region Descriptors
@@ -457,173 +554,7 @@ namespace Forest.Contracts.SymbolRegistrar {
     }
     #endregion
 
-    // /// <summary>Base class for the contract of SymbolRegistrarContract</summary>
-    // public abstract partial class SymbolRegistrarContractBase : AElf.Sdk.CSharp.CSharpSmartContract<Forest.Contracts.SymbolRegistrar.SymbolRegistrarContractState>
-    // {
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty Initialize(global::Forest.Contracts.SymbolRegistrar.InitializeInput input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty CreateSeed(global::Forest.Contracts.SymbolRegistrar.CreateSeedInput input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty Buy(global::Forest.Contracts.SymbolRegistrar.BuyInput input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty AddSpecialSeeds(global::Forest.Contracts.SymbolRegistrar.SpecialSeedList input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty AddUniqueSeeds(global::Forest.Contracts.SymbolRegistrar.UniqueSeedList input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty RemoveSpecialSeeds(global::Forest.Contracts.SymbolRegistrar.RemoveSpecialSeedInput input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty SetAdmin(global::AElf.Types.Address input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty SetLastSeedId(global::Google.Protobuf.WellKnownTypes.Int64Value input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty SetProxyAccountContract(global::AElf.Types.Address input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty SetReceivingAccount(global::AElf.Types.Address input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty SetSeedsPrice(global::Forest.Contracts.SymbolRegistrar.SeedsPriceInput input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty SetUniqueSeedsExternalPrice(global::Forest.Contracts.SymbolRegistrar.UniqueSeedsExternalPriceInput input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty SetAuctionConfig(global::Forest.Contracts.SymbolRegistrar.AuctionConfig input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty AddSaleController(global::Forest.Contracts.SymbolRegistrar.AddSaleControllerInput input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty RemoveSaleController(global::Forest.Contracts.SymbolRegistrar.RemoveSaleControllerInput input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty SetSeedExpirationConfig(global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfig input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Empty SetSeedImageUrlPrefix(global::Google.Protobuf.WellKnownTypes.StringValue input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Forest.Contracts.SymbolRegistrar.GetSeedsPriceOutput GetSeedsPrice(global::Google.Protobuf.WellKnownTypes.Empty input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Forest.Contracts.SymbolRegistrar.SpecialSeed GetSpecialSeed(global::Google.Protobuf.WellKnownTypes.StringValue input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Forest.Contracts.SymbolRegistrar.BizConfig GetBizConfig(global::Google.Protobuf.WellKnownTypes.Empty input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Forest.Contracts.SymbolRegistrar.SeedExpirationConfig GetSeedExpirationConfig(global::Google.Protobuf.WellKnownTypes.Empty input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Forest.Contracts.SymbolRegistrar.AuctionConfig GetAuctionConfig(global::Google.Protobuf.WellKnownTypes.Empty input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Forest.Contracts.SymbolRegistrar.ControllerList GetSaleController(global::Google.Protobuf.WellKnownTypes.Empty input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::AElf.Types.Address GetProxyAccountContract(global::Google.Protobuf.WellKnownTypes.Empty input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.Int64Value GetLastSeedId(global::Google.Protobuf.WellKnownTypes.Empty input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    //   public virtual global::Google.Protobuf.WellKnownTypes.StringValue GetSeedImageUrlPrefix(global::Google.Protobuf.WellKnownTypes.Empty input)
-    //   {
-    //     throw new global::System.NotImplementedException();
-    //   }
-    //
-    // }
-
-    // public static aelf::ServerServiceDefinition BindService(SymbolRegistrarContractBase serviceImpl)
-    // {
-    //   return aelf::ServerServiceDefinition.CreateBuilder()
-    //       .AddDescriptors(Descriptors)
-    //       .AddMethod(__Method_Initialize, serviceImpl.Initialize)
-    //       .AddMethod(__Method_CreateSeed, serviceImpl.CreateSeed)
-    //       .AddMethod(__Method_Buy, serviceImpl.Buy)
-    //       .AddMethod(__Method_AddSpecialSeeds, serviceImpl.AddSpecialSeeds)
-    //       .AddMethod(__Method_AddUniqueSeeds, serviceImpl.AddUniqueSeeds)
-    //       .AddMethod(__Method_RemoveSpecialSeeds, serviceImpl.RemoveSpecialSeeds)
-    //       .AddMethod(__Method_SetAdmin, serviceImpl.SetAdmin)
-    //       .AddMethod(__Method_SetLastSeedId, serviceImpl.SetLastSeedId)
-    //       .AddMethod(__Method_SetProxyAccountContract, serviceImpl.SetProxyAccountContract)
-    //       .AddMethod(__Method_SetReceivingAccount, serviceImpl.SetReceivingAccount)
-    //       .AddMethod(__Method_SetSeedsPrice, serviceImpl.SetSeedsPrice)
-    //       .AddMethod(__Method_SetUniqueSeedsExternalPrice, serviceImpl.SetUniqueSeedsExternalPrice)
-    //       .AddMethod(__Method_SetAuctionConfig, serviceImpl.SetAuctionConfig)
-    //       .AddMethod(__Method_AddSaleController, serviceImpl.AddSaleController)
-    //       .AddMethod(__Method_RemoveSaleController, serviceImpl.RemoveSaleController)
-    //       .AddMethod(__Method_SetSeedExpirationConfig, serviceImpl.SetSeedExpirationConfig)
-    //       .AddMethod(__Method_SetSeedImageUrlPrefix, serviceImpl.SetSeedImageUrlPrefix)
-    //       .AddMethod(__Method_GetSeedsPrice, serviceImpl.GetSeedsPrice)
-    //       .AddMethod(__Method_GetSpecialSeed, serviceImpl.GetSpecialSeed)
-    //       .AddMethod(__Method_GetBizConfig, serviceImpl.GetBizConfig)
-    //       .AddMethod(__Method_GetSeedExpirationConfig, serviceImpl.GetSeedExpirationConfig)
-    //       .AddMethod(__Method_GetAuctionConfig, serviceImpl.GetAuctionConfig)
-    //       .AddMethod(__Method_GetSaleController, serviceImpl.GetSaleController)
-    //       .AddMethod(__Method_GetProxyAccountContract, serviceImpl.GetProxyAccountContract)
-    //       .AddMethod(__Method_GetLastSeedId, serviceImpl.GetLastSeedId)
-    //       .AddMethod(__Method_GetSeedImageUrlPrefix, serviceImpl.GetSeedImageUrlPrefix).Build();
-    // }
-
+    /// <summary>Base class for the contract of SymbolRegistrarContract</summary>
   }
 }
 #endregion
