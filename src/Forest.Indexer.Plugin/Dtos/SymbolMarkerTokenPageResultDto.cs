@@ -19,4 +19,6 @@ public class SymbolMarkerTokenDto
     public string Issuer { get; set; }
     public long Issued { get; set; }
     public int IssueChainId { get; set; }
+    public string Owner { get; set; }
+
 }

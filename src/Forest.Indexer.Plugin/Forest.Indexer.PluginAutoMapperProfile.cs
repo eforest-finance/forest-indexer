@@ -110,6 +110,13 @@ public class ForestIndexerAutoMapperProfile : Profile
             .ForMember(destination => destination.BlockHash,
                 opt => opt.MapFrom(source => source.Block.BlockHash));
 
+        CreateMap<LogEventContext, OwnedSymbolRelationIndex>()
+            .ForMember(destination => destination.BlockHeight,
+                opt => opt.MapFrom(source => source.Block.BlockHeight))
+            .ForMember(destination => destination.CreateTime,
+                opt => opt.MapFrom(source => source.Block.BlockTime))
+            .ForMember(destination => destination.BlockHash,
+                opt => opt.MapFrom(source => source.Block.BlockHash));
         CreateMap<LogEventContext, SeedSymbolIndex>()
             .ForMember(destination => destination.BlockHeight,
                 opt => opt.MapFrom(source => source.Block.BlockHeight))

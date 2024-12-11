@@ -4,6 +4,7 @@ using Forest.Contracts.Auction;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp;
 using Volo.Abp.ObjectMapping;
@@ -13,11 +14,13 @@ namespace Forest.Indexer.Plugin.Processors;
 public class ClaimedProcessor : LogEventProcessorBase<Claimed>
 {
     private readonly IObjectMapper _objectMapper;
+    private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
 
     public ClaimedProcessor(
-        IObjectMapper objectMapper)
+        IObjectMapper objectMapper,AElfClientServiceProvider aElfClientServiceProvider)
     {
         _objectMapper = objectMapper;
+        _aElfClientServiceProvider = aElfClientServiceProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -52,17 +55,68 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
 
         var seedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, symbolAuctionInfoIndex.Symbol);
         var seedSymbolIndex = await GetEntityAsync<SeedSymbolIndex>(seedSymbolIndexId);
-        
-        if (seedSymbolIndex == null) return;
+
+        if (seedSymbolIndex == null)
+        {
+            Logger.LogInformation("Claimed HandleEventAsync seedSymbolIndex is null seedSymbolIndexId :{seedSymbolIndexId}", 
+                seedSymbolIndexId);
+            return;
+        }
+
         _objectMapper.Map(context, seedSymbolIndex);
         seedSymbolIndex.HasAuctionFlag = false;
         seedSymbolIndex.MaxAuctionPrice = 0;
+        seedSymbolIndex.IssuerTo = eventValue.Bidder.ToBase58();
+        if (!seedSymbolIndex.IssuerTo.IsNullOrEmpty())
+        {
+            Logger.LogDebug("ClaimedProcessor Update SeedExpTime {symbol}",seedSymbolIndex.Symbol);
+            var mainChainSeedToken = await _aElfClientServiceProvider.GetTokenInfoAsync(ForestIndexerConstants.MainChain,
+                ContractInfoHelper.GetTokenContractAddress(ForestIndexerConstants.MainChain), seedSymbolIndex.Symbol);
+            if (mainChainSeedToken != null)
+            {
+                var seedExpTime = EnumDescriptionHelper.GetExtraInfoValue(mainChainSeedToken.ExternalInfo,
+                    TokenCreatedExternalInfoEnum.SeedExpTime);
+                if (long.TryParse(seedExpTime, out var seedExpTimeSecond))
+                {
+                    Logger.LogDebug("ClaimedProcessor Update SeedExpTime symbol {A} old {B} ", seedSymbolIndex.Symbol,
+                        seedSymbolIndex.SeedExpTimeSecond);
+                    seedSymbolIndex.SeedExpTimeSecond = seedExpTimeSecond;
+                    seedSymbolIndex.SeedExpTime = DateTimeHelper.FromUnixTimeSeconds(seedExpTimeSecond);
+
+                    Logger.LogDebug("ClaimedProcessor Update SeedExpTime symbol {A} new {B} ", seedSymbolIndex.Symbol,
+                        seedSymbolIndex.SeedExpTimeSecond);
+                }
+            }
+            else
+            {
+                Logger.LogDebug("ClaimedProcessor Update SeedExpTime default, symbol {A} old {B} ", seedSymbolIndex.Symbol,
+                    seedSymbolIndex.SeedExpTimeSecond);
+                seedSymbolIndex.SeedExpTimeSecond = eventValue.FinishTime.Seconds + ForestIndexerConstants.SeedExpireSecond;
+                seedSymbolIndex.SeedExpTime = DateTimeHelper.FromUnixTimeSeconds(seedSymbolIndex.SeedExpTimeSecond);
+                Logger.LogDebug("ClaimedProcessor Update SeedExpTime default, symbol {A} new {B} ", seedSymbolIndex.Symbol,
+                    seedSymbolIndex.SeedExpTimeSecond);
+            }
+            
+        }
+
         await SaveEntityAsync(seedSymbolIndex);
 
-        var tsmSeedSymbolIndexId = IdGenerateHelper.GetSeedSymbolId(context.ChainId, seedSymbolIndex.SeedOwnedSymbol);
+        var tsmSeedSymbolIndexId = IdGenerateHelper.GetNewTsmSeedSymbolId(context.ChainId,
+            symbolAuctionInfoIndex.Symbol, seedSymbolIndex.SeedOwnedSymbol);
 
         var tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexId);
-        if (tsmSeedSymbolIndex == null) return;
+        if (tsmSeedSymbolIndex == null)
+        {
+            Logger.LogDebug("new tsmSeedSymbolIndex is null id={A}",tsmSeedSymbolIndexId);
+            tsmSeedSymbolIndexId = IdGenerateHelper.GetOldTsmSeedSymbolId(context.ChainId, seedSymbolIndex.SeedOwnedSymbol);
+            
+            tsmSeedSymbolIndex = await GetEntityAsync<TsmSeedSymbolIndex>(tsmSeedSymbolIndexId);
+            if (tsmSeedSymbolIndex == null)
+            {
+                Logger.LogDebug("old tsmSeedSymbolIndex is null id={A}",tsmSeedSymbolIndexId);
+                return;
+            }
+        }
         
         var fromOwner = tsmSeedSymbolIndex.Owner;
         var toOwner = eventValue.Bidder.ToBase58();
@@ -72,6 +126,11 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
         tsmSeedSymbolIndex.Owner = symbolAuctionInfoIndex.FinishBidder;
         tsmSeedSymbolIndex.TokenPrice = symbolAuctionInfoIndex.FinishPrice;
         tsmSeedSymbolIndex.AuctionStatus = (int)SeedAuctionStatus.Finished;
+        if (!symbolAuctionInfoIndex.FinishBidder.IsNullOrEmpty())
+        {
+            tsmSeedSymbolIndex.ExpireTime = seedSymbolIndex.SeedExpTimeSecond;
+        }
+
         await SaveEntityAsync(tsmSeedSymbolIndex);
 
         var purchaseTokenId = IdGenerateHelper.GetId(context.ChainId, symbolAuctionInfoIndex.FinishPrice.Symbol);

@@ -346,7 +346,7 @@ public partial class Query
         tsmSeedSymbolIndexQueryable = tsmSeedSymbolIndexQueryable.Where(i => i.Symbol == input.Symbol);
         tsmSeedSymbolIndexQueryable = tsmSeedSymbolIndexQueryable.Where(i => i.IsBurned == false);
 
-        var seedSymbolIndex = tsmSeedSymbolIndexQueryable.Skip(0).Take(1).ToList().FirstOrDefault();
+        var seedSymbolIndex = tsmSeedSymbolIndexQueryable.OrderByDescending(i=>i.ExpireTime).Skip(0).Take(1).ToList().FirstOrDefault();
         if (seedSymbolIndex == null)
         {
             //while seed is used for create token, it will be burned, so we need to query the seed info from the main chain event it is burned.
@@ -355,7 +355,7 @@ public partial class Query
             tsmSeedSymbolIndexQueryable2 = tsmSeedSymbolIndexQueryable2.Where(i => i.Symbol == input.Symbol);
             tsmSeedSymbolIndexQueryable2 = tsmSeedSymbolIndexQueryable2.Where(i => i.ChainId == ForestIndexerConstants.MainChain);
 
-            seedSymbolIndex = tsmSeedSymbolIndexQueryable2.Skip(0).Take(1).ToList().FirstOrDefault();
+            seedSymbolIndex = tsmSeedSymbolIndexQueryable2.OrderByDescending(i=>i.ExpireTime).Skip(0).Take(1).ToList().FirstOrDefault();
             if (seedSymbolIndex == null)
             {
                 return new SeedInfoDto();
@@ -553,21 +553,29 @@ public partial class Query
     {
 
         var pair = GetSymbolKeyValuePair(input);
-        var queryable = await tsmSeedSymbolRepository.GetQueryableAsync();
-        queryable = queryable.Where(i => i.Symbol == pair.Key);
-        queryable = queryable.Where(i => i.IsBurned == false);
-
+        var queryablePre = await tsmSeedSymbolRepository.GetQueryableAsync();
+        queryablePre = queryablePre.Where(i => i.Symbol == pair.Key);
+        queryablePre = queryablePre.Where(i => i.Status == SeedStatus.REGISTERED);
+        var seedSymbolIndex =
+            queryablePre.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
         var symbol = pair.Key;
-        var seedSymbolIndex = queryable.Skip(0).Take(1).ToList().FirstOrDefault();
+        if (seedSymbolIndex == null)
+        {
+            var queryable = await tsmSeedSymbolRepository.GetQueryableAsync();
+            queryable = queryable.Where(i => i.Symbol == pair.Key);
+            queryable = queryable.Where(i => i.IsBurned == false);
+            seedSymbolIndex =
+                queryable.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
+        }
+
         if (seedSymbolIndex == null)
         {
             //while seed is used for create token, it will be burned, so we need to query the seed info from the main chain event it is burned.
             var queryable2 = await tsmSeedSymbolRepository.GetQueryableAsync();
             queryable2 = queryable2.Where(i => i.Symbol == pair.Key);
             queryable2 = queryable2.Where(i => i.ChainId == ForestIndexerConstants.MainChain);
-
-
-            seedSymbolIndex = queryable2.Skip(0).Take(1).ToList().FirstOrDefault();
+            
+            seedSymbolIndex = queryable2.OrderByDescending(i => i.RegisterTime).Skip(0).Take(1).ToList().FirstOrDefault();
             if (seedSymbolIndex == null)
             {
                 seedSymbolIndex = new TsmSeedSymbolIndex()
@@ -581,6 +589,8 @@ public partial class Query
             }
         }
 
+        var nowSeconds = DateTimeHelper.ToUtcSeconds(DateTime.UtcNow);
+        
         if (seedSymbolIndex.Status == SeedStatus.AVALIABLE)
         {
             var support = await IsSupportAsync(tsmSeedSymbolRepository, pair);
@@ -602,6 +612,33 @@ public partial class Query
                     seedInfoDtoNotSupport.NotSupportSeedStatus = support.NotSupportSeedStatus;
                     return seedInfoDtoNotSupport;
                 }
+        }else if (seedSymbolIndex.Status == SeedStatus.UNREGISTERED && seedSymbolIndex.ExpireTime < nowSeconds)
+        {
+            if (seedSymbolIndex.IntSeedType == (int)SeedType.Regular)
+            {
+                seedSymbolIndex = new TsmSeedSymbolIndex()
+                {
+                    Symbol = symbol,
+                    SeedName = IdGenerateHelper.GetSeedName(symbol),
+                    Status = SeedStatus.AVALIABLE
+                };
+                seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
+                seedSymbolIndex.OfType(SeedType.Regular);
+            }else if (seedSymbolIndex.IntSeedType == (int)SeedType.Unique)
+            {
+                if (seedSymbolIndex.AuctionStatus != (int)SeedAuctionStatus.Bidding)
+                {
+                    seedSymbolIndex = new TsmSeedSymbolIndex()
+                    {
+                        Symbol = symbol,
+                        SeedName = IdGenerateHelper.GetSeedName(symbol),
+                        Status = SeedStatus.AVALIABLE
+                    };
+                    seedSymbolIndex.OfType(TokenHelper.GetTokenType(symbol));
+                    seedSymbolIndex.OfType(SeedType.Unique);
+                }
+            }
+
         }
 
         var seedInfoDto = objectMapper.Map<TsmSeedSymbolIndex, SeedInfoDto>(seedSymbolIndex);
@@ -653,18 +690,35 @@ public partial class Query
         IReadOnlyRepository<TsmSeedSymbolIndex> tsmSeedSymbolRepository,
         KeyValuePair<string, string> pair)
     {
-        var queryable3 = await tsmSeedSymbolRepository.GetQueryableAsync();
-        queryable3 = queryable3.Where(i => i.Symbol == pair.Key);
-        queryable3 = queryable3.Where(i => i.IsBurned == false);
+        var queryable1 = await tsmSeedSymbolRepository.GetQueryableAsync();
+        queryable1 = queryable1.Where(i => i.Symbol == pair.Key);
+        queryable1 = queryable1.Where(i => i.Status == SeedStatus.REGISTERED);
+        var otherSeedSymbolIndex = queryable1.Skip(0).Take(1).ToList().FirstOrDefault();
+
+        if (otherSeedSymbolIndex == null)
+        {
+            var queryable2 = await tsmSeedSymbolRepository.GetQueryableAsync();
+            queryable2 = queryable2.Where(i => i.Symbol == pair.Value);
+            queryable2 = queryable2.Where(i => i.Status == SeedStatus.REGISTERED);
+            otherSeedSymbolIndex = queryable2.Skip(0).Take(1).ToList().FirstOrDefault();
+        }
+
+        if (otherSeedSymbolIndex == null)
+        {
+            var queryable3 = await tsmSeedSymbolRepository.GetQueryableAsync();
+            queryable3 = queryable3.Where(i => i.Symbol == pair.Key);
+            queryable3 = queryable3.Where(i => i.IsBurned == false);
         
-        var otherSeedSymbolIndex = queryable3.Skip(0).Take(1).ToList().FirstOrDefault();
+            otherSeedSymbolIndex = queryable3.OrderByDescending(i=>i.ExpireTime).Skip(0).Take(1).ToList().FirstOrDefault();
+        }
+
         if (otherSeedSymbolIndex == null)
         {
             var queryable4 = await tsmSeedSymbolRepository.GetQueryableAsync();
             queryable4 = queryable4.Where(i => i.Symbol == pair.Key);
             queryable4 = queryable4.Where(i => i.ChainId == ForestIndexerConstants.MainChain);
 
-            otherSeedSymbolIndex = queryable4.Skip(0).Take(1).ToList().FirstOrDefault();
+            otherSeedSymbolIndex = queryable4.OrderByDescending(i=>i.ExpireTime).Skip(0).Take(1).ToList().FirstOrDefault();
         }
 
         if (otherSeedSymbolIndex == null)

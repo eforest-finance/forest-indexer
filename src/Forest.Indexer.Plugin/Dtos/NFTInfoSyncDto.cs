@@ -42,7 +42,7 @@ public class NFTInfoSyncDto
     public string? RandomIssueManager { get; set; }
 
     public string CreatorAddress { get; set; }
-    public string ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
 
     public string CollectionSymbol { get; set; }
     public string CollectionName { get; set; }

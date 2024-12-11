@@ -94,7 +94,7 @@ public class AuctionTimeUpdatedLogEventProcessor : LogEventProcessorBase<Auction
 
         var queryable = await _tsmSeedSymbolIndexRepository.GetQueryableAsync();
         queryable = queryable.Where(x=>x.ChainId == chainId && x.SeedSymbol == seedSymbol);
-        List<TsmSeedSymbolIndex> list = queryable.Skip(0).Take(1).ToList();
+        var list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(1).ToList();
         return list.IsNullOrEmpty() ? null : list.FirstOrDefault();
     }
 }
