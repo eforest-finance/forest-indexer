@@ -4,6 +4,7 @@ using Forest.Contracts.Auction;
 using Forest.Indexer.Plugin.Entities;
 using Forest.Indexer.Plugin.enums;
 using Forest.Indexer.Plugin.Util;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Volo.Abp;
 using Volo.Abp.ObjectMapping;
@@ -13,11 +14,13 @@ namespace Forest.Indexer.Plugin.Processors;
 public class ClaimedProcessor : LogEventProcessorBase<Claimed>
 {
     private readonly IObjectMapper _objectMapper;
+    private readonly IAElfClientServiceProvider _aElfClientServiceProvider;
 
     public ClaimedProcessor(
-        IObjectMapper objectMapper)
+        IObjectMapper objectMapper,AElfClientServiceProvider aElfClientServiceProvider)
     {
         _objectMapper = objectMapper;
+        _aElfClientServiceProvider = aElfClientServiceProvider;
     }
 
     public override string GetContractAddress(string chainId)
@@ -66,8 +69,34 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
         seedSymbolIndex.IssuerTo = eventValue.Bidder.ToBase58();
         if (!seedSymbolIndex.IssuerTo.IsNullOrEmpty())
         {
-            seedSymbolIndex.SeedExpTimeSecond = DateTime.UtcNow.ToUtcSeconds() + ForestIndexerConstants.SeedExpireSecond;
-            //seedSymbolIndex.SeedExpTime = DateTime.UtcNow.AddSeconds(ForestIndexerConstants.SeedExpireSecond);
+            Logger.LogDebug("ClaimedProcessor Update SeedExpTime {symbol}",seedSymbolIndex.Symbol);
+            var mainChainSeedToken = await _aElfClientServiceProvider.GetTokenInfoAsync(ForestIndexerConstants.MainChain,
+                ContractInfoHelper.GetTokenContractAddress(ForestIndexerConstants.MainChain), seedSymbolIndex.Symbol);
+            if (mainChainSeedToken != null)
+            {
+                var seedExpTime = EnumDescriptionHelper.GetExtraInfoValue(mainChainSeedToken.ExternalInfo,
+                    TokenCreatedExternalInfoEnum.SeedExpTime);
+                if (long.TryParse(seedExpTime, out var seedExpTimeSecond))
+                {
+                    Logger.LogDebug("ClaimedProcessor Update SeedExpTime symbol {A} old {B} ", seedSymbolIndex.Symbol,
+                        seedSymbolIndex.SeedExpTimeSecond);
+                    seedSymbolIndex.SeedExpTimeSecond = seedExpTimeSecond;
+                    seedSymbolIndex.SeedExpTime = DateTimeHelper.FromUnixTimeSeconds(seedExpTimeSecond);
+
+                    Logger.LogDebug("ClaimedProcessor Update SeedExpTime symbol {A} new {B} ", seedSymbolIndex.Symbol,
+                        seedSymbolIndex.SeedExpTimeSecond);
+                }
+            }
+            else
+            {
+                Logger.LogDebug("ClaimedProcessor Update SeedExpTime default, symbol {A} old {B} ", seedSymbolIndex.Symbol,
+                    seedSymbolIndex.SeedExpTimeSecond);
+                seedSymbolIndex.SeedExpTimeSecond = eventValue.FinishTime.Seconds + ForestIndexerConstants.SeedExpireSecond;
+                seedSymbolIndex.SeedExpTime = DateTimeHelper.FromUnixTimeSeconds(seedSymbolIndex.SeedExpTimeSecond);
+                Logger.LogDebug("ClaimedProcessor Update SeedExpTime default, symbol {A} new {B} ", seedSymbolIndex.Symbol,
+                    seedSymbolIndex.SeedExpTimeSecond);
+            }
+            
         }
 
         await SaveEntityAsync(seedSymbolIndex);
@@ -99,7 +128,7 @@ public class ClaimedProcessor : LogEventProcessorBase<Claimed>
         tsmSeedSymbolIndex.AuctionStatus = (int)SeedAuctionStatus.Finished;
         if (!symbolAuctionInfoIndex.FinishBidder.IsNullOrEmpty())
         {
-            tsmSeedSymbolIndex.ExpireTime = DateTime.UtcNow.ToUtcSeconds() + ForestIndexerConstants.SeedExpireSecond;
+            tsmSeedSymbolIndex.ExpireTime = seedSymbolIndex.SeedExpTimeSecond;
         }
 
         await SaveEntityAsync(tsmSeedSymbolIndex);

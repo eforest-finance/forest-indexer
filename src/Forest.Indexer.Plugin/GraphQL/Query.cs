@@ -553,8 +553,8 @@ public partial class Query
         SearchSeedInput input)
     {
         var queryable = await tsmSeedSymbolRepository.GetQueryableAsync(); 
-        queryable = queryable.Where(x=>x.ChainId == "AELF" && x.Symbol == "SHSHSHAAAA");
-        List<TsmSeedSymbolIndex> list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(10).ToList();
+        queryable = queryable.Where(x=> x.Symbol == input.Symbol);
+        List<TsmSeedSymbolIndex> list = queryable.OrderByDescending(i => i.ExpireTime).Skip(0).Take(100).ToList();
         var seedInfoDto = objectMapper.Map<List<TsmSeedSymbolIndex>, List<SeedInfoDto>>(list);
         return seedInfoDto;
 
