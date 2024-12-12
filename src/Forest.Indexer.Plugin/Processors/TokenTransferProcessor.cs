@@ -79,6 +79,7 @@ public class TokenTransferProcessor : LogEventProcessorBase<Transferred>
         //     (seedSymbol));
 
         _objectMapper.Map(context, seedSymbol);
+        seedSymbol.IssuerTo = eventValue.To.ToBase58();
         await SaveEntityAsync(seedSymbol);
         await SaveNFTListingChangeIndexAsync(context, eventValue.Symbol);
         await SaveNftActivityIndexAsync(eventValue, context, seedSymbol.Id, seedSymbol.Decimals);
