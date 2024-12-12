@@ -78,9 +78,13 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
                         context.ChainId,
                         ownedSymbol, newId, oldId);
                 }
-                Logger.LogDebug(
-                     "TokenCreatedLogEventProcessor Seed Token Create at mainChain then search: {tsmSeedSymbolIndexId} build {tsmSeedSymbolIndex}",
-                     tsmSeedSymbolIndex.Id, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+                else
+                {
+                    Logger.LogDebug(
+                        "TokenCreatedLogEventProcessor Seed Token Create at mainChain then search: {tsmSeedSymbolIndexId} body： {tsmSeedSymbolIndex}",
+                        tsmSeedSymbolIndex.Id, JsonConvert.SerializeObject(tsmSeedSymbolIndex));
+                }
+                
             }
             else
             {
