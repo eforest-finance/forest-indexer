@@ -141,7 +141,7 @@ public class TokenCreatedLogEventProcessor : LogEventProcessorBase<TokenCreated>
             return;
         }
 
-        if (eventValue.Owner.Value.Length == 0 || eventValue.Issuer.Value.Length == 0)
+        if (eventValue.Owner == null || eventValue.Issuer == null || eventValue.Owner.Value.Length == 0 || eventValue.Issuer.Value.Length == 0)
         {
             Logger.LogError("TokenInfoIndexCreateAsync Owner or Issuer is null ,eventValue={A}",JsonConvert.SerializeObject(eventValue));
             return;
