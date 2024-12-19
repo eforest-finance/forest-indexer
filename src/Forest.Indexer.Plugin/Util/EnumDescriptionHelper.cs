@@ -12,6 +12,8 @@ public class EnumDescriptionHelper
         {
             case TokenCreatedExternalInfoEnum.NFTLogoImageUrl:
                 return "__nft_logo_image_url";
+            case TokenCreatedExternalInfoEnum.FTLogoImageUrl:
+                return "__ft_image_uri";
             case TokenCreatedExternalInfoEnum.NFTFeaturedImageLink:
                 return "__nft_featured_image_link";
             case TokenCreatedExternalInfoEnum.NFTExternalLink:

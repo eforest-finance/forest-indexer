@@ -13,5 +13,6 @@ public enum TokenCreatedExternalInfoEnum
     SeedExpTime,
     SpecialInscriptionImage,
     NFTImageUri,
-    InscriptionImage
+    InscriptionImage,
+    FTLogoImageUrl
 }

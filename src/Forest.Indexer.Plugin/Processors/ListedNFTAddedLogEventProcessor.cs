@@ -473,8 +473,8 @@ public class ListedNFTAddedLogEventProcessor : LogEventProcessorBase<ListedNFTAd
                 WriteCount++;
                 if (WriteCount >= ForestIndexerConstants.MaxWriteDBRecord)
                 {
-                    Logger.LogInformation("ListedNFTAddedLogEventProcessor.UpdateUserBanlanceBynftInfoIdAsync recordCount:{A} ,limit:{B}, nftInfoIndex:{C},BlockHeight:{D}",
-                        result.Count,ForestIndexerConstants.MaxWriteDBRecord, nftInfoIndex, context.Block.BlockHeight);
+                    // Logger.LogInformation("ListedNFTAddedLogEventProcessor.UpdateUserBanlanceBynftInfoIdAsync recordCount:{A} ,limit:{B}, nftInfoIndex:{C},BlockHeight:{D}",
+                    //     result.Count,ForestIndexerConstants.MaxWriteDBRecord, nftInfoIndex, context.Block.BlockHeight);
                     break;
                 }
                 userBalanceIndex.ListingPrice = nftInfoIndex.ListingPrice;

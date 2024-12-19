@@ -114,7 +114,16 @@ public class ManagerTokenCreatedLogEventProcessor : LogEventProcessorBase<Manage
             symbolMarketTokenIndex.SymbolMarketTokenLogoImage =
                 eventValue.ExternalInfo.Value[
                     EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.NFTLogoImageUrl)];
+        } 
+        if (eventValue.ExternalInfo.Value.ContainsKey(
+                EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.FTLogoImageUrl)))
+        {
+            symbolMarketTokenIndex.SymbolMarketTokenLogoImage =
+                eventValue.ExternalInfo.Value[
+                    EnumDescriptionHelper.GetEnumDescription(TokenCreatedExternalInfoEnum.FTLogoImageUrl)];
         }
+        
+        
 
         // Logger.LogDebug("9-ManagerTokenCreatedLogEventProcessor");
         _objectMapper.Map(context, symbolMarketTokenIndex);
